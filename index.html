@@ -34,19 +34,14 @@
 }
 body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;min-height:100vh}
 .wrap{max-width:920px;margin:0 auto;padding:1.25rem 1rem 4rem}
-header{margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+header{margin-bottom:1.25rem}
 header h1{font-size:22px;font-weight:700}
 header p{font-size:12px;color:var(--text2);margin-top:2px}
 header a{color:var(--blue);text-decoration:none}
-.header-right{display:flex;gap:8px;align-items:center}
-
-/* TABS */
-.tabs{display:flex;border-bottom:1px solid var(--border2);margin-bottom:1rem;overflow-x:auto;gap:0}
+.tabs{display:flex;border-bottom:1px solid var(--border2);margin-bottom:1rem;overflow-x:auto}
 .tab{padding:8px 14px;font-size:13px;cursor:pointer;border:none;background:none;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit;white-space:nowrap}
 .tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:700}
 .panel{display:none}.panel.active{display:block}
-
-/* FORM */
 .card-section{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem;margin-bottom:1rem}
 .row{display:flex;gap:8px;flex-wrap:wrap}.row+.row{margin-top:8px}
 select,input[type=text]{height:42px;padding:0 12px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:14px;font-family:inherit;flex:1;min-width:120px;outline:none}
@@ -54,34 +49,25 @@ select:focus,input:focus{border-color:var(--blue)}
 .btn{height:42px;padding:0 16px;border-radius:var(--radius);border:none;background:var(--blue);color:#fff;font-size:14px;font-family:inherit;cursor:pointer;white-space:nowrap;font-weight:600}
 .btn:hover{opacity:0.85}
 .btn.sec{background:var(--surface2);color:var(--text);border:0.5px solid var(--border2);font-weight:500}
-.btn.sec:hover{opacity:0.8}
-.btn.danger{background:var(--red);color:#fff}
+.btn-geo{width:100%;height:56px;border-radius:var(--radius-pill);border:none;background:var(--green);color:#fff;font-size:18px;font-family:inherit;cursor:pointer;font-weight:700;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-geo:hover{opacity:0.88}
+.btn-geo:disabled{opacity:0.5;cursor:not-allowed}
 input[type=range]{flex:1;min-width:100px;cursor:pointer}
 .range-label{font-size:13px;color:var(--text2);white-space:nowrap;display:flex;align-items:center;gap:4px}
 .range-val{font-weight:700;color:var(--blue);min-width:40px}
-
-/* CHECKBOXES horario */
-.check-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.check-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:8px}
 .check-row label{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--text2);cursor:pointer}
 .check-row input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--blue)}
-
-/* MAP */
 #map{width:100%;height:400px;border-radius:var(--radius-lg);border:0.5px solid var(--border2);margin-bottom:1rem}
 .map-hint{font-size:12px;color:var(--text);margin-bottom:8px;padding:7px 12px;background:var(--amber-light);border-radius:var(--radius);border-left:3px solid var(--amber)}
-
-/* FUELS */
 .fuels{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .ftag{height:30px;padding:0 13px;border:0.5px solid var(--border2);border-radius:var(--radius-pill);background:transparent;color:var(--text2);font-size:12px;cursor:pointer;font-family:inherit}
 .ftag:hover{background:var(--surface2)}
 .ftag.on{background:var(--blue-light);color:var(--blue-dark);border-color:var(--blue-mid);font-weight:700}
-
-/* INFO & SORT */
 .info-bar{font-size:13px;color:var(--text2);padding:9px 14px;background:var(--surface2);border-radius:var(--radius);margin-bottom:10px}
 .sort-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
 .sort-row label{font-size:13px;color:var(--text2)}
 .sort-row select{height:34px;flex:none;width:auto;min-width:0;font-size:13px}
-
-/* CARDS */
 .station-list{display:flex;flex-direction:column;gap:10px}
 .scard{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:13px 15px;transition:box-shadow 0.15s;position:relative}
 .scard:hover{box-shadow:0 3px 14px rgba(0,0,0,0.1)}
@@ -95,7 +81,6 @@ input[type=range]{flex:1;min-width:100px;cursor:pointer}
 .prices{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
 .pb{background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius);padding:5px 10px;min-width:70px}
 .pb.hi{background:var(--green-light);border-color:var(--green-border)}
-.pb.alert-set{border-color:var(--amber);background:var(--amber-light)}
 .pb .fl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.3px}
 .pb.hi .fl{color:var(--green-text)}
 .pb .pv{font-size:15px;font-weight:700;color:var(--text)}
@@ -113,54 +98,48 @@ input[type=range]{flex:1;min-width:100px;cursor:pointer}
 .act-btn{height:28px;padding:0 10px;border-radius:var(--radius-pill);border:0.5px solid var(--border2);background:var(--surface2);color:var(--text2);font-size:11px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px}
 .act-btn:hover{background:var(--border)}
 .act-btn.fav-on{background:var(--amber-light);color:var(--amber);border-color:var(--fav)}
-
-/* HISTORY */
 .hist-section{margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border)}
 .hist-title{font-size:11px;color:var(--text2);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
 .hist-list{display:flex;flex-direction:column;gap:3px}
 .hist-item{display:flex;justify-content:space-between;font-size:12px;color:var(--text2)}
 .hist-item span:last-child{font-weight:600;color:var(--text)}
 .hist-item.today span:last-child{color:var(--blue)}
-
-/* ALERT MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem}
 .modal{background:var(--surface);border-radius:var(--radius-lg);padding:1.5rem;max-width:380px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.2)}
 .modal h3{font-size:16px;font-weight:700;margin-bottom:4px}
 .modal p{font-size:13px;color:var(--text2);margin-bottom:1rem}
-.modal input[type=number]{width:100%;margin-bottom:1rem}
+.modal input[type=number]{width:100%;margin-bottom:1rem;height:42px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:16px;padding:0 12px;outline:none}
 .modal-btns{display:flex;gap:8px;justify-content:flex-end}
-
-/* ALERT BANNER */
 .alert-banner{background:var(--amber-light);border:1px solid var(--fav);border-radius:var(--radius);padding:10px 14px;margin-bottom:12px;font-size:13px;color:var(--amber);display:none}
 .alert-banner strong{color:var(--text)}
-
-/* MISC */
 .empty{text-align:center;padding:3rem;color:var(--text2);font-size:14px;line-height:1.7}
 .spin-wrap{text-align:center;padding:3rem;color:var(--text2);font-size:14px}
 .spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
 footer{text-align:center;font-size:12px;color:var(--text2);margin-top:3rem}
 footer a{color:var(--blue);text-decoration:none}
-
-/* POPUP */
 .leaflet-popup-content{font-family:system-ui,-apple-system,sans-serif;font-size:13px;line-height:1.5;min-width:170px}
 .popup-name{font-weight:700;font-size:14px;margin-bottom:4px}
 .popup-price{font-size:20px;font-weight:700;color:#0F6E56}
 .popup-addr{font-size:11px;color:#777;margin-top:3px}
 .popup-btn{display:inline-block;margin-top:8px;background:#185FA5;color:#fff;border-radius:6px;padding:4px 12px;font-size:12px;text-decoration:none;font-weight:700}
 .popup-best{font-size:10px;background:#EAF3DE;color:#27500A;padding:1px 7px;border-radius:99px;font-weight:700;margin-left:4px}
-
-/* FAVORITES TAB */
 .fav-empty{text-align:center;padding:3rem;color:var(--text2);font-size:14px}
+.geo-hero{text-align:center;padding:0.5rem 0 1.25rem}
+.geo-icon{font-size:52px;margin-bottom:10px}
+.geo-title{font-size:17px;font-weight:700;color:var(--text);margin-bottom:4px}
+.geo-sub{font-size:13px;color:var(--text2);margin-bottom:1.25rem;line-height:1.5}
+.geo-radius-row{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap}
+.geo-radius-row span{font-size:14px;color:var(--text2)}
+.geo-radius-row select{height:42px;width:110px;flex:none;font-size:15px;font-weight:600}
+.geo-hint{font-size:11px;color:var(--text2);margin-top:8px}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div>
-      <h1>⛽ Gasolineras baratas</h1>
-      <p>Datos oficiales · <a href="https://geoportalgasolineras.es" target="_blank">Ministerio de Industria</a> · €/litro · <span id="lastUpdate"></span></p>
-    </div>
+    <h1>⛽ Gasolineras baratas</h1>
+    <p>Datos oficiales · <a href="https://geoportalgasolineras.es" target="_blank">Ministerio de Industria</a> · €/litro · <span id="lastUpdate"></span></p>
   </header>
 
   <div id="loadSection" class="spin-wrap">
@@ -172,14 +151,42 @@ footer a{color:var(--blue);text-decoration:none}
 
   <div id="mainUI" style="display:none">
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('tabText')">🔍 Provincia/CP</button>
+      <button class="tab active" onclick="switchTab('tabGeo')">📍 Mi ubicación</button>
+      <button class="tab" onclick="switchTab('tabText')">🔍 Provincia/CP</button>
       <button class="tab" onclick="switchTab('tabMap')">🗺️ Mapa</button>
       <button class="tab" onclick="switchTab('tabFav')">⭐ Favoritas</button>
       <button class="tab" onclick="switchTab('tabAlerts')">🔔 Alertas</button>
     </div>
 
-    <!-- TAB BUSQUEDA -->
-    <div id="tabText" class="panel active">
+    <!-- TAB UBICACION -->
+    <div id="tabGeo" class="panel active">
+      <div class="card-section">
+        <div class="geo-hero">
+          <div class="geo-icon">📍</div>
+          <div class="geo-title">Buscar cerca de mí</div>
+          <div class="geo-sub">Encuentra las gasolineras más baratas en tu zona ahora mismo</div>
+          <div class="geo-radius-row">
+            <span>Radio de búsqueda:</span>
+            <select id="selRadiusText">
+              <option value="2">2 km</option>
+              <option value="5" selected>5 km</option>
+              <option value="10">10 km</option>
+              <option value="20">20 km</option>
+              <option value="50">50 km</option>
+            </select>
+          </div>
+          <button class="btn-geo" id="btnGeo" onclick="locateMeText()">📍 &nbsp;Usar mi ubicación</button>
+          <div class="geo-hint">El navegador te pedirá permiso para acceder a tu ubicación</div>
+        </div>
+        <div class="check-row" style="justify-content:center">
+          <label><input type="checkbox" id="chk24hGeo" onchange="applyFilters()"> Solo 24h</label>
+          <label><input type="checkbox" id="chkOpenGeo" onchange="applyFilters()"> Solo abiertas ahora</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB TEXTO -->
+    <div id="tabText" class="panel">
       <div class="card-section">
         <div class="row">
           <select id="selProv" onchange="onProvChange()"><option value="">— Provincia —</option></select>
@@ -256,21 +263,20 @@ footer a{color:var(--blue);text-decoration:none}
         <option value="9999">Todos</option>
       </select>
     </div>
-    <div id="results"></div>
+    <div id="results" style="display:none"></div>
   </div>
 
   <footer>
     <a href="https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/" target="_blank">API REST Carburantes · MITECO</a>
-    &nbsp;·&nbsp; Mapa: <a href="https://www.openstreetmap.org" target="_blank">OpenStreetMap</a>
+    &nbsp;·&nbsp; <a href="https://www.openstreetmap.org" target="_blank">OpenStreetMap</a>
   </footer>
 </div>
 
-<!-- MODAL ALERTA -->
 <div id="alertModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal()">
   <div class="modal">
     <h3>🔔 Crear alerta de precio</h3>
     <p id="alertModalDesc">Avísame cuando el precio baje de:</p>
-    <input type="number" id="alertPrice" step="0.001" min="0.5" max="3" placeholder="ej: 1.500" style="height:42px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:16px;padding:0 12px;outline:none"/>
+    <input type="number" id="alertPrice" step="0.001" min="0.5" max="3" placeholder="ej: 1.500"/>
     <div class="modal-btns">
       <button class="btn sec" onclick="closeModal()">Cancelar</button>
       <button class="btn" onclick="saveAlert()">Guardar alerta</button>
@@ -282,8 +288,7 @@ footer a{color:var(--blue);text-decoration:none}
 <script>
 const FKEY={G95:'Precio Gasolina 95 E5',GOA:'Precio Gasoleo A',G98:'Precio Gasolina 98 E5',GOB:'Precio Gasoleo B',GLP:'Precio GLP',GNC:'Precio Gas Natural Comprimido'};
 const FLBL={G95:'G95',GOA:'Gasóleo A',G98:'G98',GOB:'Gasóleo B',GLP:'GLP',GNC:'GNC'};
-
-let activeFuel='G95',ALL=[],filtered=[],searchCenter=null,currentMode='text';
+let activeFuel='G95',ALL=[],filtered=[],searchCenter=null,currentMode='geo';
 let FAVS=JSON.parse(localStorage.getItem('gasoFavs')||'[]');
 let ALERTS=JSON.parse(localStorage.getItem('gasoAlerts')||'[]');
 let HISTORY=JSON.parse(localStorage.getItem('gasoHistory')||'{}');
@@ -297,31 +302,21 @@ function saveAlerts(){localStorage.setItem('gasoAlerts',JSON.stringify(ALERTS))}
 function saveHistory(){localStorage.setItem('gasoHistory',JSON.stringify(HISTORY))}
 function today(){return new Date().toISOString().slice(0,10)}
 
-/* ---- HORARIO utils ---- */
 function isOpenNow(horario){
-  if(!horario) return null;
-  if(/24H/i.test(horario)) return true;
+  if(!horario)return null;
+  if(/24H/i.test(horario))return true;
   try{
-    const now=new Date();
-    const day=now.getDay(); // 0=dom,1=lun...6=sab
-    const hhmm=now.getHours()*60+now.getMinutes();
+    const now=new Date(),day=now.getDay(),hhmm=now.getHours()*60+now.getMinutes();
     const parts=horario.split(';');
     for(const part of parts){
       const m=part.match(/([LMXJVSD\-]+):\s*(\d{2}):(\d{2})-(\d{2}):(\d{2})/i);
-      if(!m) continue;
-      const dayStr=m[1].toUpperCase();
-      const from=parseInt(m[2])*60+parseInt(m[3]);
-      const to=parseInt(m[4])*60+parseInt(m[5]);
+      if(!m)continue;
+      const dayStr=m[1].toUpperCase(),from=parseInt(m[2])*60+parseInt(m[3]),to=parseInt(m[4])*60+parseInt(m[5]);
       const dayMap={L:1,M:2,X:3,J:4,V:5,S:6,D:0};
       let covers=false;
-      if(dayStr.includes('-')){
-        const [s2,e2]=dayStr.split('-');
-        const sd=dayMap[s2],ed=dayMap[e2];
-        covers=sd<=ed?(day>=sd&&day<=ed):(day>=sd||day<=ed);
-      } else {
-        covers=[...dayStr].some(c=>dayMap[c]===day);
-      }
-      if(covers && hhmm>=from && hhmm<to) return true;
+      if(dayStr.includes('-')){const[s2,e2]=dayStr.split('-'),sd=dayMap[s2],ed=dayMap[e2];covers=sd<=ed?(day>=sd&&day<=ed):(day>=sd||day<=ed)}
+      else covers=[...dayStr].some(c=>dayMap[c]===day);
+      if(covers&&hhmm>=from&&hhmm<to)return true;
     }
     return false;
   }catch(e){return null}
@@ -329,23 +324,24 @@ function isOpenNow(horario){
 function is24h(h){return h&&/24H/i.test(h)}
 function isFestivo(h){return h&&/festivos/i.test(h)}
 
-/* ---- TABS ---- */
 function switchTab(id){
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['tabText','tabMap','tabFav','tabAlerts'][i]===id));
+  const tabs=['tabGeo','tabText','tabMap','tabFav','tabAlerts'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===id));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  const showFuels=['tabText','tabMap'].includes(id);
+  const showFuels=['tabGeo','tabText','tabMap'].includes(id);
   document.getElementById('fuelsBar').style.display=showFuels?'flex':'none';
-  document.getElementById('sortRow').style.display=(showFuels&&filtered.length)?'flex':'none';
-  document.getElementById('infoBar').style.display=(showFuels&&filtered.length)?'block':'none';
-  document.getElementById('results').style.display=showFuels?'block':'none';
-  if(id==='tabMap'&&!mapReady) initMap();
-  else if(id==='tabMap'&&mapReady) setTimeout(()=>map.invalidateSize(),50);
-  if(id==='tabFav') renderFavs();
-  if(id==='tabAlerts') renderAlerts();
+  const hasResults=filtered.length&&['tabGeo','tabText','tabMap'].includes(id);
+  document.getElementById('sortRow').style.display=hasResults?'flex':'none';
+  document.getElementById('infoBar').style.display=hasResults?'block':'none';
+  document.getElementById('results').style.display=hasResults?'block':'none';
+  if(id==='tabMap'&&!mapReady)initMap();
+  else if(id==='tabMap'&&mapReady)setTimeout(()=>map.invalidateSize(),50);
+  if(id==='tabFav')renderFavs();
+  if(id==='tabAlerts')renderAlerts();
 }
 
-/* ---- MAP ---- */
+/* MAP */
 let map,markerCenter,circleLayer,stationMarkers=[],mapReady=false;
 function initMap(){
   map=L.map('map').setView([40.416,-3.703],6);
@@ -353,12 +349,12 @@ function initMap(){
   map.on('click',e=>setMapCenter(e.latlng.lat,e.latlng.lng));
   mapReady=true;
 }
-function dotIcon(color){return L.divIcon({className:'',iconAnchor:[9,9],html:'<div style="width:18px;height:18px;border-radius:50%;background:'+color+';border:2.5px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,0.4)"></div>'})}
+function dotIcon(c){return L.divIcon({className:'',iconAnchor:[9,9],html:'<div style="width:18px;height:18px;border-radius:50%;background:'+c+';border:2.5px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,0.4)"></div>'})}
 function centerIcon(){return L.divIcon({className:'',iconAnchor:[12,12],html:'<div style="width:24px;height:24px;border-radius:50%;background:#185FA5;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center"><div style="width:8px;height:8px;background:#fff;border-radius:50%"></div></div>'})}
 function setMapCenter(lat,lon){
   searchCenter={lat,lon};
-  if(markerCenter) map.removeLayer(markerCenter);
-  if(circleLayer) map.removeLayer(circleLayer);
+  if(markerCenter)map.removeLayer(markerCenter);
+  if(circleLayer)map.removeLayer(circleLayer);
   const km=parseInt(document.getElementById('radiusRange').value);
   markerCenter=L.marker([lat,lon],{icon:centerIcon()}).addTo(map).bindPopup('<b>Centro de búsqueda</b>').openPopup();
   circleLayer=L.circle([lat,lon],{radius:km*1000,color:'#185FA5',fillColor:'#E6F1FB',fillOpacity:0.18,weight:1.5}).addTo(map);
@@ -371,109 +367,125 @@ function locateMe(){
   if(!navigator.geolocation){alert('Tu navegador no soporta geolocalización.');return}
   navigator.geolocation.getCurrentPosition(pos=>{
     const{latitude:lat,longitude:lon}=pos.coords;
-    if(!mapReady) initMap();
+    if(!mapReady)initMap();
     switchTab('tabMap');
     setTimeout(()=>{map.invalidateSize();map.setView([lat,lon],13);setMapCenter(lat,lon)},100);
   },()=>alert('No se pudo obtener la ubicación.'));
 }
 function addStationMarkers(list){
   stationMarkers.forEach(m=>map.removeLayer(m));stationMarkers=[];
-  const key=FKEY[activeFuel];
-  const prices=list.map(s=>px(s[key])).filter(Boolean);
-  const minP=prices.length?Math.min(...prices):null;
+  if(!mapReady)return;
+  const key=FKEY[activeFuel],prices=list.map(s=>px(s[key])).filter(Boolean),minP=prices.length?Math.min(...prices):null;
   list.slice(0,300).forEach(s=>{
-    const lat=parseFloat((s['Latitud']||'').replace(',','.'));
-    const lon=parseFloat((s['Longitud (WGS84)']||'').replace(',','.'));
-    if(isNaN(lat)||isNaN(lon)) return;
-    const pr=px(s[key]);
-    const isBest=pr&&pr===minP;
-    const color=isBest?'#1D9E75':(pr?'#185FA5':'#999');
+    const lat=parseFloat((s['Latitud']||'').replace(',','.')),lon=parseFloat((s['Longitud (WGS84)']||'').replace(',','.'));
+    if(isNaN(lat)||isNaN(lon))return;
+    const pr=px(s[key]),isBest=pr&&pr===minP,color=isBest?'#1D9E75':(pr?'#185FA5':'#999');
     const mUrl='https://www.google.com/maps/search/?api=1&query='+lat+','+lon;
     const popup='<div class="popup-name">'+(s['Rótulo']||'Sin nombre')+(isBest?'<span class="popup-best">MÁS BARATA</span>':'')+'</div>'+(pr?'<div class="popup-price">'+pr.toFixed(3)+'€ <span style="font-size:11px;color:#888;font-weight:400">'+FLBL[activeFuel]+'</span></div>':'<div style="color:#aaa;font-size:12px">Sin precio</div>')+'<div class="popup-addr">'+(s['Dirección']||'')+', '+(s['Municipio']||'')+'</div><a class="popup-btn" href="'+mUrl+'" target="_blank">Cómo llegar</a>';
-    const m=L.marker([lat,lon],{icon:dotIcon(color)}).addTo(map).bindPopup(popup);
-    stationMarkers.push(m);
+    stationMarkers.push(L.marker([lat,lon],{icon:dotIcon(color)}).addTo(map).bindPopup(popup));
   });
 }
 
-/* ---- FUEL ---- */
 function setFuel(btn,f){
   document.querySelectorAll('.ftag').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');activeFuel=f;
-  if(filtered.length){render();if(currentMode==='map'&&mapReady)addStationMarkers(filtered)}
+  if(filtered.length){render();if(mapReady)addStationMarkers(filtered)}
 }
 
-/* ---- HISTORY ---- */
 function recordHistory(list){
   const t=today();
   list.forEach(s=>{
-    const id=stationId(s);
-    const pr=px(s[FKEY[activeFuel]]);
-    if(!pr) return;
-    if(!HISTORY[id]) HISTORY[id]={};
+    const id=stationId(s),pr=px(s[FKEY[activeFuel]]);
+    if(!pr)return;
+    if(!HISTORY[id])HISTORY[id]={};
     HISTORY[id][t]=pr;
-    // keep last 14 days
     const keys=Object.keys(HISTORY[id]).sort();
-    if(keys.length>14) keys.slice(0,keys.length-14).forEach(k=>delete HISTORY[id][k]);
+    if(keys.length>14)keys.slice(0,keys.length-14).forEach(k=>delete HISTORY[id][k]);
   });
   saveHistory();
 }
 
-/* ---- ALERTS CHECK ---- */
 function checkAlerts(list){
-  if(!ALERTS.length) return;
+  if(!ALERTS.length)return;
   const triggered=[];
   list.forEach(s=>{
-    const id=stationId(s);
-    const al=ALERTS.find(a=>a.id===id&&a.fuel===activeFuel);
-    if(!al) return;
+    const id=stationId(s),al=ALERTS.find(a=>a.id===id&&a.fuel===activeFuel);
+    if(!al)return;
     const pr=px(s[FKEY[activeFuel]]);
-    if(pr&&pr<=al.price) triggered.push({name:s['Rótulo'],pr,target:al.price});
+    if(pr&&pr<=al.price)triggered.push({name:s['Rótulo'],pr,target:al.price});
   });
   const banner=document.getElementById('alertBanner');
-  if(triggered.length){
-    banner.style.display='block';
-    banner.innerHTML='🔔 <strong>Alertas de precio activadas:</strong> '+triggered.map(t=>'<strong>'+t.name+'</strong> → '+t.pr.toFixed(3)+'€ (alerta: '+t.target.toFixed(3)+'€)').join(' · ');
-  } else {
-    banner.style.display='none';
-  }
+  if(triggered.length){banner.style.display='block';banner.innerHTML='🔔 <strong>Alertas activadas:</strong> '+triggered.map(t=>'<strong>'+t.name+'</strong> → '+t.pr.toFixed(3)+'€ (alerta: '+t.target.toFixed(3)+'€)').join(' · ')}
+  else banner.style.display='none';
 }
 
-/* ---- FILTERS ---- */
 function applyFilters(){
-  const chk24=document.getElementById(currentMode==='map'?'chk24hMap':'chk24h')?.checked;
-  const chkOpen=document.getElementById(currentMode==='map'?'chkOpenMap':'chkOpen')?.checked;
-  const chkFest=document.getElementById('chkFest')?.checked;
+  let chk24,chkOpen,chkFest;
+  if(currentMode==='geo'){chk24=document.getElementById('chk24hGeo')?.checked;chkOpen=document.getElementById('chkOpenGeo')?.checked}
+  else if(currentMode==='map'){chk24=document.getElementById('chk24hMap')?.checked;chkOpen=document.getElementById('chkOpenMap')?.checked}
+  else{chk24=document.getElementById('chk24h')?.checked;chkOpen=document.getElementById('chkOpen')?.checked;chkFest=document.getElementById('chkFest')?.checked}
   let list=[...filtered];
-  if(chk24) list=list.filter(s=>is24h(s['Horario']));
-  if(chkOpen) list=list.filter(s=>isOpenNow(s['Horario'])!==false);
-  if(chkFest) list=list.filter(s=>isFestivo(s['Horario']));
+  if(chk24)list=list.filter(s=>is24h(s['Horario']));
+  if(chkOpen)list=list.filter(s=>isOpenNow(s['Horario'])!==false);
+  if(chkFest)list=list.filter(s=>isFestivo(s['Horario']));
   renderList(list);
 }
 
-/* ---- SEARCH TEXT ---- */
+/* LOCATE ME - geo tab */
+function locateMeText(){
+  if(!navigator.geolocation){alert('Tu navegador no soporta geolocalización.');return}
+  const btn=document.getElementById('btnGeo');
+  btn.innerHTML='<span class="spinner" style="width:18px;height:18px;border-width:2px;margin:0 8px 0 0"></span> Obteniendo ubicación...';
+  btn.disabled=true;
+  navigator.geolocation.getCurrentPosition(pos=>{
+    btn.innerHTML='📍 &nbsp;Usar mi ubicación';btn.disabled=false;
+    const{latitude:lat,longitude:lon}=pos.coords;
+    const radius=parseInt(document.getElementById('selRadiusText').value);
+    currentMode='geo';searchCenter={lat,lon};
+    filtered=ALL.filter(s=>{
+      const slat=parseFloat((s['Latitud']||'').replace(',','.')),slon=parseFloat((s['Longitud (WGS84)']||'').replace(',','.'));
+      if(isNaN(slat)||isNaN(slon))return false;
+      s._dist=haversine(lat,lon,slat,slon);
+      return s._dist<=radius;
+    });
+    filtered.sort((a,b)=>(a._dist||0)-(b._dist||0));
+    recordHistory(filtered);checkAlerts(filtered);
+    const withP=filtered.filter(s=>px(s[FKEY[activeFuel]])!==null).length;
+    const info=document.getElementById('infoBar');
+    info.style.display='block';
+    info.innerHTML='📍 <strong>'+filtered.length+'</strong> gasolineras en '+radius+' km &nbsp;·&nbsp; <strong>'+withP+'</strong> con precio de '+FLBL[activeFuel];
+    document.getElementById('sortRow').style.display=filtered.length?'flex':'none';
+    document.getElementById('results').style.display='block';
+    if(!mapReady)initMap();
+    setTimeout(()=>{if(mapReady){map.invalidateSize();map.setView([lat,lon],13);setMapCenter(lat,lon);addStationMarkers(filtered)}},200);
+    applyFilters();
+    setTimeout(()=>document.getElementById('infoBar').scrollIntoView({behavior:'smooth',block:'start'}),300);
+  },err=>{
+    btn.innerHTML='📍 &nbsp;Usar mi ubicación';btn.disabled=false;
+    if(err.code===1)alert('Permiso denegado.\n\nEn iPhone ve a: Ajustes → Safari → Ubicación → Permitir');
+    else alert('No se pudo obtener la ubicación. Inténtalo de nuevo.');
+  },{enableHighAccuracy:true,timeout:12000});
+}
+
 function onProvChange(){
-  const prov=document.getElementById('selProv').value;
-  const selM=document.getElementById('selMuni');
+  const prov=document.getElementById('selProv').value,selM=document.getElementById('selMuni');
   selM.innerHTML='<option value="">— Todos los municipios —</option>';
-  if(!prov) return;
+  if(!prov)return;
   [...new Set(ALL.filter(s=>s['Provincia']===prov).map(s=>s['Municipio']))].sort().forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;selM.appendChild(o)});
 }
+
 function doSearchText(){
-  const prov=document.getElementById('selProv').value;
-  const muni=document.getElementById('selMuni').value;
-  const cp=document.getElementById('txtCP').value.trim();
-  const brand=document.getElementById('txtBrand').value.trim().toLowerCase();
+  const prov=document.getElementById('selProv').value,muni=document.getElementById('selMuni').value,cp=document.getElementById('txtCP').value.trim(),brand=document.getElementById('txtBrand').value.trim().toLowerCase();
   const info=document.getElementById('infoBar');
   currentMode='text';searchCenter=null;
   if(!prov&&!cp){info.style.display='block';info.textContent='Selecciona una provincia o introduce un código postal.';return}
   filtered=ALL.filter(s=>{
-    if(cp){if((s['C.P.']||'').trim()!==cp) return false}
+    if(cp){if((s['C.P.']||'').trim()!==cp)return false}
     else{if(s['Provincia']!==prov)return false;if(muni&&s['Municipio']!==muni)return false}
     if(brand&&!(s['Rótulo']||'').toLowerCase().includes(brand))return false;
     return true;
   });
-  recordHistory(filtered);
-  checkAlerts(filtered);
+  recordHistory(filtered);checkAlerts(filtered);
   const withP=filtered.filter(s=>px(s[FKEY[activeFuel]])!==null).length;
   info.style.display='block';
   info.innerHTML='<strong>'+filtered.length+'</strong> gasolineras &nbsp;·&nbsp; <strong>'+withP+'</strong> con precio de '+FLBL[activeFuel]+(cp?' &nbsp;·&nbsp; CP <strong>'+cp+'</strong>':'');
@@ -482,15 +494,12 @@ function doSearchText(){
   applyFilters();
 }
 
-/* ---- SEARCH MAP ---- */
 function doSearchMap(){
   if(!searchCenter){alert('Haz clic en el mapa primero.');return}
-  const radius=parseInt(document.getElementById('radiusRange').value);
-  const brand=document.getElementById('txtBrandMap').value.trim().toLowerCase();
+  const radius=parseInt(document.getElementById('radiusRange').value),brand=document.getElementById('txtBrandMap').value.trim().toLowerCase();
   currentMode='map';
   filtered=ALL.filter(s=>{
-    const lat=parseFloat((s['Latitud']||'').replace(',','.'));
-    const lon=parseFloat((s['Longitud (WGS84)']||'').replace(',','.'));
+    const lat=parseFloat((s['Latitud']||'').replace(',','.')),lon=parseFloat((s['Longitud (WGS84)']||'').replace(',','.'));
     if(isNaN(lat)||isNaN(lon))return false;
     s._dist=haversine(searchCenter.lat,searchCenter.lon,lat,lon);
     if(s._dist>radius)return false;
@@ -498,31 +507,26 @@ function doSearchMap(){
     return true;
   });
   filtered.sort((a,b)=>(a._dist||0)-(b._dist||0));
-  recordHistory(filtered);
-  checkAlerts(filtered);
+  recordHistory(filtered);checkAlerts(filtered);
   const withP=filtered.filter(s=>px(s[FKEY[activeFuel]])!==null).length;
   const info=document.getElementById('infoBar');
   info.style.display='block';
   info.innerHTML='<strong>'+filtered.length+'</strong> gasolineras en '+radius+' km &nbsp;·&nbsp; <strong>'+withP+'</strong> con precio de '+FLBL[activeFuel];
   document.getElementById('sortRow').style.display=filtered.length?'flex':'none';
   document.getElementById('results').style.display='block';
-  addStationMarkers(filtered);
-  applyFilters();
+  addStationMarkers(filtered);applyFilters();
   setTimeout(()=>document.getElementById('infoBar').scrollIntoView({behavior:'smooth',block:'start'}),200);
 }
 
-/* ---- RENDER ---- */
 function render(){applyFilters()}
 
 function renderList(list){
-  const key=FKEY[activeFuel];
-  const sort=document.getElementById('selSort')?.value||'price';
-  const limit=parseInt(document.getElementById('selLimit')?.value||'20');
+  const key=FKEY[activeFuel],sort=document.getElementById('selSort')?.value||'price',limit=parseInt(document.getElementById('selLimit')?.value||'20');
   let work=list.filter(s=>px(s[key])!==null);
   if(!work.length){document.getElementById('results').innerHTML='<div class="empty">Sin precios para <strong>'+FLBL[activeFuel]+'</strong> en esta zona.<br>Prueba otro combustible o amplía la búsqueda.</div>';return}
-  if(sort==='price') work.sort((a,b)=>px(a[key])-px(b[key]));
-  else if(sort==='dist') work.sort((a,b)=>(a._dist||999)-(b._dist||999));
-  else if(sort==='brand') work.sort((a,b)=>(a['Rótulo']||'').localeCompare(b['Rótulo']||''));
+  if(sort==='price')work.sort((a,b)=>px(a[key])-px(b[key]));
+  else if(sort==='dist')work.sort((a,b)=>(a._dist||999)-(b._dist||999));
+  else if(sort==='brand')work.sort((a,b)=>(a['Rótulo']||'').localeCompare(b['Rótulo']||''));
   else work.sort((a,b)=>(a['Municipio']||'').localeCompare(b['Municipio']||''));
   const minP=Math.min(...work.map(s=>px(s[key])));
   const display=work.slice(0,limit);
@@ -533,14 +537,9 @@ function renderList(list){
 
 function buildCard(s,i,minP,key,inFavTab){
   const pr=px(s[key]);
-  if(!pr&&!inFavTab) return '';
-  const isBest=pr&&pr===minP;
-  const id=stationId(s);
-  const isFav=FAVS.includes(id);
-  const alert=ALERTS.find(a=>a.id===id&&a.fuel===activeFuel);
-  const alertTriggered=alert&&pr&&pr<=alert.price;
-  const lat=parseFloat((s['Latitud']||'').replace(',','.'));
-  const lon=parseFloat((s['Longitud (WGS84)']||'').replace(',','.'));
+  if(!pr&&!inFavTab)return'';
+  const isBest=pr&&pr===minP,id=stationId(s),isFav=FAVS.includes(id),alert=ALERTS.find(a=>a.id===id&&a.fuel===activeFuel),alertTriggered=alert&&pr&&pr<=alert.price;
+  const lat=parseFloat((s['Latitud']||'').replace(',','.')),lon=parseFloat((s['Longitud (WGS84)']||'').replace(',','.'));
   const mUrl=(!isNaN(lat)&&!isNaN(lon))?'https://www.google.com/maps/search/?api=1&query='+lat+','+lon:null;
   const dist=s._dist!=null?'<div class="sdist">📍 '+s._dist.toFixed(1)+' km</div>':'';
   const cpTxt=s['C.P.']?'<span class="cp-tag">&nbsp;·&nbsp;CP '+s['C.P.'].trim()+'</span>':'';
@@ -550,18 +549,13 @@ function buildCard(s,i,minP,key,inFavTab){
   const openTag=openStatus===true?'<span class="open-tag">Abierta</span>':openStatus===false?'<span class="closed-tag">Cerrada</span>':'';
   const h24=is24h(horario)?'<span class="open-tag">24h</span>':'';
   const horarioTxt=horario?'<div class="horario">🕐 '+horario+'</div>':'';
-
-  // history
-  const hist=HISTORY[id]||{};
-  const histKeys=Object.keys(hist).sort().slice(-7);
-  const histHtml=histKeys.length>1?'<div class="hist-section"><div class="hist-title">Últimos 7 días ('+FLBL[activeFuel]+')</div><div class="hist-list">'+histKeys.map(d=>'<div class="hist-item'+(d===today()?' today':'')+'"><span>'+d+'</span><span>'+hist[d].toFixed(3)+'€</span></div>').join('')+'</div></div>':'';
-
-  const topClass=(i<3&&!inFavTab)?' top':'';
-  const favClass=isFav?' is-fav':'';
-
-  return '<div class="scard'+topClass+favClass+'" id="sc_'+id.replace(/[^a-z0-9]/gi,'_')+'">'+
-    '<div class="shead">'+
-      '<div class="sname" onclick="onCardClick('+lat+','+lon+',\'sc_'+id.replace(/[^a-z0-9]/gi,'_')+'\')">'+(s['Rótulo']||'Sin nombre')+(isBest?'<span class="cheap-tag">más barata</span>':'')+(alertTriggered?'<span class="alert-tag">🔔 alerta!</span>':'')+h24+openTag+'</div>'+
+  const hist=HISTORY[id]||{},histKeys=Object.keys(hist).sort().slice(-7);
+  const histHtml=histKeys.length>1?'<div class="hist-section"><div class="hist-title">Últimos días ('+FLBL[activeFuel]+')</div><div class="hist-list">'+histKeys.map(d=>'<div class="hist-item'+(d===today()?' today':'')+'"><span>'+d+'</span><span>'+hist[d].toFixed(3)+'€</span></div>').join('')+'</div></div>':'';
+  const safeid='sc_'+id.replace(/[^a-z0-9]/gi,'_');
+  const canMap=!isNaN(lat)&&!isNaN(lon);
+  return'<div class="scard'+(i<3&&!inFavTab?' top':'')+(isFav?' is-fav':'')+'" id="'+safeid+'">'+
+    '<div class="sname"'+(canMap?' onclick="onCardClick('+lat+','+lon+',\''+safeid+'\')"':'')+'>'+
+      (s['Rótulo']||'Sin nombre')+(isBest?'<span class="cheap-tag">más barata</span>':'')+(alertTriggered?'<span class="alert-tag">🔔 alerta!</span>':'')+h24+openTag+
     '</div>'+
     '<div class="saddr">'+(s['Dirección']||'')+' · '+(s['Municipio']||'')+cpTxt+'</div>'+
     dist+horarioTxt+
@@ -572,27 +566,24 @@ function buildCard(s,i,minP,key,inFavTab){
     '<div class="card-actions">'+
       (mUrl?'<a class="act-btn" href="'+mUrl+'" target="_blank">🗺️ Cómo llegar</a>':'')+
       '<button class="act-btn'+(isFav?' fav-on':'')+'" onclick="toggleFav(\''+id+'\',this)">⭐ '+(isFav?'Favorita':'Añadir')+'</button>'+
-      '<button class="act-btn" onclick="openAlertModal(\''+id+'\',\''+( s['Rótulo']||'').replace(/'/g,'')+'\')">🔔 '+(alert?'Alerta: '+alert.price.toFixed(3)+'€':'Crear alerta')+'</button>'+
+      '<button class="act-btn" onclick="openAlertModal(\''+id+'\',\''+(s['Rótulo']||'').replace(/'/g,'')+'\')">🔔 '+(alert?'Alerta: '+alert.price.toFixed(3)+'€':'Crear alerta')+'</button>'+
     '</div>'+
     histHtml+
   '</div>';
 }
 
-/* ---- FAVORITAS ---- */
 function toggleFav(id,btn){
   if(FAVS.includes(id)){FAVS=FAVS.filter(f=>f!==id);btn.classList.remove('fav-on');btn.textContent='⭐ Añadir'}
   else{FAVS.push(id);btn.classList.add('fav-on');btn.textContent='⭐ Favorita'}
   saveFavs();
 }
 function renderFavs(){
-  const key=FKEY[activeFuel];
-  const favStations=ALL.filter(s=>FAVS.includes(stationId(s)));
-  if(!favStations.length){document.getElementById('favResults').innerHTML='<div class="fav-empty">Aún no tienes gasolineras favoritas.<br>Busca una gasolinera y pulsa ⭐ para añadirla.</div>';return}
+  const key=FKEY[activeFuel],favStations=ALL.filter(s=>FAVS.includes(stationId(s)));
+  if(!favStations.length){document.getElementById('favResults').innerHTML='<div class="fav-empty">Aún no tienes favoritas.<br>Busca una gasolinera y pulsa ⭐</div>';return}
   const minP=Math.min(...favStations.map(s=>px(s[key])).filter(Boolean));
   document.getElementById('favResults').innerHTML='<div class="station-list">'+favStations.map((s,i)=>buildCard(s,i,minP,key,true)).join('')+'</div>';
 }
 
-/* ---- ALERTAS ---- */
 function openAlertModal(id,name){
   pendingAlertId=id;
   const existing=ALERTS.find(a=>a.id===id&&a.fuel===activeFuel);
@@ -607,61 +598,51 @@ function saveAlert(){
   ALERTS=ALERTS.filter(a=>!(a.id===pendingAlertId&&a.fuel===activeFuel));
   ALERTS.push({id:pendingAlertId,fuel:activeFuel,price});
   saveAlerts();closeModal();
-  if(filtered.length) checkAlerts(filtered);
-  renderAlerts();
-  // refresh card button
-  render();
+  if(filtered.length)checkAlerts(filtered);
+  renderAlerts();render();
 }
 function deleteAlert(id,fuel){
   ALERTS=ALERTS.filter(a=>!(a.id===id&&a.fuel===fuel));
   saveAlerts();renderAlerts();
-  if(filtered.length) checkAlerts(filtered);
+  if(filtered.length)checkAlerts(filtered);
 }
 function renderAlerts(){
-  if(!ALERTS.length){document.getElementById('alertsList').innerHTML='<div class="fav-empty">No tienes alertas configuradas.<br>Busca una gasolinera y pulsa 🔔 para crear una alerta de precio.</div>';return}
+  if(!ALERTS.length){document.getElementById('alertsList').innerHTML='<div class="fav-empty">No tienes alertas.<br>Busca una gasolinera y pulsa 🔔</div>';return}
   const rows=ALERTS.map(a=>{
-    const s=ALL.find(st=>stationId(st)===a.id);
-    const name=s?s['Rótulo']:a.id;
-    const pr=s?px(s[FKEY[a.fuel]]):null;
-    const triggered=pr&&pr<=a.price;
-    return '<div class="scard'+(triggered?' is-fav':'')+'">'+
+    const s=ALL.find(st=>stationId(st)===a.id),name=s?s['Rótulo']:a.id,pr=s?px(s[FKEY[a.fuel]]):null,triggered=pr&&pr<=a.price;
+    return'<div class="scard'+(triggered?' is-fav':'')+'">'+
       '<div class="sname">'+name+(triggered?'<span class="alert-tag">🔔 Activada!</span>':'')+'</div>'+
-      '<div class="saddr">Combustible: '+FLBL[a.fuel]+' &nbsp;·&nbsp; Alerta cuando baje de: <strong>'+a.price.toFixed(3)+'€</strong>'+(pr?' &nbsp;·&nbsp; Precio actual: <strong>'+pr.toFixed(3)+'€</strong>':'')+'</div>'+
-      '<div class="card-actions"><button class="act-btn danger" onclick="deleteAlert(\''+a.id+'\',\''+a.fuel+'\')">🗑️ Eliminar alerta</button></div>'+
+      '<div class="saddr">'+FLBL[a.fuel]+' &nbsp;·&nbsp; Alerta bajo <strong>'+a.price.toFixed(3)+'€</strong>'+(pr?' &nbsp;·&nbsp; Ahora: <strong>'+pr.toFixed(3)+'€</strong>':'')+'</div>'+
+      '<div class="card-actions"><button class="act-btn" style="color:var(--red);border-color:var(--red)" onclick="deleteAlert(\''+a.id+'\',\''+a.fuel+'\')">🗑️ Eliminar</button></div>'+
     '</div>';
   }).join('');
   document.getElementById('alertsList').innerHTML='<div class="station-list">'+rows+'</div>';
 }
 
 function onCardClick(lat,lon,cid){
-  if(!mapReady||isNaN(lat)||isNaN(lon))return;
+  if(isNaN(lat)||isNaN(lon))return;
+  if(!mapReady)initMap();
   switchTab('tabMap');
   setTimeout(()=>{map.invalidateSize();map.setView([lat,lon],16);stationMarkers.forEach(m=>{if(Math.abs(m.getLatLng().lat-lat)<0.0001&&Math.abs(m.getLatLng().lng-lon)<0.0001)m.openPopup()})},80);
   document.querySelectorAll('.scard').forEach(c=>c.classList.remove('highlight'));
   const el=document.getElementById(cid);if(el)el.classList.add('highlight');
 }
 
-/* ---- INIT ---- */
 (async function init(){
-  const url='https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/';
   try{
-    const r=await fetch(url);
+    const r=await fetch('https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/');
     if(!r.ok)throw new Error('HTTP '+r.status);
     const data=await r.json();
     ALL=data.ListaEESSPrecio||[];
     if(!ALL.length)throw new Error('Sin datos');
     const fecha=data.Fecha||'';
-    if(fecha) document.getElementById('lastUpdate').textContent='Actualizado: '+fecha;
+    if(fecha)document.getElementById('lastUpdate').textContent='Actualizado: '+fecha;
     const provs=[...new Set(ALL.map(s=>s['Provincia']))].sort();
     const sel=document.getElementById('selProv');
     provs.forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;sel.appendChild(o)});
     document.getElementById('loadSection').style.display='none';
     document.getElementById('mainUI').style.display='block';
-    // check alerts on load with favs
-    if(ALERTS.length&&FAVS.length){
-      const favStations=ALL.filter(s=>FAVS.includes(stationId(s)));
-      checkAlerts(favStations);
-    }
+    if(ALERTS.length&&FAVS.length){const favS=ALL.filter(s=>FAVS.includes(stationId(s)));checkAlerts(favS)}
   }catch(e){
     document.getElementById('loadSection').innerHTML='<div class="empty">⚠️ Error al cargar datos.<br><br><small>'+e.message+'</small><br><br><button class="btn" onclick="location.reload()">Reintentar</button></div>';
   }
