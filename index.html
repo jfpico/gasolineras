@@ -35,61 +35,35 @@ header{margin-bottom:1.25rem}
 header h1{font-size:22px;font-weight:700}
 header p{font-size:12px;color:var(--text2);margin-top:2px}
 header a{color:var(--blue);text-decoration:none}
-
-/* TABS */
 .tabs{display:flex;border-bottom:1px solid var(--border2);margin-bottom:1rem;overflow-x:auto}
 .tab{padding:8px 14px;font-size:13px;cursor:pointer;border:none;background:none;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit;white-space:nowrap}
 .tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:700}
 .panel{display:none}.panel.active{display:block}
-
-/* CARD */
 .card-section{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem;margin-bottom:1rem}
 .row{display:flex;gap:8px;flex-wrap:wrap}.row+.row{margin-top:8px}
-select,input[type=text]{height:42px;padding:0 12px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:14px;font-family:inherit;flex:1;min-width:120px;outline:none}
-select:focus,input:focus{border-color:var(--blue)}
+select{height:42px;padding:0 12px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:14px;font-family:inherit;flex:1;min-width:120px;outline:none;cursor:pointer}
+select:focus{border-color:var(--blue)}
 .btn{height:42px;padding:0 16px;border-radius:var(--radius);border:none;background:var(--blue);color:#fff;font-size:14px;font-family:inherit;cursor:pointer;white-space:nowrap;font-weight:600}
 .btn:hover{opacity:0.85}
 .btn.sec{background:var(--surface2);color:var(--text);border:0.5px solid var(--border2);font-weight:500}
-.btn.green{background:var(--green)}
+.btn-geo{width:100%;height:52px;border-radius:var(--radius);border:none;background:var(--green);color:#fff;font-size:16px;font-family:inherit;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px}
+.btn-geo:hover{opacity:0.88}
+.btn-geo:disabled{opacity:0.5;cursor:not-allowed}
 input[type=range]{flex:1;min-width:100px;cursor:pointer}
 .range-label{font-size:13px;color:var(--text2);white-space:nowrap;display:flex;align-items:center;gap:4px}
 .range-val{font-weight:700;color:var(--blue);min-width:40px}
-
-/* SEARCH HOME */
-.search-home{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem}
-.search-divider{display:flex;align-items:center;gap:8px;margin:12px 0;color:var(--text2);font-size:12px}
+.search-divider{display:flex;align-items:center;gap:8px;margin:14px 0;color:var(--text2);font-size:12px}
 .search-divider::before,.search-divider::after{content:'';flex:1;height:1px;background:var(--border2)}
-.btn-geo{width:100%;height:52px;border-radius:var(--radius);border:none;background:var(--green);color:#fff;font-size:16px;font-family:inherit;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px}
-.btn-geo:hover{opacity:0.88}
-.btn-geo:disabled{opacity:0.5;cursor:not-allowed}
-.radius-inline{display:flex;align-items:center;gap:8px;margin-top:8px}
-.radius-inline label{font-size:13px;color:var(--text2);white-space:nowrap}
-.radius-inline select{height:36px;flex:none;width:100px;min-width:0;font-size:13px}
-.addr-row{display:flex;gap:8px}
-.addr-row input{flex:1}
-
-/* CHECKS */
-.check-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:10px}
-.check-row label{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--text2);cursor:pointer}
-.check-row input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--blue)}
-
-/* MAP */
 #map{width:100%;height:420px;border-radius:var(--radius-lg);border:0.5px solid var(--border2);margin-bottom:1rem}
 .map-hint{font-size:12px;color:var(--text);margin-bottom:8px;padding:7px 12px;background:var(--amber-light);border-radius:var(--radius);border-left:3px solid var(--amber)}
-
-/* FUELS */
 .fuels{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .ftag{height:30px;padding:0 13px;border:0.5px solid var(--border2);border-radius:var(--radius-pill);background:transparent;color:var(--text2);font-size:12px;cursor:pointer;font-family:inherit}
 .ftag:hover{background:var(--surface2)}
 .ftag.on{background:var(--blue-light);color:var(--blue-dark);border-color:var(--blue-mid);font-weight:700}
-
-/* INFO & SORT */
 .info-bar{font-size:13px;color:var(--text2);padding:9px 14px;background:var(--surface2);border-radius:var(--radius);margin-bottom:10px}
 .sort-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
 .sort-row label{font-size:13px;color:var(--text2)}
 .sort-row select{height:34px;flex:none;width:auto;min-width:0;font-size:13px}
-
-/* CARDS */
 .station-list{display:flex;flex-direction:column;gap:10px}
 .scard{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:13px 15px;transition:box-shadow 0.15s}
 .scard:hover{box-shadow:0 3px 14px rgba(0,0,0,0.1)}
@@ -125,18 +99,14 @@ input[type=range]{flex:1;min-width:100px;cursor:pointer}
 .hist-item{display:flex;justify-content:space-between;font-size:12px;color:var(--text2)}
 .hist-item span:last-child{font-weight:600;color:var(--text)}
 .hist-item.today span:last-child{color:var(--blue)}
-
-/* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem}
 .modal{background:var(--surface);border-radius:var(--radius-lg);padding:1.5rem;max-width:380px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.2)}
 .modal h3{font-size:16px;font-weight:700;margin-bottom:4px}
 .modal p{font-size:13px;color:var(--text2);margin-bottom:1rem}
-.modal input[type=number]{width:100%;margin-bottom:1rem;height:42px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:16px;padding:0 12px;outline:none}
+.modal input[type=number]{width:100%;margin-bottom:1rem;height:42px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:16px;padding:0 12px;outline:none;font-family:inherit}
 .modal-btns{display:flex;gap:8px;justify-content:flex-end}
 .alert-banner{background:var(--amber-light);border:1px solid var(--fav);border-radius:var(--radius);padding:10px 14px;margin-bottom:12px;font-size:13px;color:var(--amber);display:none}
 .alert-banner strong{color:var(--text)}
-
-/* MISC */
 .empty{text-align:center;padding:3rem;color:var(--text2);font-size:14px;line-height:1.7}
 .spin-wrap{text-align:center;padding:3rem;color:var(--text2);font-size:14px}
 .spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:8px}
@@ -144,19 +114,16 @@ input[type=range]{flex:1;min-width:100px;cursor:pointer}
 footer{text-align:center;font-size:12px;color:var(--text2);margin-top:3rem}
 footer a{color:var(--blue);text-decoration:none}
 .fav-empty{text-align:center;padding:3rem;color:var(--text2);font-size:14px}
-
-/* MAP MARKERS con precio */
+/* MAP LABELS */
 .map-marker{background:none;border:none}
-.map-label{background:#fff;border-radius:8px;padding:3px 6px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.25);display:flex;flex-direction:column;align-items:center;border:1.5px solid #ccc;min-width:52px;cursor:pointer}
+.map-label{background:#fff;border-radius:8px;padding:3px 7px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.25);display:flex;flex-direction:column;align-items:center;border:1.5px solid #ccc;min-width:54px;cursor:pointer}
 .map-label.best{border-color:#1D9E75;background:#E1F5EE}
-.map-label .ml-brand{font-size:9px;color:#666;font-weight:600;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-transform:uppercase;letter-spacing:0.3px}
+.map-label .ml-brand{font-size:9px;color:#666;font-weight:600;max-width:72px;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase;letter-spacing:0.3px}
 .map-label.best .ml-brand{color:#0F6E56}
-.map-label .ml-price{font-size:13px;font-weight:800;color:#1a1a18;line-height:1.1}
+.map-label .ml-price{font-size:13px;font-weight:800;color:#1a1a18;line-height:1.2}
 .map-label.best .ml-price{color:#085041}
-.map-label .ml-arrow{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:5px solid #ccc;margin-top:1px}
+.map-label .ml-arrow{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:5px solid #ccc;margin-top:2px}
 .map-label.best .ml-arrow{border-top-color:#1D9E75}
-
-/* leaflet popup */
 .leaflet-popup-content{font-family:system-ui,-apple-system,sans-serif;font-size:13px;line-height:1.5;min-width:170px}
 .popup-name{font-weight:700;font-size:14px;margin-bottom:4px}
 .popup-price{font-size:20px;font-weight:700;color:#0F6E56}
@@ -172,9 +139,10 @@ footer a{color:var(--blue);text-decoration:none}
     <p>Datos oficiales · <a href="https://geoportalgasolineras.es" target="_blank">Ministerio de Industria</a> · €/litro · <span id="lastUpdate"></span></p>
   </header>
 
+  <!-- Carga inicial mínima -->
   <div id="loadSection" class="spin-wrap">
-    <span class="spinner"></span>Cargando datos...<br>
-    <small style="font-size:12px;margin-top:8px;display:block">Puede tardar unos segundos</small>
+    <span class="spinner"></span>Iniciando...<br>
+    <small style="font-size:12px;margin-top:8px;display:block">Cargando lista de provincias</small>
   </div>
 
   <div id="alertBanner" class="alert-banner"></div>
@@ -187,63 +155,74 @@ footer a{color:var(--blue);text-decoration:none}
       <button class="tab" onclick="switchTab('tabAlerts')">🔔 Alertas</button>
     </div>
 
-    <!-- TAB BUSCAR (ubicacion + direccion + provincia/cp todo junto) -->
+    <!-- TAB BUSCAR -->
     <div id="tabSearch" class="panel active">
-      <div class="search-home">
+      <div class="card-section">
 
-        <!-- UBICACION -->
+        <!-- UBICACION GPS -->
         <button class="btn-geo" id="btnGeo" onclick="locateMeSearch()">📍 &nbsp;Buscar cerca de mí</button>
-        <div class="radius-inline">
-          <label>Radio:</label>
-          <select id="selRadius">
-            <option value="2">2 km</option>
-            <option value="5" selected>5 km</option>
-            <option value="10">10 km</option>
-            <option value="20">20 km</option>
-            <option value="50">50 km</option>
+        <div class="row">
+          <select id="selRadiusGeo">
+            <option value="2">Radio: 2 km</option>
+            <option value="5" selected>Radio: 5 km</option>
+            <option value="10">Radio: 10 km</option>
+            <option value="20">Radio: 20 km</option>
+            <option value="50">Radio: 50 km</option>
           </select>
-          <label style="margin-left:8px">Marca:</label>
-          <input type="text" id="txtBrandGeo" placeholder="Repsol, Cepsa..." style="height:36px;font-size:13px;max-width:150px"/>
+          <select id="selBrandGeo"><option value="">— Todas las marcas —</option></select>
+          <select id="selHorarioGeo">
+            <option value="">— Cualquier horario —</option>
+            <option value="24h">Solo 24h</option>
+            <option value="open">Solo abiertas ahora</option>
+          </select>
         </div>
 
         <div class="search-divider">o busca por dirección</div>
 
         <!-- DIRECCION -->
-        <div class="addr-row">
-          <input type="text" id="txtAddr" placeholder="Dirección, ciudad, municipio..." onkeydown="if(event.key==='Enter')searchByAddress()"/>
-          <button class="btn" onclick="searchByAddress()">Buscar</button>
-        </div>
-        <div class="radius-inline">
-          <label>Radio:</label>
-          <select id="selRadiusAddr">
-            <option value="2">2 km</option>
-            <option value="5" selected>5 km</option>
-            <option value="10">10 km</option>
-            <option value="20">20 km</option>
-            <option value="50">50 km</option>
+        <div class="row">
+          <select id="selAddr" onchange="onAddrChange(this)">
+            <option value="">— Selecciona provincia para buscar dirección —</option>
           </select>
-          <label style="margin-left:8px">Marca:</label>
-          <input type="text" id="txtBrandAddr" placeholder="Repsol, Cepsa..." style="height:36px;font-size:13px;max-width:150px"/>
+        </div>
+        <div class="row" id="addrInputRow" style="display:none">
+          <select id="selMuniAddr"><option value="">— Todos los municipios —</option></select>
+          <select id="selRadiusAddr">
+            <option value="2">Radio: 2 km</option>
+            <option value="5" selected>Radio: 5 km</option>
+            <option value="10">Radio: 10 km</option>
+            <option value="20">Radio: 20 km</option>
+            <option value="50">Radio: 50 km</option>
+          </select>
+        </div>
+        <div class="row" id="addrInputRow2" style="display:none">
+          <select id="selBrandAddr"><option value="">— Todas las marcas —</option></select>
+          <select id="selHorarioAddr">
+            <option value="">— Cualquier horario —</option>
+            <option value="24h">Solo 24h</option>
+            <option value="open">Solo abiertas ahora</option>
+          </select>
+          <button class="btn" onclick="doSearchAddr()">Buscar</button>
         </div>
 
-        <div class="search-divider">o por provincia / CP</div>
+        <div class="search-divider">o por provincia / código postal</div>
 
-        <!-- PROVINCIA -->
+        <!-- PROVINCIA / CP -->
         <div class="row">
           <select id="selProv" onchange="onProvChange()"><option value="">— Provincia —</option></select>
           <select id="selMuni"><option value="">— Todos los municipios —</option></select>
         </div>
         <div class="row">
-          <input type="text" id="txtCP" placeholder="Código postal (ej: 28001)" maxlength="5" style="max-width:160px;flex:none"/>
-          <input type="text" id="txtBrandProv" placeholder="Marca (Repsol, Cepsa...)"/>
-          <button class="btn" onclick="doSearchProv()">Buscar</button>
+          <select id="selCP"><option value="">— Código postal —</option></select>
+          <select id="selBrandProv"><option value="">— Todas las marcas —</option></select>
         </div>
-
-        <!-- FILTROS -->
-        <div class="check-row">
-          <label><input type="checkbox" id="chk24h" onchange="applyFilters()"> Solo 24h</label>
-          <label><input type="checkbox" id="chkOpen" onchange="applyFilters()"> Solo abiertas ahora</label>
-          <label><input type="checkbox" id="chkFest" onchange="applyFilters()"> Abiertas festivos</label>
+        <div class="row">
+          <select id="selHorarioProv">
+            <option value="">— Cualquier horario —</option>
+            <option value="24h">Solo 24h</option>
+            <option value="open">Solo abiertas ahora</option>
+          </select>
+          <button class="btn" onclick="doSearchProv()">Buscar</button>
         </div>
       </div>
     </div>
@@ -260,11 +239,12 @@ footer a{color:var(--blue);text-decoration:none}
           <button class="btn sec" onclick="locateOnMap()">📍 Mi ubicación</button>
         </div>
         <div class="row">
-          <input type="text" id="txtBrandMap" placeholder="Filtrar por marca (opcional)"/>
-        </div>
-        <div class="check-row">
-          <label><input type="checkbox" id="chk24hMap" onchange="applyFilters()"> Solo 24h</label>
-          <label><input type="checkbox" id="chkOpenMap" onchange="applyFilters()"> Solo abiertas ahora</label>
+          <select id="selBrandMap"><option value="">— Todas las marcas —</option></select>
+          <select id="selHorarioMap">
+            <option value="">— Cualquier horario —</option>
+            <option value="24h">Solo 24h</option>
+            <option value="open">Solo abiertas ahora</option>
+          </select>
         </div>
       </div>
     </div>
@@ -327,7 +307,7 @@ footer a{color:var(--blue);text-decoration:none}
 <script>
 const FKEY={G95:'Precio Gasolina 95 E5',GOA:'Precio Gasoleo A',G98:'Precio Gasolina 98 E5',GOB:'Precio Gasoleo B',GLP:'Precio GLP',GNC:'Precio Gas Natural Comprimido'};
 const FLBL={G95:'G95',GOA:'Gasóleo A',G98:'G98',GOB:'Gasóleo B',GLP:'GLP',GNC:'GNC'};
-let activeFuel='G95',ALL=[],filtered=[],searchCenter=null,currentMode='search';
+let activeFuel='G95',ALL=[],filtered=[],searchCenter=null,currentMode='search',dataLoaded=false;
 let FAVS=JSON.parse(localStorage.getItem('gasoFavs')||'[]');
 let ALERTS=JSON.parse(localStorage.getItem('gasoAlerts')||'[]');
 let HISTORY=JSON.parse(localStorage.getItem('gasoHistory')||'{}');
@@ -359,7 +339,55 @@ function isOpenNow(h){
   }catch(e){return null}
 }
 function is24h(h){return h&&/24H/i.test(h)}
-function isFestivo(h){return h&&/festivos/i.test(h)}
+
+/* CARGA DE DATOS — solo cuando se necesita */
+async function loadData(){
+  if(dataLoaded)return true;
+  document.getElementById('loadSection').style.display='block';
+  document.getElementById('mainUI').style.display='none';
+  try{
+    const r=await fetch('https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/');
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const data=await r.json();
+    ALL=data.ListaEESSPrecio||[];
+    if(!ALL.length)throw new Error('Sin datos');
+    const fecha=data.Fecha||'';
+    if(fecha)document.getElementById('lastUpdate').textContent='Actualizado: '+fecha;
+    dataLoaded=true;
+    populateDropdowns();
+    document.getElementById('loadSection').style.display='none';
+    document.getElementById('mainUI').style.display='block';
+    return true;
+  }catch(e){
+    document.getElementById('loadSection').innerHTML='<div class="empty">⚠️ Error al cargar datos.<br><br><small>'+e.message+'</small><br><br><button class="btn" onclick="location.reload()">Reintentar</button></div>';
+    return false;
+  }
+}
+
+/* POBLAMOS DESPLEGABLES con los datos reales */
+function populateDropdowns(){
+  const provs=[...new Set(ALL.map(s=>s['Provincia']))].sort();
+  const brands=[...new Set(ALL.map(s=>s['Rótulo']||'').filter(Boolean))].sort();
+  const cps=[...new Set(ALL.map(s=>(s['C.P.']||'').trim()).filter(Boolean))].sort();
+
+  // provincias
+  ['selProv','selAddr'].forEach(id=>{
+    const sel=document.getElementById(id);
+    provs.forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;sel.appendChild(o)});
+  });
+
+  // marcas en todos los desplegables de marca
+  ['selBrandGeo','selBrandAddr','selBrandProv','selBrandMap'].forEach(id=>{
+    const sel=document.getElementById(id);
+    brands.forEach(b=>{const o=document.createElement('option');o.value=b;o.textContent=b;sel.appendChild(o)});
+  });
+
+  // CPs
+  const selCP=document.getElementById('selCP');
+  cps.forEach(cp=>{const o=document.createElement('option');o.value=cp;o.textContent=cp;selCP.appendChild(o)});
+
+  if(ALERTS.length&&FAVS.length){const fs=ALL.filter(s=>FAVS.includes(stationId(s)));checkAlerts(fs)}
+}
 
 /* TABS */
 function switchTab(id){
@@ -406,8 +434,6 @@ function locateOnMap(){
     setTimeout(()=>{map.invalidateSize();map.setView([pos.coords.latitude,pos.coords.longitude],13);setMapCenter(pos.coords.latitude,pos.coords.longitude)},100);
   },()=>alert('No se pudo obtener la ubicación.'));
 }
-
-/* MAP MARKERS con etiqueta precio+nombre */
 function addStationMarkers(list){
   stationMarkers.forEach(m=>map.removeLayer(m));stationMarkers=[];
   if(!mapReady)return;
@@ -416,21 +442,12 @@ function addStationMarkers(list){
     const lat=parseFloat((s['Latitud']||'').replace(',','.')),lon=parseFloat((s['Longitud (WGS84)']||'').replace(',','.'));
     if(isNaN(lat)||isNaN(lon))return;
     const pr=px(s[key]),isBest=pr&&pr===minP;
-    const brand=(s['Rótulo']||'').substring(0,10);
-    const priceStr=pr?pr.toFixed(3)+'€':'—';
+    const brand=(s['Rótulo']||'').substring(0,10),priceStr=pr?pr.toFixed(3)+'€':'—';
     const mUrl='https://www.google.com/maps/search/?api=1&query='+lat+','+lon;
-    // etiqueta visible directamente con nombre + precio
     const cls='map-label'+(isBest?' best':'');
-    const html='<div class="'+cls+'" style="transform:translate(-50%,-100%)">'
-      +'<div class="ml-brand">'+brand+'</div>'
-      +'<div class="ml-price">'+priceStr+'</div>'
-      +'<div class="ml-arrow"></div>'
-      +'</div>';
+    const html='<div class="'+cls+'" style="transform:translate(-50%,-100%)"><div class="ml-brand">'+brand+'</div><div class="ml-price">'+priceStr+'</div><div class="ml-arrow"></div></div>';
     const icon=L.divIcon({className:'map-marker',html,iconAnchor:[0,0]});
-    const popup='<div class="popup-name">'+(s['Rótulo']||'Sin nombre')+(isBest?'<span class="popup-best">MÁS BARATA</span>':'')+'</div>'
-      +(pr?'<div class="popup-price">'+pr.toFixed(3)+'€ <span style="font-size:11px;color:#888;font-weight:400">'+FLBL[activeFuel]+'</span></div>':'<div style="color:#aaa;font-size:12px">Sin precio</div>')
-      +'<div class="popup-addr">'+(s['Dirección']||'')+', '+(s['Municipio']||'')+'</div>'
-      +'<a class="popup-btn" href="'+mUrl+'" target="_blank">Cómo llegar</a>';
+    const popup='<div class="popup-name">'+(s['Rótulo']||'Sin nombre')+(isBest?'<span class="popup-best">MÁS BARATA</span>':'')+'</div>'+(pr?'<div class="popup-price">'+pr.toFixed(3)+'€ <span style="font-size:11px;color:#888;font-weight:400">'+FLBL[activeFuel]+'</span></div>':'<div style="color:#aaa;font-size:12px">Sin precio</div>')+'<div class="popup-addr">'+(s['Dirección']||'')+', '+(s['Municipio']||'')+'</div><a class="popup-btn" href="'+mUrl+'" target="_blank">Cómo llegar</a>';
     stationMarkers.push(L.marker([lat,lon],{icon}).addTo(map).bindPopup(popup));
   });
 }
@@ -471,17 +488,12 @@ function checkAlerts(list){
   else banner.style.display='none';
 }
 
-/* FILTERS */
-function applyFilters(){
-  const isMap=currentMode==='map';
-  const chk24=document.getElementById(isMap?'chk24hMap':'chk24h')?.checked;
-  const chkOpen=document.getElementById(isMap?'chkOpenMap':'chkOpen')?.checked;
-  const chkFest=!isMap&&document.getElementById('chkFest')?.checked;
-  let list=[...filtered];
-  if(chk24)list=list.filter(s=>is24h(s['Horario']));
-  if(chkOpen)list=list.filter(s=>isOpenNow(s['Horario'])!==false);
-  if(chkFest)list=list.filter(s=>isFestivo(s['Horario']));
-  renderList(list);
+/* HORARIO FILTER */
+function filterHorario(list, selId){
+  const val=document.getElementById(selId)?.value||'';
+  if(val==='24h')return list.filter(s=>is24h(s['Horario']));
+  if(val==='open')return list.filter(s=>isOpenNow(s['Horario'])!==false);
+  return list;
 }
 
 /* SHOW RESULTS */
@@ -492,12 +504,13 @@ function showResults(msg){
   document.getElementById('sortRow').style.display='flex';
   document.getElementById('results').style.display='block';
   recordHistory(filtered);checkAlerts(filtered);
-  applyFilters();
+  render();
   setTimeout(()=>document.getElementById('infoBar').scrollIntoView({behavior:'smooth',block:'start'}),200);
 }
 
-/* LOCATE ME */
-function locateMeSearch(){
+/* LOCATE ME GPS */
+async function locateMeSearch(){
+  const ok=await loadData();if(!ok)return;
   if(!navigator.geolocation){alert('Tu navegador no soporta geolocalización.');return}
   const btn=document.getElementById('btnGeo');
   btn.innerHTML='<span class="spinner" style="width:18px;height:18px;border-width:2px;margin:0 8px 0 0"></span> Obteniendo ubicación...';
@@ -505,17 +518,18 @@ function locateMeSearch(){
   navigator.geolocation.getCurrentPosition(pos=>{
     btn.innerHTML='📍 &nbsp;Buscar cerca de mí';btn.disabled=false;
     const{latitude:lat,longitude:lon}=pos.coords;
-    const radius=parseInt(document.getElementById('selRadius').value);
-    const brand=document.getElementById('txtBrandGeo').value.trim().toLowerCase();
+    const radius=parseInt(document.getElementById('selRadiusGeo').value);
+    const brand=document.getElementById('selBrandGeo').value;
     currentMode='search';searchCenter={lat,lon};
     filtered=ALL.filter(s=>{
       const slat=parseFloat((s['Latitud']||'').replace(',','.')),slon=parseFloat((s['Longitud (WGS84)']||'').replace(',','.'));
       if(isNaN(slat)||isNaN(slon))return false;
       s._dist=haversine(lat,lon,slat,slon);
       if(s._dist>radius)return false;
-      if(brand&&!(s['Rótulo']||'').toLowerCase().includes(brand))return false;
+      if(brand&&s['Rótulo']!==brand)return false;
       return true;
     });
+    filtered=filterHorario(filtered,'selHorarioGeo');
     filtered.sort((a,b)=>(a._dist||0)-(b._dist||0));
     const withP=filtered.filter(s=>px(s[FKEY[activeFuel]])!==null).length;
     showResults('📍 <strong>'+filtered.length+'</strong> gasolineras en '+radius+' km &nbsp;·&nbsp; <strong>'+withP+'</strong> con precio de '+FLBL[activeFuel]);
@@ -523,37 +537,54 @@ function locateMeSearch(){
     setTimeout(()=>{if(mapReady){map.invalidateSize();map.setView([lat,lon],13);setMapCenter(lat,lon);addStationMarkers(filtered)}},300);
   },err=>{
     btn.innerHTML='📍 &nbsp;Buscar cerca de mí';btn.disabled=false;
-    if(err.code===1)alert('Permiso denegado.\n\nEn iPhone ve a: Ajustes → Safari → Ubicación → Permitir');
+    if(err.code===1)alert('Permiso denegado.\n\nEn iPhone: Ajustes → Safari → Ubicación → Permitir');
     else alert('No se pudo obtener la ubicación. Inténtalo de nuevo.');
   },{enableHighAccuracy:true,timeout:12000});
 }
 
-/* SEARCH BY ADDRESS (Nominatim) */
-async function searchByAddress(){
-  const addr=document.getElementById('txtAddr').value.trim();
-  if(!addr){alert('Escribe una dirección primero.');return}
-  const btn=document.querySelector('[onclick="searchByAddress()"]');
+/* SEARCH BY PROVINCE DROPDOWN (municipio seleccionado = centro geocodificado) */
+function onAddrChange(sel){
+  const prov=sel.value;
+  const selM=document.getElementById('selMuniAddr');
+  selM.innerHTML='<option value="">— Todos los municipios —</option>';
+  document.getElementById('addrInputRow').style.display=prov?'flex':'none';
+  document.getElementById('addrInputRow2').style.display=prov?'flex':'none';
+  if(!prov)return;
+  [...new Set(ALL.filter(s=>s['Provincia']===prov).map(s=>s['Municipio']))].sort().forEach(m=>{
+    const o=document.createElement('option');o.value=m;o.textContent=m;selM.appendChild(o);
+  });
+}
+
+async function doSearchAddr(){
+  const ok=await loadData();if(!ok)return;
+  const prov=document.getElementById('selAddr').value;
+  const muni=document.getElementById('selMuniAddr').value;
+  const radius=parseInt(document.getElementById('selRadiusAddr').value);
+  const brand=document.getElementById('selBrandAddr').value;
+  if(!prov){alert('Selecciona una provincia primero.');return}
+  const query=(muni||prov)+', España';
+  const btn=document.querySelector('[onclick="doSearchAddr()"]');
   btn.textContent='Buscando...';btn.disabled=true;
   try{
-    const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(addr+', España')+'&limit=1',{headers:{'Accept-Language':'es','User-Agent':'GasolinerasApp/1.0'}});
+    const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(query)+'&limit=1',{headers:{'Accept-Language':'es','User-Agent':'GasolinerasApp/1.0'}});
     const data=await r.json();
     btn.textContent='Buscar';btn.disabled=false;
-    if(!data.length){alert('No se encontró la dirección. Prueba con otra más específica.');return}
+    if(!data.length){alert('No se encontró la ubicación. Prueba con un municipio diferente.');return}
     const lat=parseFloat(data[0].lat),lon=parseFloat(data[0].lon);
-    const radius=parseInt(document.getElementById('selRadiusAddr').value);
-    const brand=document.getElementById('txtBrandAddr').value.trim().toLowerCase();
     currentMode='search';searchCenter={lat,lon};
     filtered=ALL.filter(s=>{
       const slat=parseFloat((s['Latitud']||'').replace(',','.')),slon=parseFloat((s['Longitud (WGS84)']||'').replace(',','.'));
       if(isNaN(slat)||isNaN(slon))return false;
       s._dist=haversine(lat,lon,slat,slon);
       if(s._dist>radius)return false;
-      if(brand&&!(s['Rótulo']||'').toLowerCase().includes(brand))return false;
+      if(brand&&s['Rótulo']!==brand)return false;
       return true;
     });
+    filtered=filterHorario(filtered,'selHorarioAddr');
     filtered.sort((a,b)=>(a._dist||0)-(b._dist||0));
     const withP=filtered.filter(s=>px(s[FKEY[activeFuel]])!==null).length;
-    showResults('📍 <strong>'+filtered.length+'</strong> gasolineras en '+radius+' km de <strong>'+data[0].display_name.split(',')[0]+'</strong> &nbsp;·&nbsp; <strong>'+withP+'</strong> con precio de '+FLBL[activeFuel]);
+    const label=muni||prov;
+    showResults('📍 <strong>'+filtered.length+'</strong> gasolineras en '+radius+' km de <strong>'+label+'</strong> &nbsp;·&nbsp; <strong>'+withP+'</strong> con precio de '+FLBL[activeFuel]);
     if(!mapReady)initMap();
     setTimeout(()=>{if(mapReady){map.invalidateSize();map.setView([lat,lon],13);setMapCenter(lat,lon);addStationMarkers(filtered)}},300);
   }catch(e){
@@ -564,38 +595,50 @@ async function searchByAddress(){
 
 /* PROVINCE SEARCH */
 function onProvChange(){
-  const prov=document.getElementById('selProv').value,selM=document.getElementById('selMuni');
+  const prov=document.getElementById('selProv').value;
+  const selM=document.getElementById('selMuni');
   selM.innerHTML='<option value="">— Todos los municipios —</option>';
   if(!prov)return;
-  [...new Set(ALL.filter(s=>s['Provincia']===prov).map(s=>s['Municipio']))].sort().forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;selM.appendChild(o)});
+  [...new Set(ALL.filter(s=>s['Provincia']===prov).map(s=>s['Municipio']))].sort().forEach(m=>{
+    const o=document.createElement('option');o.value=m;o.textContent=m;selM.appendChild(o);
+  });
 }
-function doSearchProv(){
-  const prov=document.getElementById('selProv').value,muni=document.getElementById('selMuni').value,cp=document.getElementById('txtCP').value.trim(),brand=document.getElementById('txtBrandProv').value.trim().toLowerCase();
-  if(!prov&&!cp){alert('Selecciona una provincia o introduce un código postal.');return}
+
+async function doSearchProv(){
+  const ok=await loadData();if(!ok)return;
+  const prov=document.getElementById('selProv').value;
+  const muni=document.getElementById('selMuni').value;
+  const cp=document.getElementById('selCP').value;
+  const brand=document.getElementById('selBrandProv').value;
+  if(!prov&&!cp){alert('Selecciona una provincia o un código postal.');return}
   currentMode='search';searchCenter=null;
   filtered=ALL.filter(s=>{
     if(cp){if((s['C.P.']||'').trim()!==cp)return false}
     else{if(s['Provincia']!==prov)return false;if(muni&&s['Municipio']!==muni)return false}
-    if(brand&&!(s['Rótulo']||'').toLowerCase().includes(brand))return false;
+    if(brand&&s['Rótulo']!==brand)return false;
     return true;
   });
+  filtered=filterHorario(filtered,'selHorarioProv');
   const withP=filtered.filter(s=>px(s[FKEY[activeFuel]])!==null).length;
   showResults('<strong>'+filtered.length+'</strong> gasolineras &nbsp;·&nbsp; <strong>'+withP+'</strong> con precio de '+FLBL[activeFuel]+(cp?' &nbsp;·&nbsp; CP <strong>'+cp+'</strong>':''));
 }
 
 /* MAP SEARCH */
-function doSearchMap(){
+async function doSearchMap(){
+  const ok=await loadData();if(!ok)return;
   if(!searchCenter){alert('Haz clic en el mapa primero.');return}
-  const radius=parseInt(document.getElementById('radiusRange').value),brand=document.getElementById('txtBrandMap').value.trim().toLowerCase();
+  const radius=parseInt(document.getElementById('radiusRange').value);
+  const brand=document.getElementById('selBrandMap').value;
   currentMode='map';
   filtered=ALL.filter(s=>{
     const lat=parseFloat((s['Latitud']||'').replace(',','.')),lon=parseFloat((s['Longitud (WGS84)']||'').replace(',','.'));
     if(isNaN(lat)||isNaN(lon))return false;
     s._dist=haversine(searchCenter.lat,searchCenter.lon,lat,lon);
     if(s._dist>radius)return false;
-    if(brand&&!(s['Rótulo']||'').toLowerCase().includes(brand))return false;
+    if(brand&&s['Rótulo']!==brand)return false;
     return true;
   });
+  filtered=filterHorario(filtered,'selHorarioMap');
   filtered.sort((a,b)=>(a._dist||0)-(b._dist||0));
   const withP=filtered.filter(s=>px(s[FKEY[activeFuel]])!==null).length;
   showResults('<strong>'+filtered.length+'</strong> gasolineras en '+radius+' km &nbsp;·&nbsp; <strong>'+withP+'</strong> con precio de '+FLBL[activeFuel]);
@@ -603,10 +646,9 @@ function doSearchMap(){
 }
 
 /* RENDER */
-function render(){applyFilters()}
-function renderList(list){
+function render(){
   const key=FKEY[activeFuel],sort=document.getElementById('selSort')?.value||'price',limit=parseInt(document.getElementById('selLimit')?.value||'20');
-  let work=list.filter(s=>px(s[key])!==null);
+  let work=filtered.filter(s=>px(s[key])!==null);
   if(!work.length){document.getElementById('results').innerHTML='<div class="empty">Sin precios para <strong>'+FLBL[activeFuel]+'</strong>.<br>Prueba otro combustible o amplía la búsqueda.</div>';return}
   if(sort==='price')work.sort((a,b)=>px(a[key])-px(b[key]));
   else if(sort==='dist')work.sort((a,b)=>(a._dist||999)-(b._dist||999));
@@ -654,8 +696,8 @@ function buildCard(s,i,minP,key,inFavTab){
 }
 
 function toggleFav(id,btn){
-  if(FAVS.includes(id)){FAVS=FAVS.filter(f=>f!==id);btn.classList.remove('fav-on');btn.textContent='⭐ Añadir'}
-  else{FAVS.push(id);btn.classList.add('fav-on');btn.textContent='⭐ Favorita'}
+  if(FAVS.includes(id)){FAVS=FAVS.filter(f=>f!==id);btn.classList.remove('fav-on');btn.innerHTML='⭐ Añadir'}
+  else{FAVS.push(id);btn.classList.add('fav-on');btn.innerHTML='⭐ Favorita'}
   saveFavs();
 }
 function renderFavs(){
@@ -705,25 +747,10 @@ function onCardClick(lat,lon,sid){
   const el=document.getElementById(sid);if(el)el.classList.add('highlight');
 }
 
-/* INIT — no carga gasolineras hasta que el usuario busca */
-(async function init(){
-  try{
-    const r=await fetch('https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/');
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    const data=await r.json();
-    ALL=data.ListaEESSPrecio||[];
-    if(!ALL.length)throw new Error('Sin datos');
-    const fecha=data.Fecha||'';
-    if(fecha)document.getElementById('lastUpdate').textContent='Actualizado: '+fecha;
-    const provs=[...new Set(ALL.map(s=>s['Provincia']))].sort();
-    const sel=document.getElementById('selProv');
-    provs.forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;sel.appendChild(o)});
-    document.getElementById('loadSection').style.display='none';
-    document.getElementById('mainUI').style.display='block';
-    if(ALERTS.length&&FAVS.length){const fs=ALL.filter(s=>FAVS.includes(stationId(s)));checkAlerts(fs)}
-  }catch(e){
-    document.getElementById('loadSection').innerHTML='<div class="empty">⚠️ Error al cargar datos.<br><br><small>'+e.message+'</small><br><br><button class="btn" onclick="location.reload()">Reintentar</button></div>';
-  }
+/* INIT — solo muestra la UI, NO carga datos todavía */
+(function init(){
+  document.getElementById('loadSection').style.display='none';
+  document.getElementById('mainUI').style.display='block';
 })();
 </script>
 </body>
