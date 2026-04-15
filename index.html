@@ -517,7 +517,7 @@ function switchTab(id){
   document.getElementById(id).classList.add('active');
   const navMap={tabSearch:'bnavSearch',tabFav:'bnavFav',tabAlerts:'bnavAlerts'};
   document.getElementById(navMap[id]).classList.add('active');
-  if(id==='tabSearch')setTimeout(()=>map.invalidateSize(),50);
+  if(id==='tabSearch')setTimeout(()=>map.invalidateSize(),80);
   if(id==='tabFav')renderFavs();
   if(id==='tabAlerts')renderAlerts();
 }
@@ -625,6 +625,8 @@ function applyFiltersAndRender(){
   if(!rawResults.length)return;
   filtered=applyCommonFilters(rawResults);
   checkAlerts(filtered);
+  const withP=filtered.filter(s=>px(s[FKEY[activeFuel]])!==null).length;
+  document.getElementById('infoBar').innerHTML=document.getElementById('infoBar').innerHTML.replace(/<strong>\d+<\/strong> gasolineras/,'<strong>'+filtered.length+'</strong> gasolineras').replace(/<strong>\d+<\/strong> con precio/,'<strong>'+withP+'</strong> con precio');
   render();
   addStationMarkers(filtered);
 }
@@ -855,8 +857,8 @@ function onCardClick(lat,lon,sid){
     map.setView([lat,lon],16);
     stationMarkers.forEach(m=>{if(Math.abs(m.getLatLng().lat-lat)<0.0001&&Math.abs(m.getLatLng().lng-lon)<0.0001)m.openPopup()});
     document.querySelectorAll('.scard').forEach(c=>c.classList.remove('highlight'));
-    const el=document.getElementById(sid);if(el)el.classList.add('highlight');
-  },60);
+    const el=document.getElementById(sid);if(el){el.classList.add('highlight');el.scrollIntoView({behavior:'smooth',block:'nearest'})}
+  },100);
 }
 
 /* ── INIT ── */
