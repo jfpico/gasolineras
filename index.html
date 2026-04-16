@@ -103,7 +103,8 @@ header a{color:var(--blue);text-decoration:none}
 .ts-wrapper{width:100%}
 .ts-control{min-height:44px!important;border:0.5px solid var(--border2)!important;border-radius:var(--radius)!important;background:var(--surface2)!important;color:var(--text)!important;font-size:14px!important;font-family:inherit!important;padding:4px 10px!important}
 .ts-control input{color:var(--text)!important;font-size:14px!important}
-.ts-dropdown{background:var(--surface)!important;border:0.5px solid var(--border2)!important;border-radius:var(--radius)!important;font-size:14px!important;color:var(--text)!important}
+.ts-dropdown{background:var(--surface)!important;border:0.5px solid var(--border2)!important;border-radius:var(--radius)!important;font-size:14px!important;color:var(--text)!important;max-height:220px!important;overflow-y:auto!important}
+.ts-dropdown-content{max-height:220px!important;overflow-y:auto!important}
 .ts-dropdown .option{padding:10px 12px!important}
 .ts-dropdown .option.active{background:var(--blue-light)!important;color:var(--blue-dark)!important}
 .ts-dropdown .option:hover{background:var(--surface2)!important}
@@ -517,7 +518,11 @@ function switchTab(id){
   document.getElementById(id).classList.add('active');
   const navMap={tabSearch:'bnavSearch',tabFav:'bnavFav',tabAlerts:'bnavAlerts'};
   document.getElementById(navMap[id]).classList.add('active');
-  if(id==='tabSearch')setTimeout(()=>map.invalidateSize(),80);
+  if(id==='tabSearch'){
+    // Restaurar resultados si ya había una búsqueda previa
+    if(filtered.length>0) document.getElementById('resultsSection').style.display='block';
+    setTimeout(()=>map.invalidateSize(),80);
+  }
   if(id==='tabFav')renderFavs();
   if(id==='tabAlerts')renderAlerts();
 }
