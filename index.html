@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Gasolineras</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -13,169 +12,163 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0d120e;--surface:rgba(16,22,16,0.95);--surface2:rgba(18,26,18,0.97);
+  --bg:#0d120e;--surface:rgba(14,20,14,0.96);--surface2:rgba(16,24,16,0.98);
   --border:rgba(255,255,255,0.08);--text:#e8f0e6;--text2:#7a9278;--text3:#445542;
   --green:#4CD964;--font:'Figtree',system-ui,sans-serif;
 }
 html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--font);color:var(--text);-webkit-tap-highlight-color:transparent}
 
-/* MAP */
 #map{position:fixed;inset:0;z-index:0}
 .leaflet-control-zoom,.leaflet-control-attribution{display:none!important}
 
-/* PINS */
-.pin-wrap{display:flex;flex-direction:column;align-items:center;cursor:pointer;filter:drop-shadow(0 3px 8px rgba(0,0,0,0.4))}
-.pin-bubble{display:flex;align-items:center;gap:5px;background:#fff;border-radius:20px;padding:4px 10px 4px 4px;border:2px solid rgba(0,0,0,0.1);white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.18);transition:transform .2s cubic-bezier(.34,1.56,.64,1),border-color .2s}
-.pin-bubble.selected{border-color:var(--pin-color,#4CD964);transform:scale(1.13)}
-.pin-logo{width:24px;height:24px;border-radius:12px;overflow:hidden;flex-shrink:0;background:#f0f0f0;display:flex;align-items:center;justify-content:center}
-.pin-logo img{width:24px;height:24px;object-fit:contain}
-.pin-price{font-size:12.5px;font-weight:800;letter-spacing:-0.3px;color:#111}
+/* PINS — white bubble like Apple Maps */
+.pin-wrap{display:flex;flex-direction:column;align-items:center;cursor:pointer;filter:drop-shadow(0 3px 10px rgba(0,0,0,0.4))}
+.pin-bubble{display:flex;align-items:center;gap:5px;background:#fff;border-radius:20px;padding:4px 10px 4px 4px;border:2px solid rgba(0,0,0,0.08);white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.15);transition:transform .18s cubic-bezier(.34,1.56,.64,1),border-color .2s}
+.pin-bubble.selected{border-color:var(--pc,#4CD964);transform:scale(1.15);box-shadow:0 4px 16px rgba(0,0,0,0.3)}
+.pin-logo-wrap{width:24px;height:24px;border-radius:12px;overflow:hidden;flex-shrink:0;background:#f0f0f0;display:flex;align-items:center;justify-content:center}
+.pin-logo-wrap img{width:22px;height:22px;object-fit:contain}
+.pin-price{font-size:12.5px;font-weight:800;letter-spacing:-0.3px;color:#1a1a1a}
 .pin-tail{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid #fff;margin-top:-1px}
 
 /* TOP BAR */
-#topbar{position:fixed;top:0;left:0;right:0;z-index:100;padding:env(safe-area-inset-top,44px) 12px 10px;display:flex;flex-direction:column;gap:8px;pointer-events:none}
-.search-row{display:flex;gap:8px;align-items:center;pointer-events:all;animation:slideDown .4s cubic-bezier(.34,1.56,.64,1) both}
-@keyframes slideDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:none}}
-#search-box{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:0 12px;height:44px;display:flex;align-items:center;gap:8px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 2px 12px rgba(0,0,0,0.4);transition:border-color .2s}
-#search-box:focus-within{border-color:rgba(76,217,100,0.4)}
+#topbar{position:fixed;top:0;left:0;right:0;z-index:100;padding:env(safe-area-inset-top,44px) 12px 8px;display:flex;flex-direction:column;gap:7px;pointer-events:none}
+.search-row{display:flex;gap:8px;align-items:center;pointer-events:all}
+#search-box{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:0 12px;height:44px;display:flex;align-items:center;gap:8px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 2px 16px rgba(0,0,0,0.45);transition:border-color .2s}
+#search-box:focus-within{border-color:rgba(76,217,100,0.45)}
 #search-input{flex:1;background:none;border:none;outline:none;font-family:var(--font);font-size:14px;font-weight:500;color:var(--text)}
-#search-input::placeholder{color:var(--text3);font-size:13px}
-#search-clear{color:var(--text3);font-size:13px;cursor:pointer;padding:4px;display:none;flex-shrink:0}
-#location-pill{align-self:center;pointer-events:all;background:rgba(0,0,0,0.5);border:1px solid var(--border);border-radius:20px;padding:6px 16px;display:flex;gap:8px;align-items:center;font-size:13px;font-weight:600;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);animation:fadeIn .5s .3s both;cursor:pointer}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-#pill-loc{color:var(--text)}
-#pill-count{color:var(--text2);font-weight:500}
+#search-input::placeholder{color:var(--text3);font-size:12.5px}
+#search-clear{color:var(--text3);font-size:12px;cursor:pointer;padding:4px;display:none;flex-shrink:0}
+
+#search-tags{display:flex;gap:5px;overflow-x:auto;pointer-events:all;padding-bottom:1px}
+#search-tags::-webkit-scrollbar{display:none}
+.stag{background:rgba(0,0,0,0.52);border:1px solid rgba(255,255,255,0.1);border-radius:11px;padding:5px 11px;font-size:11.5px;font-weight:700;color:var(--text2);cursor:pointer;white-space:nowrap;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);flex-shrink:0;transition:all .18s;user-select:none}
+.stag:active,.stag.active-tag{color:var(--green);border-color:rgba(76,217,100,0.4);background:rgba(76,217,100,0.08)}
+
+#location-pill{align-self:center;pointer-events:all;background:rgba(0,0,0,0.52);border:1px solid rgba(255,255,255,0.09);border-radius:20px;padding:5px 14px;display:flex;gap:8px;align-items:center;font-size:12.5px;font-weight:600;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);cursor:pointer}
+#pill-loc{color:var(--text)}#pill-count{color:var(--text2);font-weight:500;font-size:11.5px}
 
 /* FUEL TABS */
-#fuel-tabs{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:100;background:var(--surface2);border:1px solid var(--border);border-radius:28px;padding:4px;display:flex;gap:3px;box-shadow:0 4px 24px rgba(0,0,0,0.5);animation:slideUp .45s .2s cubic-bezier(.34,1.56,.64,1) both;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);white-space:nowrap}
-@keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-.fuel-tab{padding:8px 14px;border-radius:22px;font-family:var(--font);font-size:13px;font-weight:700;color:var(--text3);cursor:pointer;border:1.5px solid transparent;transition:color .2s,border-color .2s,background .2s;background:none}
-.fuel-tab.active{color:var(--tab-color);border-color:var(--tab-color);background:rgba(255,255,255,0.05)}
+#fuel-tabs{position:fixed;bottom:78px;left:50%;transform:translateX(-50%);z-index:100;background:var(--surface2);border:1px solid var(--border);border-radius:28px;padding:4px;display:flex;gap:2px;box-shadow:0 4px 24px rgba(0,0,0,0.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.fuel-tab{padding:8px 13px;border-radius:22px;font-family:var(--font);font-size:13px;font-weight:700;color:var(--text3);cursor:pointer;border:1.5px solid transparent;transition:all .18s;background:none;white-space:nowrap}
+.fuel-tab.active{color:var(--tc);border-color:var(--tc);background:rgba(255,255,255,0.05)}
 
-/* LOCATE BTN */
-#locate-btn{position:fixed;right:16px;bottom:150px;z-index:100;width:46px;height:46px;background:var(--surface2);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.5);font-size:20px;animation:fadeIn .5s .4s both;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:transform .15s}
-#locate-btn:active{transform:scale(0.9)}
+/* LOCATE */
+#locate-btn{position:fixed;right:14px;bottom:148px;z-index:100;width:44px;height:44px;background:var(--surface2);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.5);font-size:19px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:transform .15s;color:var(--green)}
+#locate-btn:active{transform:scale(0.88)}
 
 /* TAB BAR */
-#tabbar{position:fixed;bottom:0;left:0;right:0;z-index:100;padding:0 12px;padding-bottom:max(env(safe-area-inset-bottom),12px)}
+#tabbar{position:fixed;bottom:0;left:0;right:0;z-index:100;padding:0 12px;padding-bottom:max(env(safe-area-inset-bottom),10px)}
 .tabbar-inner{background:var(--surface2);border:1px solid var(--border);border-radius:22px;display:flex;box-shadow:0 -2px 20px rgba(0,0,0,0.5);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
-.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 8px 8px;cursor:pointer;position:relative}
-.tab-icon{font-size:20px;opacity:.4;transition:opacity .2s}
-.tab-label{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.2px;transition:color .2s}
-.tab-dot{position:absolute;bottom:2px;width:4px;height:4px;border-radius:2px;background:var(--green);opacity:0;transition:opacity .2s}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 8px 7px;cursor:pointer;position:relative;user-select:none}
+.tab-icon{font-size:20px;opacity:.35;transition:opacity .2s}
+.tab-label{font-size:10px;font-weight:700;color:var(--text3);transition:color .2s}
+.tab-dot{position:absolute;bottom:1px;width:4px;height:4px;border-radius:2px;background:var(--green);opacity:0;transition:opacity .2s}
 .tab-item.active .tab-icon{opacity:1}
 .tab-item.active .tab-label{color:var(--green)}
 .tab-item.active .tab-dot{opacity:1}
 
 /* LOADING */
-#loading{position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:rgba(8,13,8,0.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:opacity .5s}
+#loading{position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:rgba(6,10,6,0.75);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:opacity .5s}
 #loading.hidden{opacity:0;pointer-events:none}
-.loading-card{background:rgba(18,26,18,0.97);border:1px solid rgba(76,217,100,0.2);border-radius:28px;padding:36px 40px;display:flex;flex-direction:column;align-items:center;width:min(80vw,300px);box-shadow:0 0 60px rgba(76,217,100,0.12),0 20px 40px rgba(0,0,0,0.5)}
-.loading-icon-wrap{position:relative;width:72px;height:72px;display:flex;align-items:center;justify-content:center;margin-bottom:18px}
-.loading-icon{font-size:48px;animation:lpulse 1.4s ease-in-out infinite}
+.lcard{background:rgba(16,24,16,0.98);border:1px solid rgba(76,217,100,0.18);border-radius:28px;padding:34px 38px;display:flex;flex-direction:column;align-items:center;width:min(82vw,300px);box-shadow:0 0 50px rgba(76,217,100,0.1),0 20px 40px rgba(0,0,0,0.6)}
+.licon{font-size:52px;animation:lpulse 1.4s ease-in-out infinite;margin-bottom:16px;position:relative}
 @keyframes lpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
-.loading-ring{position:absolute;inset:0;border-radius:50%;border:2px solid var(--green);animation:lring 1.4s ease-in-out infinite}
-@keyframes lring{0%{opacity:.6;transform:scale(1)}50%,100%{opacity:0;transform:scale(1.5)}}
-.loading-title{font-size:20px;font-weight:800;color:var(--text);margin-bottom:6px;text-align:center}
-.loading-sub{font-size:12.5px;color:var(--text2);text-align:center;line-height:1.5;margin-bottom:22px}
-.loading-dots{display:flex;gap:7px;margin-bottom:22px}
-.ldot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:ldot 1.2s ease-in-out infinite}
+.lring{position:absolute;inset:-12px;border-radius:50%;border:2px solid var(--green);animation:lring 1.4s ease-in-out infinite}
+@keyframes lring{0%{opacity:.6;transform:scale(1)}60%,100%{opacity:0;transform:scale(1.5)}}
+.ltitle{font-size:19px;font-weight:800;text-align:center;margin-bottom:5px}
+.lsub{font-size:12px;color:var(--text2);text-align:center;line-height:1.5;margin-bottom:20px}
+.ldots{display:flex;gap:7px;margin-bottom:20px}
+.ldot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:ldot 1.2s ease-in-out infinite}
 .ldot:nth-child(2){animation-delay:.2s}.ldot:nth-child(3){animation-delay:.4s}
-@keyframes ldot{0%,100%{transform:translateY(0);opacity:.3}50%{transform:translateY(-7px);opacity:1}}
-.loading-badge{background:rgba(76,217,100,0.1);border:1px solid rgba(76,217,100,0.25);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:600;color:var(--green)}
+@keyframes ldot{0%,100%{transform:translateY(0);opacity:.25}50%{transform:translateY(-7px);opacity:1}}
+.lbadge{background:rgba(76,217,100,0.09);border:1px solid rgba(76,217,100,0.22);border-radius:18px;padding:5px 13px;font-size:11px;font-weight:700;color:var(--green)}
+
+/* ERROR STATE */
+.lerror-btn{margin-top:14px;background:var(--green);border-radius:12px;padding:10px 20px;font-size:13px;font-weight:700;color:#071007;cursor:pointer}
 
 /* STATION SHEET */
-#sheet-backdrop{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.3);opacity:0;pointer-events:none;transition:opacity .3s}
-#sheet-backdrop.visible{opacity:1;pointer-events:all}
-#station-sheet{position:fixed;bottom:0;left:0;right:0;z-index:201;background:#101810;border-top-left-radius:24px;border-top-right-radius:24px;border-top:1px solid var(--border);padding-bottom:max(env(safe-area-inset-bottom),20px);box-shadow:0 -8px 40px rgba(0,0,0,0.55);transform:translateY(100%);transition:transform .35s cubic-bezier(.32,0,.67,0)}
-#station-sheet.open{transform:translateY(0);transition:transform .4s cubic-bezier(.34,1.1,.64,1)}
-.sheet-handle{width:36px;height:4px;background:rgba(255,255,255,0.18);border-radius:2px;margin:10px auto 4px}
-.sheet-header{display:flex;align-items:center;gap:12px;padding:10px 16px 4px}
-.sheet-logo{width:50px;height:50px;border-radius:13px;overflow:hidden;flex-shrink:0;background:#f5f5f5;display:flex;align-items:center;justify-content:center}
-.sheet-logo img{width:50px;height:50px;object-fit:contain}
-.sheet-info{flex:1;min-width:0}
-.sheet-brand{font-size:18px;font-weight:800;letter-spacing:-.3px}
-.sheet-name{font-size:12px;color:var(--text2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sheet-addr{font-size:11px;color:var(--text3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sheet-close{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text2);cursor:pointer;flex-shrink:0}
-.prices-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px 16px}
-.price-card{background:#181e18;border:1.5px solid rgba(255,255,255,0.06);border-radius:14px;padding:10px 6px;text-align:center}
-.price-card.active{background:#1a251a}
-.pc-label{font-size:10px;font-weight:700;letter-spacing:.4px;margin-bottom:4px}
-.pc-price{font-size:17px;font-weight:900;color:var(--text);letter-spacing:-.5px}
-.pc-unit{font-size:9px;color:var(--text3);margin-top:2px}
-.sheet-footer{padding:4px 16px 8px;display:flex;flex-direction:column;gap:10px}
-.schedule-row{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text2)}
-.nav-btn{background:var(--green);border-radius:16px;padding:14px;text-align:center;font-size:15px;font-weight:700;color:#071007;cursor:pointer;transition:opacity .15s;user-select:none}
-.nav-btn:active{opacity:.85}
+#sheet-bd{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.32);opacity:0;pointer-events:none;transition:opacity .3s}
+#sheet-bd.on{opacity:1;pointer-events:all}
+#sheet{position:fixed;bottom:0;left:0;right:0;z-index:201;background:#0e160e;border-radius:24px 24px 0 0;border-top:1px solid var(--border);padding-bottom:max(env(safe-area-inset-bottom),18px);box-shadow:0 -8px 40px rgba(0,0,0,0.6);transform:translateY(100%);transition:transform .32s cubic-bezier(.32,0,.67,0)}
+#sheet.on{transform:translateY(0);transition:transform .38s cubic-bezier(.34,1.08,.64,1)}
+.shandle{width:34px;height:4px;background:rgba(255,255,255,0.15);border-radius:2px;margin:9px auto 3px}
+.shdr{display:flex;align-items:center;gap:11px;padding:9px 15px 3px}
+.shlogo{width:48px;height:48px;border-radius:12px;overflow:hidden;flex-shrink:0;background:#f0f0f0;display:flex;align-items:center;justify-content:center}
+.shlogo img{width:44px;height:44px;object-fit:contain}
+.shinfo{flex:1;min-width:0}
+.shbrand{font-size:17px;font-weight:800}
+.shname{font-size:11.5px;color:var(--text2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shaddr{font-size:10.5px;color:var(--text3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shclose{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text2);cursor:pointer;flex-shrink:0}
+.pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:10px 15px}
+.pcard{background:#161e16;border:1.5px solid rgba(255,255,255,0.05);border-radius:13px;padding:9px 5px;text-align:center}
+.pcard.hi{background:#19231a}
+.plabel{font-size:9.5px;font-weight:700;letter-spacing:.3px;margin-bottom:3px}
+.pprice{font-size:16px;font-weight:900;color:var(--text)}
+.punit{font-size:8.5px;color:var(--text3);margin-top:1px}
+.sfooter{padding:3px 15px 6px;display:flex;flex-direction:column;gap:9px}
+.sched{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text2)}
+.navbtn{background:var(--green);border-radius:15px;padding:13px;text-align:center;font-size:14px;font-weight:700;color:#061006;cursor:pointer;transition:opacity .15s}
+.navbtn:active{opacity:.82}
 
 /* LIST PANEL */
-#list-panel{position:fixed;inset:0;z-index:300;background:#0d120e;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .35s cubic-bezier(.32,0,.67,0)}
-#list-panel.open{transform:translateX(0);transition:transform .4s cubic-bezier(.34,1.1,.64,1)}
-.list-header{padding:env(safe-area-inset-top,44px) 16px 12px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0}
-.list-back{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0;user-select:none}
-.list-title{font-size:18px;font-weight:800}
-.list-subtitle{font-size:12px;color:var(--text2);margin-top:1px}
-.list-fuel-strip{display:flex;gap:6px;padding:10px 16px;background:var(--surface2);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0}
-.list-fuel-strip::-webkit-scrollbar{display:none}
-.lfuel-btn{padding:6px 14px;border-radius:20px;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;border:1.5px solid transparent;background:rgba(255,255,255,0.04);color:var(--text3);transition:all .2s}
-.lfuel-btn.active{color:var(--tab-color);border-color:var(--tab-color);background:rgba(255,255,255,0.07)}
-#list-items{flex:1;overflow-y:auto;padding:8px 12px;padding-bottom:max(env(safe-area-inset-bottom),20px)}
-#list-items::-webkit-scrollbar{display:none}
-.list-item{display:flex;align-items:center;gap:12px;background:#131a13;border:1px solid var(--border);border-radius:16px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:background .15s}
-.list-item:active{background:#1a261a}
-.list-item-logo{width:40px;height:40px;border-radius:10px;overflow:hidden;flex-shrink:0;background:#f5f5f5;display:flex;align-items:center;justify-content:center}
-.list-item-logo img{width:36px;height:36px;object-fit:contain}
-.list-item-info{flex:1;min-width:0}
-.list-item-brand{font-size:14px;font-weight:700}
-.list-item-addr{font-size:11px;color:var(--text2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.list-item-dist{font-size:10px;color:var(--text3);margin-top:1px}
-.list-item-price{text-align:right;flex-shrink:0}
-.lip-value{font-size:20px;font-weight:900;letter-spacing:-.5px}
-.lip-label{font-size:9px;color:var(--text3);margin-top:1px}
-.list-rank{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800}
-.rank-1{background:rgba(76,217,100,0.2);color:var(--green)}
-.rank-2{background:rgba(76,217,100,0.12);color:#3aaa4a}
-.rank-3{background:rgba(76,217,100,0.07);color:#2a8a3a}
-.rank-other{background:rgba(255,255,255,0.05);color:var(--text3)}
-.list-empty{text-align:center;padding:60px 20px;color:var(--text2);font-size:15px;line-height:1.6}
-.list-loading{text-align:center;padding:40px 20px;color:var(--text2);font-size:14px}
+#list-panel{position:fixed;inset:0;z-index:300;background:#0a100a;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .32s cubic-bezier(.32,0,.67,0)}
+#list-panel.on{transform:translateX(0);transition:transform .38s cubic-bezier(.34,1.08,.64,1)}
+.lhdr{padding:env(safe-area-inset-top,44px) 15px 11px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;flex-shrink:0}
+.lback{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;flex-shrink:0}
+.ltitle2{font-size:17px;font-weight:800}
+.lsub2{font-size:11px;color:var(--text2);margin-top:1px}
+.lfstrip{display:flex;gap:5px;padding:9px 14px;background:var(--surface2);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0}
+.lfstrip::-webkit-scrollbar{display:none}
+.lfbtn{padding:5px 13px;border-radius:18px;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;border:1.5px solid transparent;background:rgba(255,255,255,0.04);color:var(--text3);transition:all .18s}
+.lfbtn.active{color:var(--tc);border-color:var(--tc);background:rgba(255,255,255,0.06)}
+#list-body{flex:1;overflow-y:auto;padding:7px 11px;padding-bottom:max(env(safe-area-inset-bottom),18px)}
+#list-body::-webkit-scrollbar{display:none}
+.litem{display:flex;align-items:center;gap:11px;background:#111811;border:1px solid var(--border);border-radius:15px;padding:11px 13px;margin-bottom:7px;cursor:pointer;transition:background .14s;user-select:none}
+.litem:active{background:#192119}
+.lilogo{width:38px;height:38px;border-radius:9px;overflow:hidden;flex-shrink:0;background:#f0f0f0;display:flex;align-items:center;justify-content:center}
+.lilogo img{width:34px;height:34px;object-fit:contain}
+.liinfo{flex:1;min-width:0}
+.librand{font-size:13.5px;font-weight:700}
+.liaddr{font-size:10.5px;color:var(--text2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lidist{font-size:10px;color:var(--text3);margin-top:1px}
+.liprice{text-align:right;flex-shrink:0}
+.lipval{font-size:19px;font-weight:900}
+.lipunit{font-size:8.5px;color:var(--text3);margin-top:1px}
+.lrank{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:800}
+.r1{background:rgba(76,217,100,0.18);color:var(--green)}
+.r2{background:rgba(76,217,100,0.1);color:#3aaa4a}
+.r3{background:rgba(76,217,100,0.06);color:#2a8a3a}
+.rx{background:rgba(255,255,255,0.05);color:var(--text3)}
+.lempty{text-align:center;padding:50px 20px;color:var(--text2);font-size:14px;line-height:1.7}
+#no-price-note{text-align:center;padding:8px 14px;font-size:11px;color:var(--text3);background:rgba(255,165,0,0.06);border-bottom:1px solid rgba(255,165,0,0.1)}
 
-/* SHARE MODAL */
+/* SHARE */
 #share-modal{position:fixed;inset:0;z-index:400;display:flex;align-items:flex-end;background:rgba(0,0,0,0.4);opacity:0;pointer-events:none;transition:opacity .3s}
-#share-modal.open{opacity:1;pointer-events:all}
-.share-card{width:100%;background:#101810;border-top-left-radius:24px;border-top-right-radius:24px;border-top:1px solid var(--border);padding:20px 20px max(env(safe-area-inset-bottom),24px);transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.1,.64,1)}
-#share-modal.open .share-card{transform:translateY(0)}
-.share-title{font-size:16px;font-weight:800;margin-bottom:16px;text-align:center}
-.share-option{display:flex;align-items:center;gap:14px;padding:14px 12px;border-radius:14px;cursor:pointer;transition:background .15s}
-.share-option:active{background:rgba(255,255,255,0.06)}
-.share-opt-icon{font-size:26px;width:36px;text-align:center}
-.share-opt-label{font-size:15px;font-weight:600}
-.share-opt-sub{font-size:12px;color:var(--text2)}
-.share-divider{height:1px;background:var(--border);margin:4px 0}
-.share-cancel{margin-top:12px;padding:14px;text-align:center;font-size:15px;font-weight:700;color:var(--text2);background:rgba(255,255,255,0.05);border-radius:14px;cursor:pointer}
-
-/* SEARCH SUGGESTIONS */
-#search-tags{display:flex;gap:6px;overflow-x:auto;pointer-events:all;padding-bottom:2px}
-#search-tags::-webkit-scrollbar{display:none}
-.stag{background:rgba(0,0,0,0.5);border:1px solid var(--border);border-radius:12px;padding:5px 11px;font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;white-space:nowrap;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);flex-shrink:0;transition:border-color .2s,color .2s}
-.stag:active{color:var(--green);border-color:var(--green)}
+#share-modal.on{opacity:1;pointer-events:all}
+.scard{width:100%;background:#0e160e;border-radius:24px 24px 0 0;border-top:1px solid var(--border);padding:18px 18px max(env(safe-area-inset-bottom),22px);transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.1,.64,1)}
+#share-modal.on .scard{transform:translateY(0)}
+.stitle{font-size:15px;font-weight:800;margin-bottom:14px;text-align:center}
+.sopt{display:flex;align-items:center;gap:13px;padding:13px 11px;border-radius:13px;cursor:pointer;transition:background .14s}
+.sopt:active{background:rgba(255,255,255,0.06)}
+.soico{font-size:24px;width:34px;text-align:center}
+.solabel{font-size:14px;font-weight:600}
+.sosub{font-size:11px;color:var(--text2)}
+.sdiv{height:1px;background:var(--border);margin:3px 0}
+.scancel{margin-top:10px;padding:13px;text-align:center;font-size:14px;font-weight:700;color:var(--text2);background:rgba(255,255,255,0.05);border-radius:13px;cursor:pointer}
 </style>
 </head>
 <body>
-
 <div id="map"></div>
 
-<!-- TOP BAR -->
 <div id="topbar">
   <div class="search-row">
     <div id="search-box">
-      <span style="font-size:14px;flex-shrink:0">🔍</span>
-      <input id="search-input" type="search" placeholder="Marca, municipio, provincia, CP…" autocomplete="off" inputmode="search"/>
+      <span style="font-size:14px;flex-shrink:0;opacity:.7">🔍</span>
+      <input id="search-input" type="search" placeholder="Marca, municipio, provincia, CP…" autocomplete="off"/>
       <span id="search-clear">✕</span>
     </div>
   </div>
-  <!-- Quick search tags -->
   <div id="search-tags">
     <span class="stag" data-q="Shell">Shell</span>
     <span class="stag" data-q="Repsol">Repsol</span>
@@ -185,6 +178,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
     <span class="stag" data-q="Campsa">Campsa</span>
     <span class="stag" data-q="Plenoil">Plenoil</span>
     <span class="stag" data-q="Ballenoil">Ballenoil</span>
+    <span class="stag" data-q="Tamoil">Tamoil</span>
   </div>
   <div id="location-pill">
     <span id="pill-loc">📍 Localizando…</span>
@@ -192,17 +186,15 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
   </div>
 </div>
 
-<!-- FUEL TABS -->
 <div id="fuel-tabs">
-  <button class="fuel-tab active" data-fuel="G95" style="--tab-color:#4CD964">G-95</button>
-  <button class="fuel-tab" data-fuel="G98" style="--tab-color:#5AC8FA">G-98</button>
-  <button class="fuel-tab" data-fuel="GOA" style="--tab-color:#FF9500">Diésel</button>
-  <button class="fuel-tab" data-fuel="GOP" style="--tab-color:#FF6B35">D+</button>
+  <button class="fuel-tab active" data-fuel="G95" style="--tc:#4CD964">G-95</button>
+  <button class="fuel-tab" data-fuel="G98" style="--tc:#5AC8FA">G-98</button>
+  <button class="fuel-tab" data-fuel="GOA" style="--tc:#FF9500">Diésel</button>
+  <button class="fuel-tab" data-fuel="GOP" style="--tc:#FF6B35">D+</button>
 </div>
 
-<div id="locate-btn" title="Mi ubicación">◎</div>
+<div id="locate-btn">◎</div>
 
-<!-- TAB BAR -->
 <div id="tabbar">
   <div class="tabbar-inner">
     <div class="tab-item active" data-tab="map"><div class="tab-icon">🗺️</div><div class="tab-label">Mapa</div><div class="tab-dot"></div></div>
@@ -211,104 +203,85 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
   </div>
 </div>
 
-<!-- LOADING -->
 <div id="loading">
-  <div class="loading-card">
-    <div class="loading-icon-wrap"><div class="loading-icon">⛽</div><div class="loading-ring"></div></div>
-    <div class="loading-title" id="loading-title">Cargando gasolineras</div>
-    <div class="loading-sub" id="loading-sub">Conectando con datos oficiales del Ministerio…</div>
-    <div class="loading-dots"><div class="ldot"></div><div class="ldot"></div><div class="ldot"></div></div>
-    <div class="loading-badge">🏛 Datos oficiales Ministerio</div>
+  <div class="lcard">
+    <div class="licon" style="position:relative">⛽<div class="lring"></div></div>
+    <div class="ltitle" id="ltitle">Cargando gasolineras</div>
+    <div class="lsub" id="lsub">Buscando estaciones cerca de ti…</div>
+    <div class="ldots"><div class="ldot"></div><div class="ldot"></div><div class="ldot"></div></div>
+    <div class="lbadge" id="lbadge">📡 OpenStreetMap + Ministerio</div>
+    <div id="lerror-btn" class="lerror-btn" style="display:none" onclick="location.reload()">🔄 Reintentar</div>
   </div>
 </div>
 
-<!-- STATION SHEET -->
-<div id="sheet-backdrop"></div>
-<div id="station-sheet">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <div class="sheet-logo" id="sheet-logo"></div>
-    <div class="sheet-info">
-      <div class="sheet-brand" id="sheet-brand"></div>
-      <div class="sheet-name" id="sheet-name"></div>
-      <div class="sheet-addr" id="sheet-addr"></div>
-    </div>
-    <div class="sheet-close" id="sheet-close">✕</div>
+<div id="sheet-bd"></div>
+<div id="sheet">
+  <div class="shandle"></div>
+  <div class="shdr">
+    <div class="shlogo" id="shlogo"></div>
+    <div class="shinfo"><div class="shbrand" id="shbrand"></div><div class="shname" id="shname"></div><div class="shaddr" id="shaddr"></div></div>
+    <div class="shclose" id="shclose">✕</div>
   </div>
-  <div class="prices-grid" id="prices-grid"></div>
-  <div class="sheet-footer">
-    <div class="schedule-row">🕐 <span id="sheet-schedule"></span></div>
-    <div class="nav-btn" id="nav-btn">🧭  Cómo llegar</div>
+  <div class="pgrid" id="pgrid"></div>
+  <div class="sfooter">
+    <div class="sched">🕐 <span id="ssched"></span></div>
+    <div class="navbtn" id="navbtn">🧭  Cómo llegar</div>
   </div>
 </div>
 
-<!-- LIST PANEL -->
 <div id="list-panel">
-  <div class="list-header">
-    <div class="list-back" id="list-back">←</div>
-    <div><div class="list-title">Gasolineras cercanas</div><div class="list-subtitle" id="list-subtitle">Cargando…</div></div>
+  <div class="lhdr">
+    <div class="lback" id="lback">←</div>
+    <div><div class="ltitle2">Gasolineras cercanas</div><div class="lsub2" id="lsub2">Ordenadas por precio</div></div>
   </div>
-  <div class="list-fuel-strip">
-    <button class="lfuel-btn active" data-fuel="G95" style="--tab-color:#4CD964">G-95</button>
-    <button class="lfuel-btn" data-fuel="G98" style="--tab-color:#5AC8FA">G-98</button>
-    <button class="lfuel-btn" data-fuel="GOA" style="--tab-color:#FF9500">Diésel</button>
-    <button class="lfuel-btn" data-fuel="GOP" style="--tab-color:#FF6B35">D+</button>
+  <div id="no-price-note" style="display:none">⚠️ Mostrando ubicaciones de OSM · Los precios se cargan del Ministerio</div>
+  <div class="lfstrip">
+    <button class="lfbtn active" data-fuel="G95" style="--tc:#4CD964">G-95</button>
+    <button class="lfbtn" data-fuel="G98" style="--tc:#5AC8FA">G-98</button>
+    <button class="lfbtn" data-fuel="GOA" style="--tc:#FF9500">Diésel</button>
+    <button class="lfbtn" data-fuel="GOP" style="--tc:#FF6B35">D+</button>
   </div>
-  <div id="list-items"><div class="list-loading">⛽ Cargando datos, un momento…</div></div>
+  <div id="list-body"><div class="lempty">⛽ Cargando…</div></div>
 </div>
 
-<!-- SHARE MODAL -->
 <div id="share-modal">
-  <div class="share-card">
-    <div class="share-title">Compartir app</div>
-    <div class="share-option" id="share-link"><div class="share-opt-icon">🔗</div><div><div class="share-opt-label">Copiar enlace</div><div class="share-opt-sub">Copia la dirección web</div></div></div>
-    <div class="share-divider"></div>
-    <div class="share-option" id="share-native"><div class="share-opt-icon">📤</div><div><div class="share-opt-label">Más opciones</div><div class="share-opt-sub">WhatsApp, Telegram, SMS…</div></div></div>
-    <div class="share-cancel" id="share-cancel">Cancelar</div>
+  <div class="scard">
+    <div class="stitle">Compartir app</div>
+    <div class="sopt" id="slink"><div class="soico">🔗</div><div><div class="solabel">Copiar enlace</div><div class="sosub">Copia la dirección web</div></div></div>
+    <div class="sdiv"></div>
+    <div class="sopt" id="snative"><div class="soico">📤</div><div><div class="solabel">Más opciones</div><div class="sosub">WhatsApp, Telegram…</div></div></div>
+    <div class="scancel" id="scancel">Cancelar</div>
   </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════
-// BRAND CONFIG + LOGOS
-// Logo URLs: favicon-size images from each brand's official domain
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════
+// BRANDS — logo from Clearbit (CORS-free CDN)
+// ═══════════════════════════════════════════
 const BRANDS = {
-  SHELL:     { name:'Shell',     color:'#DD1D21', logo:'https://www.shell.es/favicon.ico',      fallback:'https://upload.wikimedia.org/wikipedia/en/thumb/e/e8/Shell_logo.svg/120px-Shell_logo.svg.png' },
-  REPSOL:    { name:'Repsol',    color:'#FF6B00', logo:'https://www.repsol.com/favicon.ico',    fallback:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Repsol_logo.svg/200px-Repsol_logo.svg.png' },
-  CEPSA:     { name:'Cepsa',     color:'#00A651', logo:'https://www.cepsa.com/favicon.ico',     fallback:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Cepsa_logo.svg/200px-Cepsa_logo.svg.png' },
-  BP:        { name:'BP',        color:'#009900', logo:'https://www.bp.com/favicon.ico',        fallback:'https://upload.wikimedia.org/wikipedia/en/thumb/a/a9/BP_logo.svg/150px-BP_logo.svg.png' },
-  GALP:      { name:'Galp',      color:'#E30613', logo:'https://www.galp.com/favicon.ico',      fallback:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Galp_logo.svg/200px-Galp_logo.svg.png' },
-  TAMOIL:    { name:'Tamoil',    color:'#003DA5', logo:'https://www.tamoil.es/favicon.ico',     fallback:'https://logo.clearbit.com/tamoil.es' },
-  CAMPSA:    { name:'Campsa',    color:'#C8102E', logo:'https://logo.clearbit.com/campsa.es',   fallback:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Logo_Campsa.svg/200px-Logo_Campsa.svg.png' },
-  PETRONOR:  { name:'Petronor',  color:'#E4002B', logo:'https://www.petronor.es/favicon.ico',   fallback:'https://logo.clearbit.com/petronor.es' },
-  PLENOIL:   { name:'Plenoil',   color:'#00B140', logo:'https://www.plenoil.es/favicon.ico',    fallback:'https://logo.clearbit.com/plenoil.es' },
-  BALLENOIL: { name:'Ballenoil', color:'#0057A8', logo:'https://www.ballenoil.es/favicon.ico',  fallback:'https://logo.clearbit.com/ballenoil.es' },
-  MEROIL:    { name:'Meroil',    color:'#E4002B', logo:'https://logo.clearbit.com/meroil.es',   fallback:null },
-  CARREFOUR: { name:'Carrefour', color:'#003DA5', logo:'https://logo.clearbit.com/carrefour.es',fallback:null },
-  ALCAMPO:   { name:'Alcampo',   color:'#E4002B', logo:'https://logo.clearbit.com/alcampo.es',  fallback:null },
-  UNKNOWN:   { name:'Gasolinera',color:'#4a5a4a', logo:null, fallback:null },
+  SHELL:     { name:'Shell',     color:'#DD1D21', logo:'https://logo.clearbit.com/shell.com' },
+  REPSOL:    { name:'Repsol',    color:'#FF6B00', logo:'https://logo.clearbit.com/repsol.com' },
+  CEPSA:     { name:'Cepsa',     color:'#00A651', logo:'https://logo.clearbit.com/cepsa.com' },
+  BP:        { name:'BP',        color:'#007f00', logo:'https://logo.clearbit.com/bp.com' },
+  GALP:      { name:'Galp',      color:'#E30613', logo:'https://logo.clearbit.com/galp.com' },
+  TAMOIL:    { name:'Tamoil',    color:'#003DA5', logo:'https://logo.clearbit.com/tamoil.it' },
+  CAMPSA:    { name:'Campsa',    color:'#C8102E', logo:'https://logo.clearbit.com/campsa.es' },
+  PETRONOR:  { name:'Petronor',  color:'#E4002B', logo:'https://logo.clearbit.com/petronor.es' },
+  PLENOIL:   { name:'Plenoil',   color:'#00B140', logo:'https://logo.clearbit.com/plenoil.es' },
+  BALLENOIL: { name:'Ballenoil', color:'#0057A8', logo:'https://logo.clearbit.com/ballenoil.es' },
+  MEROIL:    { name:'Meroil',    color:'#CC0000', logo:'https://logo.clearbit.com/meroil.es' },
+  CARREFOUR: { name:'Carrefour', color:'#003DA5', logo:'https://logo.clearbit.com/carrefour.es' },
+  ALCAMPO:   { name:'Alcampo',   color:'#E4002B', logo:'https://logo.clearbit.com/alcampo.es' },
+  Q8:        { name:'Q8',        color:'#002F6C', logo:'https://logo.clearbit.com/q8.es' },
+  UNKNOWN:   { name:'Gasolinera',color:'#4a5a48', logo:null },
 };
 
-// Logo img element with fallback chain
-function logoImg(brandId, size=24) {
-  const b = BRANDS[brandId] || BRANDS.UNKNOWN;
-  const urls = [b.logo, b.fallback].filter(Boolean);
-  if (!urls.length) return `<div style="width:${size}px;height:${size}px;background:${b.color};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:${size*0.45}px;color:white;font-weight:900">⛽</div>`;
-  // Create img with onerror fallback chain
-  const errChain = urls.slice(1).map(u => `this.src='${u}'`).join(';') + `;this.onerror=null;this.style.display='none';this.parentNode.innerHTML='<div style="width:${size}px;height:${size}px;background:${b.color};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:${Math.round(size*0.45)}px;color:white;font-weight:900">⛽</div>'`;
-  return `<img src="${urls[0]}" width="${size}" height="${size}" style="object-fit:contain;border-radius:4px" onerror="${errChain}" loading="lazy">`;
-}
-
-// ═══════════════════════════════════════
-// DETECT BRAND
-// ═══════════════════════════════════════
 function detectBrand(r='') {
-  const u = r.toUpperCase();
+  const u = r.toUpperCase().trim();
   if (u.includes('SHELL'))      return 'SHELL';
   if (u.includes('REPSOL'))     return 'REPSOL';
   if (u.includes('CEPSA'))      return 'CEPSA';
-  if (u.includes('BP ') || u === 'BP') return 'BP';
+  if (u==='BP'||u.startsWith('BP ')) return 'BP';
   if (u.includes('GALP'))       return 'GALP';
   if (u.includes('TAMOIL'))     return 'TAMOIL';
   if (u.includes('CAMPSA'))     return 'CAMPSA';
@@ -318,122 +291,153 @@ function detectBrand(r='') {
   if (u.includes('MEROIL'))     return 'MEROIL';
   if (u.includes('CARREFOUR'))  return 'CARREFOUR';
   if (u.includes('ALCAMPO'))    return 'ALCAMPO';
+  if (u.includes('Q8'))         return 'Q8';
   return 'UNKNOWN';
 }
 
-// ═══════════════════════════════════════
+function brandLogo(brandId, sz=24) {
+  const b = BRANDS[brandId] || BRANDS.UNKNOWN;
+  if (!b.logo) return `<div style="width:${sz}px;height:${sz}px;background:${b.color};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:${Math.round(sz*.45)}px;color:#fff;font-weight:900">⛽</div>`;
+  const fb = `this.onerror=null;this.parentNode.innerHTML='<div style="width:${sz}px;height:${sz}px;background:${b.color};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:${Math.round(sz*.45)}px;color:#fff;font-weight:900">⛽</div>'`;
+  return `<img src="${b.logo}" width="${sz}" height="${sz}" style="object-fit:contain" onerror="${fb}" loading="lazy">`;
+}
+
+// ═══════════════════════════════════════════
 // FUELS
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════
 const FUELS = {
-  G95: { label:'G-95',   apiKey:'PrecioGasolina95E5',   color:'#4CD964' },
-  G98: { label:'G-98',   apiKey:'PrecioGasolina98E5',   color:'#5AC8FA' },
-  GOA: { label:'Diésel', apiKey:'PrecioGasoleoA',       color:'#FF9500' },
-  GOP: { label:'D+',     apiKey:'PrecioGasoleoPremium', color:'#FF6B35' },
+  G95:{ label:'G-95',   apiKey:'PrecioGasolina95E5',   osmKey:'fuel:octane_95',  color:'#4CD964' },
+  G98:{ label:'G-98',   apiKey:'PrecioGasolina98E5',   osmKey:'fuel:octane_98',  color:'#5AC8FA' },
+  GOA:{ label:'Diésel', apiKey:'PrecioGasoleoA',       osmKey:'fuel:diesel',     color:'#FF9500' },
+  GOP:{ label:'D+',     apiKey:'PrecioGasoleoPremium', osmKey:'fuel:diesel_plus',color:'#FF6B35' },
 };
 
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════
 // STATE
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════
 let map, userPos=null, allStations=[], currentFuel='G95', listFuel='G95';
-let mapMarkers=[], selectedStation=null, dataReady=false;
-const CACHE_KEY='gasv6', CACHE_TTL=2*3600*1000;
+let mapMarkers=[], selectedId=null, dataReady=false, hasPrices=false;
+let searchFilter=null;
+const CACHE_KEY='gasv7', CACHE_TTL=90*60*1000; // 90 min
 
-// ═══════════════════════════════════════
-// PRICE COLOR
-// ═══════════════════════════════════════
-function priceColor(p, all) {
-  const v = all.filter(Boolean);
-  if (!p || !v.length) return '#888';
-  const mn=Math.min(...v), mx=Math.max(...v);
-  if (mx===mn) return '#4CD964';
+// ═══════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════
+function haversine(a,b,c,d){
+  const R=6371,dL=(c-a)*Math.PI/180,dO=(d-b)*Math.PI/180;
+  const x=Math.sin(dL/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dO/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+
+function priceColor(p,all){
+  const v=all.filter(x=>x!=null&&x>0);
+  if(!p||!v.length)return'#888';
+  const mn=Math.min(...v),mx=Math.max(...v);
+  if(mx===mn)return'#4CD964';
   const r=(p-mn)/(mx-mn);
   return r<0.33?'#4CD964':r<0.66?'#FF9500':'#FF3B30';
 }
 
-// ═══════════════════════════════════════
-// MAP INIT
-// ═══════════════════════════════════════
-function initMap(lat=40.4168, lon=-3.7038) {
-  map = L.map('map', { center:[lat,lon], zoom:13, zoomControl:false, attributionControl:false });
-  // Standard OSM tiles - normal colors, not dark
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19 }).addTo(map);
-  map.on('moveend', renderMapMarkers);
+function parseP(s){if(!s)return null;const n=parseFloat(String(s).replace(',','.'));return isNaN(n)||n<=0?null:n;}
+
+// ═══════════════════════════════════════════
+// CACHE
+// ═══════════════════════════════════════════
+function loadCache(){
+  try{
+    const r=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');
+    if(!r||!r.data?.length)return null;
+    return{data:r.data,stale:Date.now()-r.ts>CACHE_TTL,hasPrices:!!r.hasPrices};
+  }catch{return null;}
+}
+function saveCache(data,hp){
+  try{localStorage.setItem(CACHE_KEY,JSON.stringify({ts:Date.now(),data,hasPrices:hp}));}catch{}
 }
 
-// ═══════════════════════════════════════
-// MAP MARKERS
-// ═══════════════════════════════════════
-const MAX_PINS = 60;
-
-function clearMapMarkers() {
-  mapMarkers.forEach(m => map.removeLayer(m));
-  mapMarkers = [];
-}
-
-function stationsToShow(filterFn) {
-  // apply optional extra filter (search)
-  let pool = filterFn ? allStations.filter(filterFn) : allStations;
-  return pool;
-}
-
-let activeSearchFilter = null;
-
-function renderMapMarkers() {
-  if (!allStations.length || !map) return;
-  const bounds = map.getBounds().pad(0.3);
-  let pool = activeSearchFilter ? allStations.filter(activeSearchFilter) : allStations;
-  let vis = pool.filter(s => bounds.contains([s.lat, s.lon]) && s.prices[currentFuel]);
-  if (vis.length > MAX_PINS) {
-    vis = vis.sort((a,b) => a.prices[currentFuel]-b.prices[currentFuel]).slice(0, MAX_PINS);
-  }
-  const prices = vis.map(s => s.prices[currentFuel]);
-  clearMapMarkers();
-  vis.forEach(s => {
-    const col = priceColor(s.prices[currentFuel], prices);
-    const prStr = s.prices[currentFuel].toFixed(3).replace('.', ',');
-    const isSel = selectedStation?.id === s.id;
-    const el = document.createElement('div');
-    el.className = 'pin-wrap';
-    el.innerHTML = `
-      <div class="pin-bubble${isSel?' selected':''}" style="--pin-color:${col}">
-        <div class="pin-logo">${logoImg(s.brand, 24)}</div>
-        <span class="pin-price">${prStr}</span>
-      </div>
-      <div class="pin-tail"></div>`;
-    const mk = L.marker([s.lat, s.lon], {
-      icon: L.divIcon({ html: el, className:'', iconAnchor:[38,40] }),
-      zIndexOffset: isSel ? 1000 : 0
-    });
-    el.addEventListener('click', e => { e.stopPropagation(); openSheet(s); });
-    mk.addTo(map);
-    mapMarkers.push(mk);
+// ═══════════════════════════════════════════
+// SOURCE 1: Overpass API (OpenStreetMap)
+// CORS-open, always works, has brands + coords
+// No prices, but reliable
+// ═══════════════════════════════════════════
+async function fetchOverpass(lat, lon, radiusKm=20) {
+  const r = radiusKm * 1000;
+  const query = `
+    [out:json][timeout:25];
+    (
+      node["amenity"="fuel"](around:${r},${lat},${lon});
+      way["amenity"="fuel"](around:${r},${lat},${lon});
+    );
+    out center tags;
+  `;
+  const url = 'https://overpass-api.de/api/interpreter';
+  const res = await fetch(url, {
+    method:'POST',
+    body:'data='+encodeURIComponent(query),
+    signal: AbortSignal.timeout(20000),
   });
-  const cnt = activeSearchFilter
-    ? pool.filter(s => bounds.contains([s.lat,s.lon])).length
-    : vis.length;
-  document.getElementById('pill-count').textContent = vis.length ? `${vis.length} estaciones` : '';
+  if (!res.ok) throw new Error('Overpass '+res.status);
+  const json = await res.json();
+  return (json.elements||[]).map(el => {
+    const t = el.tags||{};
+    const slat = el.lat ?? el.center?.lat;
+    const slon = el.lon ?? el.center?.lon;
+    if (!slat||!slon) return null;
+    const rawBrand = t.brand||t.name||t.operator||'';
+    const brand = detectBrand(rawBrand);
+    return {
+      id: 'osm_'+el.id,
+      name: t.name||t.brand||BRANDS[brand].name||'Gasolinera',
+      address: [t['addr:street'], t['addr:housenumber']].filter(Boolean).join(' '),
+      municipality: t['addr:city']||t['addr:town']||'',
+      province: t['addr:province']||'',
+      cp: t['addr:postcode']||'',
+      schedule: t.opening_hours||'',
+      brand, lat:slat, lon:slon,
+      prices:{ G95:null, G98:null, GOA:null, GOP:null },
+      osmId: el.id,
+    };
+  }).filter(Boolean);
 }
 
-// ═══════════════════════════════════════
-// DATA FETCHING - multiple strategies
-// ═══════════════════════════════════════
-function parseP(s) { if(!s) return null; const n=parseFloat(s.replace(',','.')); return isNaN(n)?null:n; }
+// ═══════════════════════════════════════════
+// SOURCE 2: Ministerio API via proxy
+// Has real-time prices but CORS issues
+// ═══════════════════════════════════════════
+async function fetchMinisterioProxy(lat, lon) {
+  const apiUrl = `https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestresHB/FiltroMunicipioDistanciaProducto/${lat}/${lon}/25/6`;
+  const proxies = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`,
+    `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`,
+  ];
+  for (const px of proxies) {
+    try {
+      const res = await fetch(px, { signal: AbortSignal.timeout(14000) });
+      if (!res.ok) continue;
+      const text = await res.text();
+      let json; try { json=JSON.parse(text); } catch { continue; }
+      if (json.contents) try { json=JSON.parse(json.contents); } catch { continue; }
+      const list = json.ListaEESSPrecio||[];
+      if (list.length>0) return list;
+    } catch(e){ console.warn('ministerio proxy fail',e?.message); }
+  }
+  return null;
+}
 
-function transformRaw(raw) {
+function transformMinisterio(raw) {
   const brand = detectBrand(raw['Rótulo']||'');
   const lat = parseFloat((raw['Latitud']||'').replace(',','.'));
   const lon = parseFloat((raw['Longitud (WGS84)']||'').replace(',','.'));
   if (isNaN(lat)||isNaN(lon)) return null;
   return {
-    id:   raw['IDEESS'],
-    name: raw['Rótulo'] || 'Gasolinera',
-    address:      raw['Dirección'] || '',
-    municipality: raw['Municipio'] || '',
-    province:     raw['Provincia'] || '',
-    cp:           raw['C.P.'] || '',
-    schedule:     raw['Horario'] || '',
+    id: 'min_'+raw['IDEESS'],
+    name: raw['Rótulo']||'Gasolinera',
+    address: raw['Dirección']||'',
+    municipality: raw['Municipio']||'',
+    province: raw['Provincia']||'',
+    cp: raw['C.P.']||'',
+    schedule: raw['Horario']||'',
     brand, lat, lon,
-    prices: {
+    prices:{
       G95: parseP(raw['PrecioGasolina95E5']),
       G98: parseP(raw['PrecioGasolina98E5']),
       GOA: parseP(raw['PrecioGasoleoA']),
@@ -442,357 +446,331 @@ function transformRaw(raw) {
   };
 }
 
-const API_BASE = 'https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes';
-
-async function tryFetch(url, timeout=12000) {
-  // Try direct first (works if no strict CORS)
-  const proxies = [
-    u => u, // direct
-    u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
-    u => `https://thingproxy.freeboard.io/fetch/${u}`,
-  ];
-  for (const px of proxies) {
-    try {
-      const res = await fetch(px(url), { signal: AbortSignal.timeout(timeout), mode:'cors' });
-      if (!res.ok) continue;
-      const text = await res.text();
-      // Handle allorigins wrapping
-      let json;
-      try { json = JSON.parse(text); } catch { continue; }
-      // allorigins wraps in {contents:"..."}
-      if (json.contents) { try { json = JSON.parse(json.contents); } catch { continue; } }
-      const list = json.ListaEESSPrecio || [];
-      if (list.length > 0) return list.map(transformRaw).filter(Boolean);
-    } catch(e) { console.warn('proxy failed:', e?.message); }
-  }
-  return null;
+// ═══════════════════════════════════════════
+// MAP
+// ═══════════════════════════════════════════
+function initMap(lat=40.4168, lon=-3.7038) {
+  map = L.map('map',{center:[lat,lon],zoom:13,zoomControl:false,attributionControl:false});
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
+  map.on('moveend', renderMarkers);
 }
 
-async function fetchNearby(lat, lon) {
-  const url = `${API_BASE}/EstacionesTerrestresHB/FiltroMunicipioDistanciaProducto/${lat}/${lon}/15/6`;
-  return tryFetch(url, 10000);
+const MAX_PINS = 60;
+
+function clearMarkers(){mapMarkers.forEach(m=>map.removeLayer(m));mapMarkers=[];}
+
+function renderMarkers() {
+  if (!allStations.length||!map) return;
+  const bounds = map.getBounds().pad(0.3);
+  let pool = searchFilter ? allStations.filter(searchFilter) : allStations;
+  let vis = pool.filter(s=>bounds.contains([s.lat,s.lon]));
+
+  // Prefer stations with prices for selected fuel
+  const withPrice = vis.filter(s=>s.prices[currentFuel]);
+  const shown = withPrice.length>0 ? withPrice : vis;
+  const limited = shown.length>MAX_PINS
+    ? shown.sort((a,b)=>(a.prices[currentFuel]||99)-(b.prices[currentFuel]||99)).slice(0,MAX_PINS)
+    : shown;
+
+  const prices = limited.map(s=>s.prices[currentFuel]);
+  clearMarkers();
+
+  limited.forEach(s => {
+    const p = s.prices[currentFuel];
+    const col = p ? priceColor(p, prices) : '#aaa';
+    const prStr = p ? p.toFixed(3).replace('.',',') : '—';
+    const isSel = selectedId===s.id;
+    const el = document.createElement('div');
+    el.className = 'pin-wrap';
+    el.innerHTML = `
+      <div class="pin-bubble${isSel?' selected':''}" style="--pc:${col}">
+        <div class="pin-logo-wrap">${brandLogo(s.brand,22)}</div>
+        <span class="pin-price">${prStr}</span>
+      </div>
+      <div class="pin-tail"></div>`;
+    const mk = L.marker([s.lat,s.lon],{
+      icon:L.divIcon({html:el,className:'',iconAnchor:[38,40]}),
+      zIndexOffset: isSel?1000:0
+    });
+    el.addEventListener('click',e=>{e.stopPropagation();openSheet(s);});
+    mk.addTo(map); mapMarkers.push(mk);
+  });
+
+  const cnt = pool.filter(s=>bounds.contains([s.lat,s.lon])).length;
+  document.getElementById('pill-count').textContent = cnt>0?`${cnt} estaciones`:'';
 }
 
-async function fetchAll() {
-  const url = `${API_BASE}/EstacionesTerrestres/`;
-  return tryFetch(url, 18000);
-}
-
-// Cache
-function loadCache() {
-  try {
-    const r = JSON.parse(localStorage.getItem(CACHE_KEY)||'null');
-    if (!r || !r.data?.length) return null;
-    return { data: r.data, stale: Date.now()-r.ts > CACHE_TTL };
-  } catch { return null; }
-}
-function saveCache(data) {
-  try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts:Date.now(), data })); } catch {}
-}
-
-// ═══════════════════════════════════════
-// STATION SHEET
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════
+// SHEET
+// ═══════════════════════════════════════════
 function openSheet(s) {
-  selectedStation = s;
-  document.getElementById('sheet-logo').innerHTML = logoImg(s.brand, 50);
-  document.getElementById('sheet-brand').textContent = BRANDS[s.brand]?.name || s.name;
-  document.getElementById('sheet-name').textContent  = s.name;
-  document.getElementById('sheet-addr').textContent  = [s.address, s.municipality, s.province].filter(Boolean).join(', ');
-  document.getElementById('sheet-schedule').textContent = s.schedule || 'Consultar horario';
-  const fuelHtml = Object.entries(FUELS).map(([id,f]) => {
-    const p = s.prices[id]; if (!p) return '';
-    return `<div class="price-card${id===currentFuel?' active':''}"${id===currentFuel?` style="border-color:${f.color}55"`:''}><div class="pc-label" style="color:${f.color}">${f.label}</div><div class="pc-price">${p.toFixed(3).replace('.',',')}</div><div class="pc-unit">€/L</div></div>`;
+  selectedId = s.id;
+  document.getElementById('shlogo').innerHTML = brandLogo(s.brand,44);
+  document.getElementById('shbrand').textContent = BRANDS[s.brand]?.name||s.name;
+  document.getElementById('shname').textContent  = s.name;
+  document.getElementById('shaddr').textContent  = [s.address,s.municipality,s.province].filter(Boolean).join(', ')||'Sin dirección';
+  document.getElementById('ssched').textContent  = s.schedule||'Consultar horario';
+  const g = document.getElementById('pgrid');
+  const rows = Object.entries(FUELS).map(([id,f])=>{
+    const p=s.prices[id];
+    if(!p) return `<div class="pcard" style="opacity:.4"><div class="plabel" style="color:${f.color}">${f.label}</div><div class="pprice">—</div><div class="punit">€/L</div></div>`;
+    return `<div class="pcard${id===currentFuel?' hi':''}"${id===currentFuel?` style="border-color:${f.color}44"`:''}><div class="plabel" style="color:${f.color}">${f.label}</div><div class="pprice">${p.toFixed(3).replace('.',',')}</div><div class="punit">€/L</div></div>`;
   }).join('');
-  document.getElementById('prices-grid').innerHTML = fuelHtml || '<div style="color:var(--text3);font-size:13px;padding:8px;grid-column:1/-1">Sin precios disponibles</div>';
-  document.getElementById('nav-btn').onclick = () => window.open(`https://maps.google.com/?q=${s.lat},${s.lon}`,'_blank');
-  document.getElementById('station-sheet').classList.add('open');
-  document.getElementById('sheet-backdrop').classList.add('visible');
+  g.innerHTML = rows;
+  document.getElementById('navbtn').onclick=()=>window.open(`https://maps.google.com/?q=${s.lat},${s.lon}`,'_blank');
+  document.getElementById('sheet').classList.add('on');
+  document.getElementById('sheet-bd').classList.add('on');
+  renderMarkers(); // re-render to show selected state
 }
-function closeSheet() {
-  selectedStation = null;
-  document.getElementById('station-sheet').classList.remove('open');
-  document.getElementById('sheet-backdrop').classList.remove('visible');
-}
-
-// ═══════════════════════════════════════
-// LIST PANEL
-// ═══════════════════════════════════════
-function haversine(a,b,c,d) {
-  const R=6371, dL=(c-a)*Math.PI/180, dO=(d-b)*Math.PI/180;
-  const x=Math.sin(dL/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dO/2)**2;
-  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+function closeSheet(){
+  selectedId=null;
+  document.getElementById('sheet').classList.remove('on');
+  document.getElementById('sheet-bd').classList.remove('on');
+  renderMarkers();
 }
 
-function openList() {
-  document.getElementById('list-panel').classList.add('open');
-  renderList();
-}
-function closeList() {
-  document.getElementById('list-panel').classList.remove('open');
-}
+// ═══════════════════════════════════════════
+// LIST
+// ═══════════════════════════════════════════
+function openList(){document.getElementById('list-panel').classList.add('on');renderList();}
+function closeList(){document.getElementById('list-panel').classList.remove('on');}
 
-function renderList() {
-  const c = document.getElementById('list-items');
-  if (!dataReady || !allStations.length) {
-    c.innerHTML = '<div class="list-loading">⛽ Cargando datos… un momento</div>';
-    return;
+function renderList(){
+  const c = document.getElementById('list-body');
+  if (!dataReady||!allStations.length){
+    c.innerHTML='<div class="lempty">⛽ Cargando datos…</div>'; return;
   }
-  const fuel = listFuel;
-  let sts = allStations.filter(s => s.prices[fuel]);
-  if (!sts.length) {
-    c.innerHTML = `<div class="list-empty">No hay datos de ${FUELS[fuel].label} disponibles</div>`;
-    return;
-  }
-  // Add distance if GPS
-  if (userPos) {
-    sts = sts.map(s => ({ ...s, dist: haversine(userPos.lat,userPos.lon,s.lat,s.lon) }));
-  }
-  // Sort by price
-  sts = sts.sort((a,b) => a.prices[fuel]-b.prices[fuel]).slice(0, 150);
-  const prices = sts.map(s => s.prices[fuel]);
-  document.getElementById('list-subtitle').textContent = `${sts.length} estaciones · precio más barato primero`;
-  c.innerHTML = sts.map((s,i) => {
-    const col = priceColor(s.prices[fuel], prices);
-    const rc = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-other';
-    const dt = s.dist ? (s.dist<1?`${(s.dist*1000).toFixed(0)} m`:`${s.dist.toFixed(1)} km`) : '';
-    return `<div class="list-item" data-id="${s.id}">
-      <div class="list-rank ${rc}">${i+1}</div>
-      <div class="list-item-logo">${logoImg(s.brand,36)}</div>
-      <div class="list-item-info">
-        <div class="list-item-brand">${BRANDS[s.brand]?.name||s.name}</div>
-        <div class="list-item-addr">${s.address||s.municipality}</div>
-        ${dt?`<div class="list-item-dist">📍 ${dt}</div>`:''}
+  const fuel=listFuel;
+  let sts = allStations;
+  if (userPos) sts=sts.map(s=>({...s,dist:haversine(userPos.lat,userPos.lon,s.lat,s.lon)}));
+
+  // Stations with price for this fuel first, then rest
+  const withP  = sts.filter(s=>s.prices[fuel]>0).sort((a,b)=>a.prices[fuel]-b.prices[fuel]);
+  const noP    = sts.filter(s=>!s.prices[fuel]).sort((a,b)=>(a.dist||99)-(b.dist||99));
+  const sorted = [...withP,...noP].slice(0,150);
+
+  document.getElementById('no-price-note').style.display = hasPrices?'none':'block';
+  document.getElementById('lsub2').textContent=`${sorted.length} estaciones · precio más barato primero`;
+
+  if (!sorted.length){c.innerHTML='<div class="lempty">No hay estaciones disponibles</div>';return;}
+
+  const prices=sorted.map(s=>s.prices[fuel]);
+  c.innerHTML = sorted.map((s,i)=>{
+    const p=s.prices[fuel];
+    const col=p?priceColor(p,prices):'#666';
+    const rc=i===0?'r1':i===1?'r2':i===2?'r3':'rx';
+    const dt=s.dist?(s.dist<1?`${(s.dist*1000).toFixed(0)} m`:`${s.dist.toFixed(1)} km`):'';
+    const prText=p?p.toFixed(3).replace('.',','):'—';
+    return `<div class="litem" data-id="${s.id}">
+      <div class="lrank ${rc}">${i+1}</div>
+      <div class="lilogo">${brandLogo(s.brand,34)}</div>
+      <div class="liinfo">
+        <div class="librand">${BRANDS[s.brand]?.name||s.name}</div>
+        <div class="liaddr">${s.address||s.municipality||s.name}</div>
+        ${dt?`<div class="lidist">📍 ${dt}</div>`:''}
       </div>
-      <div class="list-item-price">
-        <div class="lip-value" style="color:${col}">${s.prices[fuel].toFixed(3).replace('.',',')}</div>
-        <div class="lip-label">€/L</div>
-      </div>
+      <div class="liprice"><div class="lipval" style="color:${col}">${prText}</div><div class="lipunit">€/L</div></div>
     </div>`;
   }).join('');
 
-  // Tap → go to map + open sheet
-  c.querySelectorAll('.list-item').forEach(el => {
-    el.addEventListener('click', () => {
-      const s = allStations.find(x => x.id===el.dataset.id);
-      if (!s) return;
+  c.querySelectorAll('.litem').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const s=allStations.find(x=>x.id===el.dataset.id); if(!s)return;
       closeList();
-      document.querySelectorAll('.tab-item').forEach(t=>t.classList.toggle('active',t.dataset.tab==='map'));
-      // Sync fuel
-      currentFuel = listFuel;
+      setActiveTab('map');
+      currentFuel=listFuel;
       document.querySelectorAll('.fuel-tab').forEach(b=>b.classList.toggle('active',b.dataset.fuel===currentFuel));
-      setTimeout(()=>{
-        map.flyTo([s.lat,s.lon],15,{duration:.5});
-        setTimeout(()=>openSheet(s), 600);
-      }, 380);
+      setTimeout(()=>{map.flyTo([s.lat,s.lon],15,{duration:.5});setTimeout(()=>openSheet(s),600);},380);
     });
   });
 }
 
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════
 // SEARCH
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════
 let searchTm;
-function applySearch(q) {
-  if (!q || q.length < 2) {
-    activeSearchFilter = null;
-    document.getElementById('pill-count').textContent = '';
-    renderMapMarkers();
-    return;
-  }
-  const ql = q.toLowerCase().trim();
-  activeSearchFilter = s =>
-    s.name.toLowerCase().includes(ql) ||
-    (BRANDS[s.brand]?.name||'').toLowerCase().includes(ql) ||
-    s.municipality.toLowerCase().includes(ql) ||
-    s.province.toLowerCase().includes(ql) ||
-    s.address.toLowerCase().includes(ql) ||
-    s.cp.includes(ql);
-
-  const found = allStations.filter(activeSearchFilter);
-  document.getElementById('pill-count').textContent = found.length ? `${found.length} encontradas` : 'Sin resultados';
-  renderMapMarkers();
-  // Fly to first result
-  if (found.length > 0 && map) {
-    map.flyTo([found[0].lat, found[0].lon], 13, { duration:.5 });
-  }
+function applySearch(q){
+  document.querySelectorAll('.stag').forEach(t=>t.classList.remove('active-tag'));
+  if(!q||q.length<2){searchFilter=null;document.getElementById('pill-count').textContent='';renderMarkers();return;}
+  const ql=q.toLowerCase().trim();
+  searchFilter=s=>
+    s.name.toLowerCase().includes(ql)||
+    (BRANDS[s.brand]?.name||'').toLowerCase().includes(ql)||
+    s.municipality.toLowerCase().includes(ql)||
+    s.province.toLowerCase().includes(ql)||
+    s.address.toLowerCase().includes(ql)||
+    s.cp.startsWith(ql);
+  const found=allStations.filter(searchFilter);
+  document.getElementById('pill-count').textContent=found.length?`${found.length} encontradas`:'Sin resultados';
+  renderMarkers();
+  if(found.length&&map)map.flyTo([found[0].lat,found[0].lon],13,{duration:.4});
 }
 
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════
 // SHARE
-// ═══════════════════════════════════════
-function openShare()  { document.getElementById('share-modal').classList.add('open'); }
-function closeShare() { document.getElementById('share-modal').classList.remove('open'); }
+// ═══════════════════════════════════════════
+function openShare(){document.getElementById('share-modal').classList.add('on');}
+function closeShare(){document.getElementById('share-modal').classList.remove('on');}
 
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════
+// TAB HELPER
+// ═══════════════════════════════════════════
+function setActiveTab(tab){
+  document.querySelectorAll('.tab-item').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
+}
+
+// ═══════════════════════════════════════════
+// LOADING UI
+// ═══════════════════════════════════════════
+function setLoading(show,title,sub,error){
+  if(title)document.getElementById('ltitle').textContent=title;
+  if(sub)document.getElementById('lsub').textContent=sub;
+  document.getElementById('lerror-btn').style.display=error?'block':'none';
+  document.getElementById('loading').classList.toggle('hidden',!show);
+}
+
+// ═══════════════════════════════════════════
 // MAIN
-// ═══════════════════════════════════════
-async function main() {
-  // 1. Serve cache immediately
+// ═══════════════════════════════════════════
+async function main(){
+  // 1. Cache → instant display
   const cache = loadCache();
-  if (cache?.data?.length) {
-    allStations = cache.data;
-    dataReady = true;
-    if (cache.stale) {
-      setLoading(true, 'Actualizando precios', `Mostrando ${allStations.length} estaciones mientras actualizamos`);
-    }
+  if(cache?.data?.length){
+    allStations=cache.data; dataReady=true; hasPrices=!!cache.hasPrices;
+    if(cache.stale) setLoading(true,'Actualizando…',`Mostrando ${allStations.length} estaciones guardadas`);
   }
 
   // 2. GPS
   let lat=40.4168, lon=-3.7038;
-  try {
-    const pos = await new Promise((res,rej) =>
-      navigator.geolocation.getCurrentPosition(res,rej,{timeout:8000,maximumAge:60000})
+  try{
+    const pos=await new Promise((res,rej)=>
+      navigator.geolocation.getCurrentPosition(res,rej,{timeout:7000,maximumAge:120000})
     );
     lat=pos.coords.latitude; lon=pos.coords.longitude; userPos={lat,lon};
-    // Reverse geocode for city name
-    try {
-      const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
-      const j = await r.json();
-      const city = j.address?.city||j.address?.town||j.address?.village||j.address?.suburb||'';
-      document.getElementById('pill-loc').textContent = `📍 ${city||'Tu ubicación'}`;
-    } catch {}
-  } catch {
-    document.getElementById('pill-loc').textContent = '📍 España';
+    try{
+      const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,{signal:AbortSignal.timeout(4000)});
+      const j=await r.json();
+      const city=j.address?.city||j.address?.town||j.address?.village||j.address?.suburb||'';
+      document.getElementById('pill-loc').textContent=`📍 ${city||'Tu ubicación'}`;
+    }catch{ document.getElementById('pill-loc').textContent='📍 Tu ubicación'; }
+  }catch{
+    document.getElementById('pill-loc').textContent='📍 España';
   }
 
-  // 3. Init map (always, immediately)
+  // 3. Init map immediately
   initMap(lat, lon);
+  if(allStations.length&&!cache?.stale){ setLoading(false); renderMarkers(); return; }
 
-  // 4. If cache, show immediately
-  if (allStations.length && !cache?.stale) {
+  // 4. Fetch data — both sources in parallel
+  setLoading(true,'Buscando gasolineras','Cargando desde OpenStreetMap…');
+
+  // Run both in parallel, use whichever comes first
+  let osmDone=false, minDone=false;
+
+  // Overpass OSM (reliable, no prices)
+  const osmPromise = fetchOverpass(lat, lon, 20).then(stations=>{
+    if(stations.length>0 && !minDone){
+      allStations=stations; dataReady=true; hasPrices=false;
+      saveCache(stations, false);
+      renderMarkers();
+      setLoading(false);
+      document.getElementById('lsub2').textContent=`${stations.length} estaciones de OpenStreetMap`;
+    }
+    osmDone=true;
+    return stations;
+  }).catch(e=>{console.warn('OSM fail',e);osmDone=true;return[];});
+
+  // Ministerio (prices but CORS issues)
+  const minPromise = fetchMinisterioProxy(lat,lon).then(raw=>{
+    if(raw&&raw.length>0){
+      const stations=raw.map(transformMinisterio).filter(Boolean);
+      allStations=stations; dataReady=true; hasPrices=true; minDone=true;
+      saveCache(stations,true);
+      renderMarkers();
+      setLoading(false);
+      document.getElementById('no-price-note').style.display='none';
+    }
+    return raw;
+  }).catch(e=>{console.warn('Min fail',e);return null;});
+
+  // Wait for both to settle
+  await Promise.allSettled([osmPromise, minPromise]);
+
+  if(!allStations.length){
+    setLoading(true,'No se pudo cargar','Comprueba tu conexión a internet',true);
+  } else {
     setLoading(false);
-    renderMapMarkers();
-    return;
   }
-
-  // 5. Fetch fresh data
-  if (!allStations.length) setLoading(true, 'Cargando gasolineras', 'Conectando con datos oficiales del Ministerio…');
-
-  // Try nearby first, then all Spain as fallback
-  let fresh = null;
-  if (userPos) {
-    fresh = await fetchNearby(lat, lon);
-  }
-  if (!fresh || fresh.length < 10) {
-    fresh = await fetchAll();
-  }
-
-  if (fresh?.length) {
-    allStations = fresh;
-    dataReady = true;
-    saveCache(fresh);
-    renderMapMarkers();
-    // Update list if open
-    if (document.getElementById('list-panel').classList.contains('open')) renderList();
-  } else if (!allStations.length) {
-    // All failed: show error message in loading
-    setLoading(true, 'Sin conexión', 'No se pudo conectar con el servidor. Comprueba tu conexión e intenta de nuevo.');
-    document.querySelector('.loading-dots').style.display='none';
-    return;
-  }
-
-  setLoading(false);
 }
 
-function setLoading(show, title, sub) {
-  if (title) document.getElementById('loading-title').textContent = title;
-  if (sub)   document.getElementById('loading-sub').textContent   = sub;
-  document.getElementById('loading').classList.toggle('hidden', !show);
-}
-
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════
 // EVENTS
-// ═══════════════════════════════════════
-
-// Fuel tabs (map)
-document.querySelectorAll('.fuel-tab').forEach(b => {
-  b.addEventListener('click', () => {
+// ═══════════════════════════════════════════
+document.querySelectorAll('.fuel-tab').forEach(b=>{
+  b.addEventListener('click',()=>{
     document.querySelectorAll('.fuel-tab').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active'); currentFuel=b.dataset.fuel; closeSheet(); renderMapMarkers();
+    b.classList.add('active'); currentFuel=b.dataset.fuel; closeSheet(); renderMarkers();
   });
 });
 
-// List fuel strip
-document.querySelectorAll('.lfuel-btn').forEach(b => {
-  b.addEventListener('click', () => {
-    document.querySelectorAll('.lfuel-btn').forEach(x=>x.classList.remove('active'));
+document.querySelectorAll('.lfbtn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.lfbtn').forEach(x=>x.classList.remove('active'));
     b.classList.add('active'); listFuel=b.dataset.fuel; renderList();
   });
 });
 
-// Tab bar
-document.querySelectorAll('.tab-item').forEach(item => {
-  item.addEventListener('click', () => {
-    const tab = item.dataset.tab;
-    document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
-    item.classList.add('active');
-    if      (tab==='list')  openList();
-    else if (tab==='share') openShare();
-    else                    { closeList(); closeShare(); }
+document.querySelectorAll('.tab-item').forEach(item=>{
+  item.addEventListener('click',()=>{
+    const tab=item.dataset.tab;
+    setActiveTab(tab);
+    if(tab==='list') openList();
+    else if(tab==='share') openShare();
+    else { closeList(); closeShare(); }
   });
 });
 
-// Quick search tags
-document.querySelectorAll('.stag').forEach(tag => {
-  tag.addEventListener('click', () => {
-    const q = tag.dataset.q;
-    document.getElementById('search-input').value = q;
-    document.getElementById('search-clear').style.display = 'block';
+document.querySelectorAll('.stag').forEach(tag=>{
+  tag.addEventListener('click',()=>{
+    document.querySelectorAll('.stag').forEach(t=>t.classList.remove('active-tag'));
+    tag.classList.add('active-tag');
+    const q=tag.dataset.q;
+    document.getElementById('search-input').value=q;
+    document.getElementById('search-clear').style.display='block';
     applySearch(q);
   });
 });
 
-// Search input
-document.getElementById('search-input').addEventListener('input', e => {
-  const q = e.target.value;
-  document.getElementById('search-clear').style.display = q?'block':'none';
-  clearTimeout(searchTm);
-  searchTm = setTimeout(() => applySearch(q), 300);
+document.getElementById('search-input').addEventListener('input',e=>{
+  const q=e.target.value;
+  document.getElementById('search-clear').style.display=q?'block':'none';
+  clearTimeout(searchTm); searchTm=setTimeout(()=>applySearch(q),300);
 });
-document.getElementById('search-clear').addEventListener('click', () => {
-  document.getElementById('search-input').value = '';
-  document.getElementById('search-clear').style.display = 'none';
+document.getElementById('search-clear').addEventListener('click',()=>{
+  document.getElementById('search-input').value='';
+  document.getElementById('search-clear').style.display='none';
+  document.querySelectorAll('.stag').forEach(t=>t.classList.remove('active-tag'));
   applySearch('');
 });
 
-// Sheet
-document.getElementById('sheet-close').addEventListener('click', closeSheet);
-document.getElementById('sheet-backdrop').addEventListener('click', closeSheet);
+document.getElementById('shclose').addEventListener('click',closeSheet);
+document.getElementById('sheet-bd').addEventListener('click',closeSheet);
+document.getElementById('lback').addEventListener('click',()=>{closeList();setActiveTab('map');});
+document.getElementById('locate-btn').addEventListener('click',()=>{if(userPos&&map)map.flyTo([userPos.lat,userPos.lon],14,{duration:.6});});
+document.getElementById('location-pill').addEventListener('click',()=>{if(userPos&&map)map.flyTo([userPos.lat,userPos.lon],14,{duration:.6});});
 
-// List
-document.getElementById('list-back').addEventListener('click', () => {
-  closeList();
-  document.querySelectorAll('.tab-item').forEach(t=>t.classList.toggle('active',t.dataset.tab==='map'));
-});
-
-// Locate
-document.getElementById('locate-btn').addEventListener('click', () => {
-  if (userPos && map) map.flyTo([userPos.lat,userPos.lon],14,{duration:.6});
-});
-document.getElementById('location-pill').addEventListener('click', () => {
-  if (userPos && map) map.flyTo([userPos.lat,userPos.lon],14,{duration:.6});
-});
-
-// Share
-document.getElementById('share-link').addEventListener('click', () => {
-  navigator.clipboard?.writeText(location.href)
-    .then(()=>alert('¡Enlace copiado!'))
-    .catch(()=>prompt('Copia este enlace:',location.href));
+document.getElementById('slink').addEventListener('click',()=>{
+  navigator.clipboard?.writeText(location.href).then(()=>alert('¡Enlace copiado!')).catch(()=>prompt('Copia:',location.href));
   closeShare();
 });
-document.getElementById('share-native').addEventListener('click', () => {
-  if (navigator.share) navigator.share({title:'Gasolineras',url:location.href});
-  else prompt('Copia este enlace:',location.href);
+document.getElementById('snative').addEventListener('click',()=>{
+  if(navigator.share)navigator.share({title:'Gasolineras',url:location.href});
+  else prompt('Copia:',location.href);
   closeShare();
 });
-document.getElementById('share-cancel').addEventListener('click', closeShare);
-document.getElementById('share-modal').addEventListener('click', e=>{
-  if(e.target.id==='share-modal') closeShare();
-});
+document.getElementById('scancel').addEventListener('click',closeShare);
+document.getElementById('share-modal').addEventListener('click',e=>{if(e.target.id==='share-modal')closeShare();});
 
-// ── BOOT ──
 main();
 </script>
 </body>
