@@ -82,9 +82,8 @@ header a{color:var(--blue);text-decoration:none}
   align-items:center;justify-content:center;gap:6px;
 }
 @media(max-width:700px){
-  .btn-map-toggle{display:flex}
-  .map-wrap{display:none}
-  .map-wrap.open{display:block}
+  .btn-map-toggle{display:none}
+  .map-wrap{display:block}
 }
 
 #map{width:100%;height:450px;border-radius:var(--radius-lg);border:0.5px solid var(--border2)}
@@ -419,6 +418,7 @@ let FAVS=JSON.parse(localStorage.getItem('gasoFavs')||'[]');
 let ALERTS=JSON.parse(localStorage.getItem('gasoAlerts')||'[]');
 let HISTORY=JSON.parse(localStorage.getItem('gasoHistory')||'{}');
 let pendingAlertId=null;
+let userGpsPos=null; // posición GPS guardada al arrancar
 /* TomSelect vars removed */
 
 /* ── UTILIDADES ── */
@@ -533,28 +533,54 @@ function toggleMapSection(){
 }
 
 
-/* ── LOGOS DE MARCAS ── */
-const BRAND_LOGOS={
-  'REPSOL':'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Repsol_logo.svg/120px-Repsol_logo.svg.png',
-  'CEPSA':'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Cepsa_logo.svg/120px-Cepsa_logo.svg.png',
-  'BP':'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/BP_logo.svg/80px-BP_logo.svg.png',
-  'GALP':'https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Galp_logo.svg/120px-Galp_logo.svg.png',
-  'SHELL':'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Shell_logo.svg/80px-Shell_logo.svg.png',
-  'CAMPSA':'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Campsa_logo.svg/120px-Campsa_logo.svg.png',
-  'PETRONOR':'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Petronor_logo.svg/120px-Petronor_logo.svg.png',
-  'EROSKI':'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Eroski_logo.svg/120px-Eroski_logo.svg.png',
-  'CARREFOUR':'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Carrefour_logo.svg/120px-Carrefour_logo.svg.png',
-  'ALCAMPO':'https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Alcampo_logo.svg/120px-Alcampo_logo.svg.png',
-  'DISA':'https://logosandtypes.com/wp-content/uploads/2020/07/disa.svg',
-};
-
-function getBrandLogo(rotulo){
+/* ── LOGOS SVG EMBEBIDOS — colores corporativos reales, sin peticiones externas ── */
+function getBrandSVG(rotulo){
   if(!rotulo)return null;
   const r=rotulo.toUpperCase();
-  for(const[key,url] of Object.entries(BRAND_LOGOS)){
-    if(r.includes(key))return url;
-  }
-  return null;
+
+  // REPSOL — círculo rojo con ondas amarillas y R blanca
+  if(r.includes('REPSOL'))return '<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="22" fill="#E31E24"/><path d="M8 28 Q14 20 22 22 Q30 24 36 16" stroke="#FFC20E" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M8 33 Q14 25 22 27 Q30 29 36 21" stroke="#FFC20E" stroke-width="3.5" fill="none" stroke-linecap="round"/><text x="22" y="20" text-anchor="middle" fill="white" font-size="14" font-weight="900" font-family="Arial">R</text></svg>';
+
+  // CEPSA — cuadrado azul marino con texto blanco
+  if(r.includes('CEPSA'))return '<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg"><rect width="44" height="44" rx="6" fill="#003087"/><text x="22" y="27" text-anchor="middle" fill="white" font-size="11" font-weight="900" font-family="Arial">CEPSA</text></svg>';
+
+  // BP — escudo verde y amarillo con bp
+  if(r.includes(' BP')||r==='BP'||r.startsWith('BP '))return '<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg"><ellipse cx="22" cy="22" rx="22" ry="22" fill="#009900"/><ellipse cx="22" cy="22" rx="15" ry="15" fill="#FFCC00"/><text x="22" y="27" text-anchor="middle" fill="#009900" font-size="14" font-weight="900" font-family="Arial">bp</text></svg>';
+
+  // GALP — círculo naranja con g blanca
+  if(r.includes('GALP'))return '<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="22" fill="#FF6600"/><text x="22" y="29" text-anchor="middle" fill="white" font-size="22" font-weight="900" font-family="Arial">g</text></svg>';
+
+  // SHELL — concha roja y amarilla
+  if(r.includes('SHELL'))return '<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="22" fill="#FFD700"/><path d="M22 6 L26 16 L38 16 L28 23 L32 34 L22 27 L12 34 L16 23 L6 16 L18 16 Z" fill="#FF0000"/><circle cx="22" cy="22" r="6" fill="#FFD700"/></svg>';
+
+  // CAMPSA — rojo con C blanca
+  if(r.includes('CAMPSA'))return '<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="22" fill="#CC0000"/><text x="22" y="30" text-anchor="middle" fill="white" font-size="24" font-weight="900" font-family="Arial">C</text></svg>';
+
+  // PETRONOR — azul con llama naranja
+  if(r.includes('PETRONOR'))return '<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg"><rect width="44" height="44" rx="6" fill="#003366"/><path d="M22 8 Q26 14 24 18 Q28 14 26 20 Q30 16 27 24 Q25 30 22 32 Q19 30 17 24 Q14 16 18 20 Q16 14 20 18 Q18 14 22 8Z" fill="#FF8C00"/><text x="22" y="42" text-anchor="middle" fill="white" font-size="8" font-weight="700" font-family="Arial">PETRONOR</text></svg>';
+
+  // EROSKI — rojo redondeado texto blanco
+  if(r.includes('EROSKI'))return '<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg"><rect width="44" height="44" rx="8" fill="#E2001A"/><text x="22" y="28" text-anchor="middle" fill="white" font-size="10" font-weight="900" font-family="Arial">eroski</text></svg>';
+
+  // CARREFOUR — C azul y roja
+  if(r.includes('CARREFOUR'))return '<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg"><rect width="44" height="44" rx="4" fill="white"/><path d="M8 22 L20 8 L20 36 Z" fill="#003CA6"/><path d="M36 22 L24 8 L24 36 Z" fill="#E31E24"/></svg>';
+
+  // ALCAMPO — azul con A
+  if(r.includes('ALCAMPO'))return '<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg"><rect width="44" height="44" rx="6" fill="#0057A8"/><text x="22" y="30" text-anchor="middle" fill="white" font-size="22" font-weight="900" font-family="Arial">A</text></svg>';
+
+  // DISA — naranja con D
+  if(r.includes('DISA'))return '<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="22" fill="#F7931D"/><text x="22" y="30" text-anchor="middle" fill="white" font-size="22" font-weight="900" font-family="Arial">D</text></svg>';
+
+  // MEROIL / BALLENOIL — verde oscuro
+  if(r.includes('BALLENOIL')||r.includes('MEROIL'))return '<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="22" fill="#2E7D32"/><text x="22" y="27" text-anchor="middle" fill="white" font-size="9" font-weight="900" font-family="Arial">'+rotulo.substring(0,7).toUpperCase()+'</text></svg>';
+
+  // AVIA — azul claro
+  if(r.includes('AVIA'))return '<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg"><rect width="44" height="44" rx="6" fill="#0099CC"/><text x="22" y="29" text-anchor="middle" fill="white" font-size="14" font-weight="900" font-family="Arial">AVIA</text></svg>';
+
+  // TAMOIL — rojo y amarillo
+  if(r.includes('TAMOIL'))return '<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="22" fill="#CC0000"/><text x="22" y="27" text-anchor="middle" fill="#FFD700" font-size="10" font-weight="900" font-family="Arial">TAMOIL</text></svg>';
+
+  return null; // sin logo conocido
 }
 
 /* ── SCROLL AL MAPA ── */
@@ -604,15 +630,16 @@ function addStationMarkers(list){
     if(isNaN(lat)||isNaN(lon))return;
     const pr=px(s[key]),isBest=pr&&pr===minP;
     const brandName=(s['Rótulo']||'Sin nombre');
-    // Abreviar: máx 2 palabras de 5 letras para que quepa bien en móvil
-    const words=brandName.trim().split(/\s+/);
-    const brandShort=(words.length>1?words[0].substring(0,5)+' '+words[1].substring(0,4):words[0].substring(0,8)).toUpperCase();
     const priceStr=pr?pr.toFixed(3)+'€':'s/p';
     const mUrl='https://www.google.com/maps/search/?api=1&query='+lat+','+lon;
+    const svg=getBrandSVG(brandName);
     const cls='map-label'+(isBest?' best':'');
-    // Etiqueta siempre visible: nombre corto + precio — sin imágenes externas
+    // Logo SVG si existe, nombre corto si no
+    const brandInner=svg
+      ?'<div style="width:28px;height:28px;margin:0 auto 2px;overflow:hidden;border-radius:4px">'+svg+'</div>'
+      :'<div class="ml-brand">'+(brandName.substring(0,8).toUpperCase())+'</div>';
     const html='<div class="'+cls+'" style="transform:translate(-50%,-100%)">'
-      +'<div class="ml-brand">'+brandShort+'</div>'
+      +brandInner
       +'<div class="ml-price">'+priceStr+'</div>'
       +'<div class="ml-arrow"></div>'
       +'</div>';
@@ -698,37 +725,41 @@ async function locateMeSearch(){
   if(!navigator.geolocation){alert('Tu navegador no soporta geolocalización.');return}
   const btn=document.getElementById('btnGeo');
   const orig=btn.innerHTML;
+  // Si ya tenemos GPS del arranque, usarlo directamente sin esperar
+  if(userGpsPos){
+    const{lat,lon}=userGpsPos;
+    _doGpsSearch(lat,lon);
+    return;
+  }
   btn.innerHTML='<span class="spinner" style="width:16px;height:16px;border-width:2px;border-color:rgba(24,95,165,0.3);border-top-color:var(--blue);margin:0 6px 0 0"></span> Obteniendo ubicación...';
   btn.disabled=true;
   navigator.geolocation.getCurrentPosition(pos=>{
     btn.innerHTML=orig;btn.disabled=false;
     const{latitude:lat,longitude:lon}=pos.coords;
-    const radius=parseInt(document.getElementById('radiusGeo').value);
-    searchCenter={lat,lon};
-    let list=ALL.filter(s=>{
-      const slat=parseFloat((s['Latitud']||'').replace(',','.')),slon=parseFloat((s['Longitud (WGS84)']||'').replace(',','.'));
-      if(isNaN(slat)||isNaN(slon))return false;
-      s._dist=haversine(lat,lon,slat,slon);
-      return s._dist<=radius;
-    });
-    list.sort((a,b)=>(a._dist||0)-(b._dist||0));
-    rawResults=list;
-    filtered=applyCommonFilters(rawResults);
-    updateBrandDropdown(rawResults);
-    // Abrir mapa en móvil si estaba cerrado
-    const mapWrap=document.getElementById('mapWrap');
-    if(mapWrap&&!mapWrap.classList.contains('open')&&window.innerWidth<=700){
-      mapWrap.classList.add('open');
-      document.getElementById('mapToggleIcon').textContent='▲';
-    }
-    setTimeout(()=>{map.invalidateSize();map.setView([lat,lon],getZoomForRadius(radius));setMapCenter(lat,lon,'radiusGeo');},80);
-    const withP=filtered.filter(s=>px(s[FKEY[activeFuel]])!==null).length;
-    showResults('📍 <strong>'+filtered.length+'</strong> gasolineras en '+radius+' km &nbsp;·&nbsp; <strong>'+withP+'</strong> con precio de '+FLBL[activeFuel]);
+    _doGpsSearch(lat,lon);
   },err=>{
     btn.innerHTML=orig;btn.disabled=false;
     if(err.code===1)alert('Permiso denegado.\n\nEn iPhone: Ajustes → Safari → Ubicación → Permitir');
     else alert('No se pudo obtener la ubicación. Inténtalo de nuevo.');
   },{enableHighAccuracy:true,timeout:12000});
+}
+
+function _doGpsSearch(lat,lon){
+  const radius=parseInt(document.getElementById('radiusGeo').value)||5;
+  searchCenter={lat,lon};
+  let list=ALL.filter(s=>{
+    const slat=parseFloat((s['Latitud']||'').replace(',','.')),slon=parseFloat((s['Longitud (WGS84)']||'').replace(',','.'));
+    if(isNaN(slat)||isNaN(slon))return false;
+    s._dist=haversine(lat,lon,slat,slon);
+    return s._dist<=radius;
+  });
+  list.sort((a,b)=>(a._dist||0)-(b._dist||0));
+  rawResults=list;
+  filtered=applyCommonFilters(rawResults);
+  updateBrandDropdown(rawResults);
+  setTimeout(()=>{map.invalidateSize();map.setView([lat,lon],getZoomForRadius(radius));setMapCenter(lat,lon,'radiusGeo');},80);
+  const withP=filtered.filter(s=>px(s[FKEY[activeFuel]])!==null).length;
+  showResults('📍 <strong>'+filtered.length+'</strong> gasolineras en '+radius+' km &nbsp;·&nbsp; <strong>'+withP+'</strong> con precio de '+FLBL[activeFuel]);
 }
 
 /* ── BÚSQUEDA POR DIRECCIÓN ── */
@@ -942,71 +973,40 @@ function renderAlerts(){
 /* ── CLICK EN TARJETA → MAPA ── */
 function onCardClick(lat,lon,sid){
   if(isNaN(lat)||isNaN(lon))return;
-  // En móvil abrimos el mapa si está cerrado
-  const mapWrap=document.getElementById('mapWrap');
-  if(!mapWrap.classList.contains('open')&&window.innerWidth<=700){
-    mapWrap.classList.add('open');
-    document.getElementById('mapToggleIcon').textContent='▲';
-  }
   switchTab('tabSearch');
+  // Scroll inmediato al mapa para que el usuario lo vea
+  document.getElementById('map').scrollIntoView({behavior:'smooth',block:'start'});
   setTimeout(()=>{
     map.invalidateSize();
     map.setView([lat,lon],16);
     stationMarkers.forEach(m=>{if(Math.abs(m.getLatLng().lat-lat)<0.0001&&Math.abs(m.getLatLng().lng-lon)<0.0001)m.openPopup()});
     document.querySelectorAll('.scard').forEach(c=>c.classList.remove('highlight'));
-    const el=document.getElementById(sid);if(el){el.classList.add('highlight');el.scrollIntoView({behavior:'smooth',block:'nearest'})}
-  },100);
+    const el=document.getElementById(sid);if(el)el.classList.add('highlight');
+  },120);
 }
 
 /* ── INIT ── */
 initMap();
 
-// Al arrancar: localizar y cargar datos en segundo plano automáticamente
-(async function autoStart(){
-  // Pedir ubicación y cargar datos en paralelo
-  const geoPromise = new Promise(resolve=>{
-    if(!navigator.geolocation){resolve(null);return}
-    navigator.geolocation.getCurrentPosition(
-      pos=>resolve({lat:pos.coords.latitude,lon:pos.coords.longitude}),
-      ()=>resolve(null),
-      {enableHighAccuracy:true,timeout:10000,maximumAge:60000}
-    );
-  });
-  const dataPromise = loadData();
-  const [pos,ok] = await Promise.all([geoPromise,dataPromise]);
-  if(!ok)return;
-  if(pos){
-    // Tenemos ubicación: centrar mapa y buscar gasolineras
-    const{lat,lon}=pos;
-    const radius=parseInt(document.getElementById('radiusGeo').value)||5;
-    searchCenter={lat,lon};
-    let list=ALL.filter(s=>{
-      const slat=parseFloat((s['Latitud']||'').replace(',','.')),slon=parseFloat((s['Longitud (WGS84)']||'').replace(',','.'));
-      if(isNaN(slat)||isNaN(slon))return false;
-      s._dist=haversine(lat,lon,slat,slon);
-      return s._dist<=radius;
-    });
-    list.sort((a,b)=>(a._dist||0)-(b._dist||0));
-    rawResults=list;
-    filtered=applyCommonFilters(rawResults);
-    updateBrandDropdown(rawResults);
-    // Mostrar mapa en móvil
-    const mapWrap=document.getElementById('mapWrap');
-    if(mapWrap&&window.innerWidth<=700){
-      mapWrap.classList.add('open');
-      document.getElementById('mapToggleIcon').textContent='▲';
-    }
-    setTimeout(()=>{
-      map.invalidateSize();
-      map.setView([lat,lon],getZoomForRadius(radius));
-      setMapCenter(lat,lon,'radiusGeo');
-    },80);
-    const withP=filtered.filter(s=>px(s[FKEY[activeFuel]])!==null).length;
-    showResults('📍 <strong>'+filtered.length+'</strong> gasolineras en '+radius+' km &nbsp;·&nbsp; <strong>'+withP+'</strong> con precio de '+FLBL[activeFuel]);
-  } else {
-    // Sin ubicación: solo centrar mapa en España
-    map.setView([40.416,-3.703],6);
-  }
+// Al arrancar: solo pedir GPS y centrar mapa — SIN cargar datos todavía
+(function autoStart(){
+  if(!navigator.geolocation){return;}
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      const{latitude:lat,longitude:lon}=pos.coords;
+      userGpsPos={lat,lon}; // guardamos para usarlo al buscar
+      setTimeout(()=>{
+        map.invalidateSize();
+        map.setView([lat,lon],13);
+        // Marcador de posición del usuario
+        L.marker([lat,lon],{icon:L.divIcon({className:'',iconAnchor:[10,10],
+          html:'<div style="width:20px;height:20px;border-radius:50%;background:#185FA5;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.4)"></div>'
+        })}).addTo(map).bindPopup('<b>Tu ubicación</b>').openPopup();
+      },100);
+    },
+    ()=>{/* sin permiso, mapa queda en España */},
+    {enableHighAccuracy:true,timeout:8000,maximumAge:60000}
+  );
 })();
 </script>
 </body>
