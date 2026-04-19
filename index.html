@@ -20,7 +20,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 #map{position:fixed;inset:0;z-index:0}
 .leaflet-control-zoom,.leaflet-control-attribution{display:none!important}
 
-/* PINS — dark style like the photo */
+/* PINS */
 .pw{display:flex;flex-direction:column;align-items:center;cursor:pointer;filter:drop-shadow(0 3px 10px rgba(0,0,0,0.5))}
 .pb{display:flex;align-items:center;gap:5px;background:#1c1c1c;border-radius:22px;padding:5px 12px 5px 5px;border:2px solid transparent;white-space:nowrap;box-shadow:0 2px 12px rgba(0,0,0,0.5);transition:transform .18s cubic-bezier(.34,1.56,.64,1),border-color .2s}
 .pb.sel{border-color:var(--pc,#4CD964);transform:scale(1.15)}
@@ -40,7 +40,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 #autocomplete{position:absolute;top:48px;left:0;right:0;background:#131e13;border:1px solid rgba(76,217,100,0.25);border-radius:12px;overflow:hidden;z-index:200;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.5)}
 .ac-item{padding:11px 14px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
 .ac-item:last-child{border-bottom:none}
-.ac-item:active,.ac-item:hover{background:rgba(76,217,100,0.08)}
+.ac-item:active{background:rgba(76,217,100,0.08)}
 .ac-sub{font-size:11px;color:var(--text3);font-weight:500;margin-left:auto}
 
 /* Distance strip */
@@ -276,192 +276,143 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 
 <script>
 // ══════════════════════════════════════
-// LOGOS SVG — dark style
+// FIELD NAMES — exact keys from API (with spaces, as confirmed in working version)
+// ══════════════════════════════════════
+const FKEY = {
+  G95: 'Precio Gasolina 95 E5',
+  G98: 'Precio Gasolina 98 E5',
+  GOA: 'Precio Gasoleo A',
+  GOP: 'Precio Gasoleo Premium',
+};
+
+// ══════════════════════════════════════
+// SVG LOGOS
 // ══════════════════════════════════════
 function svgLogo(brand, sz) {
   const s = sz||24;
   const L = {
     SHELL:`<svg viewBox="0 0 100 100" width="${s}" height="${s}"><circle cx="50" cy="50" r="50" fill="#1c1c1c"/><circle cx="50" cy="50" r="40" fill="#FBCE07"/><path d="M50 12C50 12 22 26 17 50C12 74 30 88 50 90C70 88 88 74 83 50C78 26 50 12 50 12Z" fill="#DD1D21"/><line x1="50" y1="12" x2="50" y2="90" stroke="#FBCE07" stroke-width="3.5" opacity=".6"/><path d="M50 12C38 30 21 43 17 50" stroke="#FBCE07" stroke-width="3" fill="none" opacity=".6"/><path d="M50 12C62 30 79 43 83 50" stroke="#FBCE07" stroke-width="3" fill="none" opacity=".6"/><path d="M50 90C36 82 20 67 17 50" stroke="#FBCE07" stroke-width="3" fill="none" opacity=".6"/><path d="M50 90C64 82 80 67 83 50" stroke="#FBCE07" stroke-width="3" fill="none" opacity=".6"/></svg>`,
-    REPSOL:`<svg viewBox="0 0 100 100" width="${s}" height="${s}"><circle cx="50" cy="50" r="50" fill="#1c1c1c"/><circle cx="50" cy="50" r="38" fill="#FF6B00"/><circle cx="50" cy="50" r="26" fill="#FFB300" opacity=".5"/><path d="M30 24L30 76M30 24L57 24C70 24 76 32 76 42C76 52 70 57 57 57L30 57M52 57L74 76" stroke="white" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-    CEPSA:`<svg viewBox="0 0 100 100" width="${s}" height="${s}"><circle cx="50" cy="50" r="50" fill="#1c1c1c"/><circle cx="50" cy="50" r="38" fill="#00A651"/><path d="M74 32C66 21 54 16 41 19C26 23 16 37 16 50C16 63 26 77 41 81C54 84 66 79 74 68" stroke="white" stroke-width="10" fill="none" stroke-linecap="round"/></svg>`,
-    BP:`<svg viewBox="0 0 100 100" width="${s}" height="${s}"><circle cx="50" cy="50" r="50" fill="#1c1c1c"/><circle cx="50" cy="50" r="38" fill="#007f00"/>${[0,30,60,90,120,150,180,210,240,270,300,330].map(a=>{const r=a*Math.PI/180,cx=(50+19*Math.cos(r)).toFixed(1),cy=(50+19*Math.sin(r)).toFixed(1);return`<ellipse cx="${cx}" cy="${cy}" rx="6.5" ry="12" fill="#FFDA00" transform="rotate(${a} ${cx} ${cy})" opacity=".95"/>`;}).join('')}<circle cx="50" cy="50" r="14" fill="#007f00"/><text x="50" y="55" text-anchor="middle" font-size="14" font-weight="900" fill="white" font-family="Arial,sans-serif">bp</text></svg>`,
-    GALP:`<svg viewBox="0 0 100 100" width="${s}" height="${s}"><circle cx="50" cy="50" r="50" fill="#1c1c1c"/><circle cx="50" cy="50" r="38" fill="#E30613"/><path d="M50 14L88 84L12 84Z" fill="#F7A600" opacity=".7"/><circle cx="50" cy="50" r="18" fill="#E30613"/><text x="50" y="55" text-anchor="middle" font-size="14" font-weight="900" fill="white" font-family="Arial,sans-serif">GALP</text></svg>`,
-    TAMOIL:`<svg viewBox="0 0 100 100" width="${s}" height="${s}"><circle cx="50" cy="50" r="50" fill="#1c1c1c"/><circle cx="50" cy="50" r="38" fill="#003DA5"/><rect x="12" y="40" width="76" height="20" fill="#E4002B"/><rect x="34" y="18" width="32" height="8" fill="white" rx="3"/><rect x="46" y="18" width="8" height="42" fill="white" rx="3"/></svg>`,
-    CAMPSA:`<svg viewBox="0 0 100 100" width="${s}" height="${s}"><circle cx="50" cy="50" r="50" fill="#1c1c1c"/><circle cx="50" cy="50" r="38" fill="#C8102E"/><circle cx="50" cy="50" r="24" fill="none" stroke="white" stroke-width="4"/><text x="50" y="57" text-anchor="middle" font-size="22" font-weight="900" fill="white" font-family="Arial,sans-serif">C</text></svg>`,
-    PETRONOR:`<svg viewBox="0 0 100 100" width="${s}" height="${s}"><circle cx="50" cy="50" r="50" fill="#1c1c1c"/><circle cx="50" cy="50" r="38" fill="#E4002B"/><path d="M24 22L50 78L76 22" stroke="white" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    REPSOL:`<svg viewBox="0 0 100 100" width="${s}" height="${s}"><circle cx="50" cy="50" r="50" fill="#1c1c1c"/><circle cx="50" cy="50" r="38" fill="#E31E24"/><path d="M14 62Q22 50 34 54Q46 58 54 46" stroke="#FFC20E" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M14 72Q22 60 34 64Q46 68 54 56" stroke="#FFC20E" stroke-width="5" fill="none" stroke-linecap="round"/><text x="50" y="46" text-anchor="middle" fill="white" font-size="22" font-weight="900" font-family="Arial,sans-serif">R</text></svg>`,
+    CEPSA:`<svg viewBox="0 0 100 100" width="${s}" height="${s}"><circle cx="50" cy="50" r="50" fill="#1c1c1c"/><rect x="10" y="10" width="80" height="80" rx="8" fill="#003087"/><text x="50" y="58" text-anchor="middle" fill="white" font-size="18" font-weight="900" font-family="Arial,sans-serif">CEPSA</text></svg>`,
+    BP:`<svg viewBox="0 0 100 100" width="${s}" height="${s}"><circle cx="50" cy="50" r="50" fill="#1c1c1c"/><circle cx="50" cy="50" r="38" fill="#009900"/><circle cx="50" cy="50" r="26" fill="#FFCC00"/><text x="50" y="57" text-anchor="middle" fill="#009900" font-size="20" font-weight="900" font-family="Arial,sans-serif">bp</text></svg>`,
+    GALP:`<svg viewBox="0 0 100 100" width="${s}" height="${s}"><circle cx="50" cy="50" r="50" fill="#1c1c1c"/><circle cx="50" cy="50" r="38" fill="#FF6600"/><text x="50" y="62" text-anchor="middle" fill="white" font-size="36" font-weight="900" font-family="Arial,sans-serif">g</text></svg>`,
+    TAMOIL:`<svg viewBox="0 0 100 100" width="${s}" height="${s}"><circle cx="50" cy="50" r="50" fill="#1c1c1c"/><circle cx="50" cy="50" r="38" fill="#CC0000"/><text x="50" y="56" text-anchor="middle" fill="#FFD700" font-size="15" font-weight="900" font-family="Arial,sans-serif">TAMOIL</text></svg>`,
+    CAMPSA:`<svg viewBox="0 0 100 100" width="${s}" height="${s}"><circle cx="50" cy="50" r="50" fill="#1c1c1c"/><circle cx="50" cy="50" r="38" fill="#CC0000"/><text x="50" y="62" text-anchor="middle" fill="white" font-size="36" font-weight="900" font-family="Arial,sans-serif">C</text></svg>`,
+    PETRONOR:`<svg viewBox="0 0 100 100" width="${s}" height="${s}"><circle cx="50" cy="50" r="50" fill="#1c1c1c"/><rect x="10" y="10" width="80" height="80" rx="6" fill="#003366"/><path d="M50 18Q56 26 52 32Q58 26 54 34Q60 28 56 38Q53 44 50 46Q47 44 44 38Q40 28 46 34Q42 26 48 32Q44 26 50 18Z" fill="#FF8C00"/></svg>`,
     PLENOIL:`<svg viewBox="0 0 100 100" width="${s}" height="${s}"><circle cx="50" cy="50" r="50" fill="#1c1c1c"/><circle cx="50" cy="50" r="38" fill="#00B140"/><circle cx="50" cy="50" r="24" fill="white" opacity=".95"/><text x="50" y="54" text-anchor="middle" font-size="13" font-weight="900" fill="#00B140" font-family="Arial,sans-serif">PLeno</text></svg>`,
     BALLENOIL:`<svg viewBox="0 0 100 100" width="${s}" height="${s}"><circle cx="50" cy="50" r="50" fill="#1c1c1c"/><circle cx="50" cy="50" r="38" fill="#0057A8"/><path d="M18 62C24 40 40 26 57 29C72 32 80 48 74 60C68 72 50 74 37 64" stroke="white" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="70" cy="32" r="4" fill="white"/></svg>`,
-    MEROIL:`<svg viewBox="0 0 100 100" width="${s}" height="${s}"><circle cx="50" cy="50" r="50" fill="#1c1c1c"/><circle cx="50" cy="50" r="38" fill="#CC0000"/><text x="50" y="58" text-anchor="middle" font-size="28" font-weight="900" fill="white" font-family="Arial,sans-serif">M</text></svg>`,
-    CARREFOUR:`<svg viewBox="0 0 100 100" width="${s}" height="${s}"><circle cx="50" cy="50" r="50" fill="#1c1c1c"/><circle cx="50" cy="50" r="38" fill="#003DA5"/><path d="M50 18L28 50L50 82" stroke="#E4002B" stroke-width="13" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M50 18L72 50L50 82" stroke="white" stroke-width="13" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    MEROIL:`<svg viewBox="0 0 100 100" width="${s}" height="${s}"><circle cx="50" cy="50" r="50" fill="#1c1c1c"/><circle cx="50" cy="50" r="38" fill="#2E7D32"/><text x="50" y="58" text-anchor="middle" font-size="28" font-weight="900" fill="white" font-family="Arial,sans-serif">M</text></svg>`,
+    CARREFOUR:`<svg viewBox="0 0 100 100" width="${s}" height="${s}"><circle cx="50" cy="50" r="50" fill="#1c1c1c"/><rect x="12" y="12" width="76" height="76" rx="4" fill="white"/><path d="M12 50L28 12L28 88Z" fill="#003CA6"/><path d="M88 50L72 12L72 88Z" fill="#E31E24"/></svg>`,
     UNKNOWN:`<svg viewBox="0 0 100 100" width="${s}" height="${s}"><circle cx="50" cy="50" r="50" fill="#2a3a2a"/><rect x="22" y="28" width="38" height="56" rx="5" fill="white" opacity=".85"/><rect x="29" y="35" width="24" height="17" rx="2" fill="#2a3a2a"/><path d="M60 44L76 38L80 56L73 60L73 76L63 76L63 60" fill="white" opacity=".85"/></svg>`,
   };
   return L[brand]||L.UNKNOWN;
 }
 
 // ══════════════════════════════════════
-// CONFIG
+// BRANDS
 // ══════════════════════════════════════
-const BRANDS={SHELL:{name:'Shell',color:'#DD1D21'},REPSOL:{name:'Repsol',color:'#FF6B00'},CEPSA:{name:'Cepsa',color:'#00A651'},BP:{name:'BP',color:'#007f00'},GALP:{name:'Galp',color:'#E30613'},TAMOIL:{name:'Tamoil',color:'#003DA5'},CAMPSA:{name:'Campsa',color:'#C8102E'},PETRONOR:{name:'Petronor',color:'#E4002B'},PLENOIL:{name:'Plenoil',color:'#00B140'},BALLENOIL:{name:'Ballenoil',color:'#0057A8'},MEROIL:{name:'Meroil',color:'#CC0000'},CARREFOUR:{name:'Carrefour',color:'#003DA5'},UNKNOWN:{name:'Gasolinera',color:'#4a5e4a'}};
-function detectBrand(r=''){const u=r.toUpperCase().trim();if(u.includes('SHELL'))return'SHELL';if(u.includes('REPSOL'))return'REPSOL';if(u.includes('CEPSA'))return'CEPSA';if(u==='BP'||u.startsWith('BP '))return'BP';if(u.includes('GALP'))return'GALP';if(u.includes('TAMOIL'))return'TAMOIL';if(u.includes('CAMPSA'))return'CAMPSA';if(u.includes('PETRONOR'))return'PETRONOR';if(u.includes('PLENOIL'))return'PLENOIL';if(u.includes('BALLENOIL'))return'BALLENOIL';if(u.includes('MEROIL'))return'MEROIL';if(u.includes('CARREFOUR'))return'CARREFOUR';return'UNKNOWN';}
-const FUELS={G95:{label:'G-95',k:'PrecioGasolina95E5',color:'#4CD964'},G98:{label:'G-98',k:'PrecioGasolina98E5',color:'#5AC8FA'},GOA:{label:'Diésel',k:'PrecioGasoleoA',color:'#FF9500'},GOP:{label:'D+',k:'PrecioGasoleoPremium',color:'#FF6B35'}};
+const BRANDS={SHELL:{name:'Shell',color:'#DD1D21'},REPSOL:{name:'Repsol',color:'#E31E24'},CEPSA:{name:'Cepsa',color:'#003087'},BP:{name:'BP',color:'#009900'},GALP:{name:'Galp',color:'#FF6600'},TAMOIL:{name:'Tamoil',color:'#CC0000'},CAMPSA:{name:'Campsa',color:'#CC0000'},PETRONOR:{name:'Petronor',color:'#003366'},PLENOIL:{name:'Plenoil',color:'#00B140'},BALLENOIL:{name:'Ballenoil',color:'#0057A8'},MEROIL:{name:'Meroil',color:'#2E7D32'},CARREFOUR:{name:'Carrefour',color:'#003CA6'},UNKNOWN:{name:'Gasolinera',color:'#4a5e4a'}};
+
+function detectBrand(r=''){
+  const u=(r||'').toUpperCase().trim();
+  if(u.includes('SHELL'))return'SHELL';
+  if(u.includes('REPSOL'))return'REPSOL';
+  if(u.includes('CEPSA'))return'CEPSA';
+  if(u==='BP'||u.startsWith('BP '))return'BP';
+  if(u.includes('GALP'))return'GALP';
+  if(u.includes('TAMOIL'))return'TAMOIL';
+  if(u.includes('CAMPSA'))return'CAMPSA';
+  if(u.includes('PETRONOR'))return'PETRONOR';
+  if(u.includes('PLENOIL'))return'PLENOIL';
+  if(u.includes('BALLENOIL'))return'BALLENOIL';
+  if(u.includes('MEROIL'))return'MEROIL';
+  if(u.includes('CARREFOUR'))return'CARREFOUR';
+  return'UNKNOWN';
+}
+
+const FUELS={
+  G95:{label:'G-95',color:'#4CD964'},
+  G98:{label:'G-98',color:'#5AC8FA'},
+  GOA:{label:'Diésel',color:'#FF9500'},
+  GOP:{label:'D+',color:'#FF6B35'},
+};
 
 // ══════════════════════════════════════
 // STATE
 // ══════════════════════════════════════
-let map,userPos=null,allStations=[],currentFuel='G95',listFuel='G95';
-let mapMarkers=[],distCircle=null,selId=null,dataReady=false;
-let mapDistKm=0,listDistKm=0,selectedBrands=new Set();
-// IMPORTANT: separate cache keys for price data vs no-price data
-const CACHE_KEY='gas_prices_v1', CACHE_TTL=90*60*1000;
+let map, userPos=null, allStations=[], currentFuel='G95', listFuel='G95';
+let mapMarkers=[], distCircle=null, selId=null, dataReady=false;
+let mapDistKm=0, listDistKm=0, selectedBrands=new Set();
+const CACHE_KEY='gas_min_v1', CACHE_TTL=90*60*1000;
 
 // ══════════════════════════════════════
 // UTILS
 // ══════════════════════════════════════
 function hav(a,b,c,d){const R=6371,dL=(c-a)*Math.PI/180,dO=(d-b)*Math.PI/180;const x=Math.sin(dL/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dO/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
 function pColor(p,all){const v=all.filter(x=>x>0);if(!p||!v.length)return'#aaa';const mn=Math.min(...v),mx=Math.max(...v);if(mx===mn)return'#4CD964';const r=(p-mn)/(mx-mn);return r<0.33?'#4CD964':r<0.66?'#FF9500':'#FF3B30';}
-function parseP(s){if(!s)return null;const n=parseFloat(String(s).replace(',','.'));return(isNaN(n)||n<0.5||n>4)?null:n;}
 
-// ══════════════════════════════════════
-// CACHE — only store if has prices
-// ══════════════════════════════════════
-function loadCache(){
-  try{
-    const r=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');
-    if(!r?.data?.length)return null;
-    // Only use cache if it has price data
-    const hasPrices=r.data.some(s=>s.prices?.G95||s.prices?.GOA);
-    if(!hasPrices)return null;
-    return{data:r.data,stale:Date.now()-r.ts>CACHE_TTL};
-  }catch{return null;}
-}
-function saveCache(data){
-  // Only save if stations have prices
-  const hasPrices=data.some(s=>s.prices?.G95||s.prices?.GOA);
-  if(!hasPrices){console.log('Not caching: no price data');return;}
-  try{localStorage.setItem(CACHE_KEY,JSON.stringify({ts:Date.now(),data}));}catch{}
+// Parse price — handles "1,749" and "1.749" and empty
+function parseP(s){
+  if(!s||!String(s).trim())return null;
+  const n=parseFloat(String(s).trim().replace(',','.'));
+  return(isNaN(n)||n<0.5||n>4)?null:n;
 }
 
-// ══════════════════════════════════════
-// FETCH MINISTERIO
-// This is the ONLY source for prices.
-// Uses multiple proxies, robust JSON parsing.
-// ══════════════════════════════════════
-async function fetchMinisterio(lat, lon) {
-  // URL 1: nearby stations (faster, ~300 results)
-  // URL 2: all Spain (fallback, ~11k results)
-  const API = 'https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes';
-  const apiUrls = [
-    `${API}/EstacionesTerrestresHB/FiltroMunicipioDistanciaProducto/${lat}/${lon}/25/6`,
-    `${API}/EstacionesTerrestres/`,
-  ];
-
-  const proxies = [
-    u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
-    u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`, // returns {contents:...}
-    u => `https://thingproxy.freeboard.io/fetch/${u}`,
-  ];
-
-  for (const apiUrl of apiUrls) {
-    for (const mkProxy of proxies) {
-      const proxyUrl = mkProxy(apiUrl);
-      try {
-        console.log('Trying:', proxyUrl.substring(0, 60));
-        const res = await fetch(proxyUrl, {
-          signal: AbortSignal.timeout(15000),
-        });
-        if (!res.ok) { console.warn('HTTP', res.status); continue; }
-
-        // Read raw bytes — important for encoding
-        const buf = await res.arrayBuffer();
-        const bytes = new Uint8Array(buf);
-
-        // Detect encoding: try UTF-8, fallback to latin1
-        let text;
-        try {
-          text = new TextDecoder('utf-8', {fatal:true}).decode(bytes);
-        } catch {
-          text = new TextDecoder('iso-8859-1').decode(bytes);
-        }
-
-        // Skip HTML error pages
-        if (text.trimStart().startsWith('<')) { console.warn('Got HTML'); continue; }
-        if (text.length < 100) { console.warn('Too short'); continue; }
-
-        // Parse JSON
-        let json;
-        try { json = JSON.parse(text); }
-        catch {
-          // allorigins /get wraps in string
-          const m = text.match(/"contents"\s*:\s*"([\s\S]+?)"\s*,\s*"status"/);
-          if (m) {
-            try { json = JSON.parse(m[1].replace(/\\"/g,'"').replace(/\\\\/g,'\\')); }
-            catch { console.warn('Nested parse fail'); continue; }
-          } else { console.warn('JSON parse fail'); continue; }
-        }
-
-        // allorigins /get wrapper
-        if (json && json.contents && typeof json.contents === 'string') {
-          try { json = JSON.parse(json.contents); } catch { continue; }
-        }
-
-        const list = json?.ListaEESSPrecio || json?.listaEESSPrecio || [];
-        if (list.length === 0) { console.warn('Empty list'); continue; }
-
-        // Validate: check that price fields exist
-        const sample = list[0];
-        const hasPriceFields = 'PrecioGasolina95E5' in sample || 'PrecioGasoleoA' in sample;
-        if (!hasPriceFields) { console.warn('No price fields in response'); continue; }
-
-        console.log(`✅ Got ${list.length} stations with prices`);
-        return list;
-
-      } catch(e) {
-        console.warn('Fetch error:', e?.message);
-      }
-    }
-  }
-  console.error('❌ All proxies failed');
-  return null;
-}
-
-function txMin(r) {
-  const brand = detectBrand(r['Rótulo']||'');
-  const lat = parseFloat((r['Latitud']||'').replace(',','.'));
-  const lon = parseFloat((r['Longitud (WGS84)']||'').replace(',','.'));
-  if (isNaN(lat)||isNaN(lon)||lat===0||lon===0) return null;
-  return {
-    id: 'm'+(r['IDEESS']||Math.random()),
-    name: r['Rótulo']||'Gasolinera',
-    address: r['Dirección']||'',
-    municipality: r['Municipio']||'',
-    province: r['Provincia']||'',
-    cp: r['C.P.']||'',
-    schedule: r['Horario']||'',
+// Transform raw API record to our station object
+function transform(raw){
+  const brand=detectBrand(raw['Rótulo']||'');
+  const lat=parseFloat((raw['Latitud']||'').replace(',','.'));
+  const lon=parseFloat((raw['Longitud (WGS84)']||'').replace(',','.'));
+  if(isNaN(lat)||isNaN(lon)||lat===0||lon===0)return null;
+  return{
+    id: raw['IDEESS']||('_'+Math.random()),
+    name: raw['Rótulo']||'Gasolinera',
+    address: raw['Dirección']||'',
+    municipality: raw['Municipio']||'',
+    province: raw['Provincia']||'',
+    cp: (raw['C.P.']||'').trim(),
+    schedule: raw['Horario']||'',
     brand, lat, lon,
-    prices: {
-      G95: parseP(r['PrecioGasolina95E5']),
-      G98: parseP(r['PrecioGasolina98E5']),
-      GOA: parseP(r['PrecioGasoleoA']),
-      GOP: parseP(r['PrecioGasoleoPremium']),
+    // USE THE CORRECT FIELD NAMES WITH SPACES
+    prices:{
+      G95: parseP(raw[FKEY.G95]),
+      G98: parseP(raw[FKEY.G98]),
+      GOA: parseP(raw[FKEY.GOA]),
+      GOP: parseP(raw[FKEY.GOP]),
     }
   };
 }
 
 // ══════════════════════════════════════
-// OSM — only used as last resort fallback
+// CACHE — only if has prices
 // ══════════════════════════════════════
-async function fetchOSM(lat, lon) {
-  const q=`[out:json][timeout:25];(node["amenity"="fuel"](around:20000,${lat},${lon});way["amenity"="fuel"](around:20000,${lat},${lon}););out center tags;`;
-  const res=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:'data='+encodeURIComponent(q),signal:AbortSignal.timeout(22000)});
-  if(!res.ok)return[];
-  const j=await res.json();
-  return(j.elements||[]).map(el=>{
-    const t=el.tags||{},slat=el.lat??el.center?.lat,slon=el.lon??el.center?.lon;
-    if(!slat||!slon)return null;
-    const brand=detectBrand(t.brand||t.name||t.operator||'');
-    return{id:'o'+el.id,name:t.name||t.brand||BRANDS[brand].name,address:[t['addr:street'],t['addr:housenumber']].filter(Boolean).join(' '),municipality:t['addr:city']||t['addr:town']||'',province:t['addr:province']||'',cp:t['addr:postcode']||'',schedule:t.opening_hours||'',brand,lat:slat,lon:slon,prices:{G95:null,G98:null,GOA:null,GOP:null}};
-  }).filter(Boolean);
+function loadCache(){
+  try{
+    const r=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');
+    if(!r?.data?.length)return null;
+    if(!r.data.some(s=>s.prices?.G95||s.prices?.GOA))return null; // reject priceless cache
+    return{data:r.data,stale:Date.now()-r.ts>CACHE_TTL};
+  }catch{return null;}
+}
+function saveCache(data){
+  if(!data.some(s=>s.prices?.G95||s.prices?.GOA))return;
+  try{localStorage.setItem(CACHE_KEY,JSON.stringify({ts:Date.now(),data}));}catch{}
+}
+
+// ══════════════════════════════════════
+// FETCH — Direct call, exactly like the working version
+// The Ministerio API supports CORS from browsers
+// ══════════════════════════════════════
+async function fetchMinisterio(){
+  const url='https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/';
+  const res=await fetch(url,{signal:AbortSignal.timeout(20000)});
+  if(!res.ok)throw new Error('HTTP '+res.status);
+  const data=await res.json();
+  const list=data.ListaEESSPrecio||[];
+  if(!list.length)throw new Error('Lista vacía');
+  // Update date display
+  if(data.Fecha)document.getElementById('ploc').textContent=`📍 España · ${data.Fecha}`;
+  return list.map(transform).filter(Boolean);
 }
 
 // ══════════════════════════════════════
@@ -481,7 +432,6 @@ function getPool(){
   if(mapDistKm>0&&userPos)pool=pool.filter(s=>hav(userPos.lat,userPos.lon,s.lat,s.lon)<=mapDistKm);
   return pool;
 }
-
 function updateCircle(){
   if(distCircle){map.removeLayer(distCircle);distCircle=null;}
   if(mapDistKm>0&&userPos)distCircle=L.circle([userPos.lat,userPos.lon],{radius:mapDistKm*1000,color:'#4CD964',weight:1.5,fillColor:'#4CD964',fillOpacity:.04,dashArray:'6 4'}).addTo(map);
@@ -508,7 +458,8 @@ function renderMarkers(){
     el.addEventListener('click',e=>{e.stopPropagation();openSheet(s);});
     mk.addTo(map);mapMarkers.push(mk);
   });
-  document.getElementById('pcnt').textContent=pool.filter(s=>bounds.contains([s.lat,s.lon])).length>0?`${pool.filter(s=>bounds.contains([s.lat,s.lon])).length} estaciones`:'';
+  const cnt=pool.filter(s=>bounds.contains([s.lat,s.lon])).length;
+  document.getElementById('pcnt').textContent=cnt>0?`${cnt} estaciones`:'';
 }
 
 // ══════════════════════════════════════
@@ -594,27 +545,27 @@ function renderList(){
 function clearFilt(){selectedBrands.clear();listDistKm=0;document.querySelectorAll('.ldbtn').forEach(b=>b.classList.toggle('on',b.dataset.km==='0'));document.getElementById('bbtn-all').classList.add('on');document.querySelectorAll('.bbtn').forEach(b=>b.classList.remove('on'));renderList();}
 
 // ══════════════════════════════════════
-// SEARCH — locality / CP autocomplete
+// SEARCH — locality/CP autocomplete
 // ══════════════════════════════════════
 let acTm;
 function buildAC(q){
   const ac=document.getElementById('autocomplete');
   if(!q||q.length<2||!allStations.length){ac.style.display='none';return;}
   const ql=q.toLowerCase().trim();
-  const map2=new Map();
+  const m2=new Map();
   allStations.forEach(s=>{
     if(s.municipality&&s.municipality.toLowerCase().includes(ql)){
       const k=s.municipality.toLowerCase();
-      if(!map2.has(k))map2.set(k,{name:s.municipality,prov:s.province,type:'loc',lat:s.lat,lon:s.lon,n:0});
-      map2.get(k).n++;
+      if(!m2.has(k))m2.set(k,{name:s.municipality,prov:s.province,type:'loc',lat:s.lat,lon:s.lon,n:0});
+      m2.get(k).n++;
     }
     if(s.cp&&s.cp.startsWith(ql)){
       const k='cp_'+s.cp;
-      if(!map2.has(k))map2.set(k,{name:s.cp,prov:s.municipality,type:'cp',lat:s.lat,lon:s.lon,n:0});
-      map2.get(k).n++;
+      if(!m2.has(k))m2.set(k,{name:s.cp,prov:s.municipality,type:'cp',lat:s.lat,lon:s.lon,n:0});
+      m2.get(k).n++;
     }
   });
-  const res=[...map2.values()].sort((a,b)=>b.n-a.n).slice(0,6);
+  const res=[...m2.values()].sort((a,b)=>b.n-a.n).slice(0,6);
   if(!res.length){ac.style.display='none';return;}
   ac.innerHTML=res.map((r,i)=>`<div class="ac-item" data-i="${i}">${r.type==='cp'?'📮':'📍'} <span>${r.name}${r.prov?` <small style="color:var(--text3)">(${r.prov})</small>`:''}</span><span class="ac-sub">${r.n} est.</span></div>`).join('');
   ac.style.display='block';
@@ -624,7 +575,8 @@ function buildAC(q){
       document.getElementById('sinput').value=r.name;
       ac.style.display='none';
       map.flyTo([r.lat,r.lon],r.type==='cp'?14:13,{duration:.5});
-      document.getElementById('pcnt').textContent=`${allStations.filter(s=>r.type==='cp'?s.cp===r.name:s.municipality.toLowerCase()===r.name.toLowerCase()).length} estaciones`;
+      const cnt=allStations.filter(s=>r.type==='cp'?s.cp===r.name:s.municipality.toLowerCase()===r.name.toLowerCase()).length;
+      document.getElementById('pcnt').textContent=`${cnt} estaciones`;
     });
   });
 }
@@ -643,71 +595,54 @@ function setLoad(show,tit,sub,err){
 }
 
 // ══════════════════════════════════════
-// MAIN — Ministerio first, OSM only if it fails
+// MAIN
 // ══════════════════════════════════════
 async function main(){
-  // 1. Show good cache immediately
+  // 1. Cache
   const cache=loadCache();
   if(cache?.data?.length){
     allStations=cache.data;dataReady=true;
-    console.log(`Cache hit: ${allStations.length} stations with prices`);
     if(!cache.stale){
-      // Fresh cache — show immediately, refresh in background quietly
+      // Fresh cache: show immediately, refresh quietly in background
       let lat=40.4168,lon=-3.7038;
-      try{const pos=await new Promise((res,rej)=>navigator.geolocation.getCurrentPosition(res,rej,{timeout:5000,maximumAge:300000}));lat=pos.coords.latitude;lon=pos.coords.longitude;userPos={lat,lon};}catch{}
-      initMap(lat,lon);
-      setLoad(false);renderMarkers();
-      // Quietly refresh prices in background
-      fetchMinisterio(lat,lon).then(raw=>{if(raw?.length){const sts=raw.map(txMin).filter(Boolean);if(sts.length){allStations=sts;saveCache(sts);renderMarkers();if(document.getElementById('lpanel').classList.contains('on')){buildBrandBtns();renderList();}}}}).catch(()=>{});
-      // Get city name
-      try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,{signal:AbortSignal.timeout(4000)});const j=await r.json();document.getElementById('ploc').textContent=`📍 ${j.address?.city||j.address?.town||j.address?.village||'Tu ubicación'}`;}catch{}
+      try{const p=await new Promise((r,j)=>navigator.geolocation.getCurrentPosition(r,j,{timeout:5000,maximumAge:300000}));lat=p.coords.latitude;lon=p.coords.longitude;userPos={lat,lon};}catch{}
+      initMap(lat,lon);setLoad(false);renderMarkers();
+      // Quiet background refresh
+      fetchMinisterio().then(sts=>{if(sts?.length){allStations=sts;saveCache(sts);renderMarkers();if(document.getElementById('lpanel').classList.contains('on')){buildBrandBtns();renderList();}}}).catch(()=>{});
+      try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,{signal:AbortSignal.timeout(4000)});const j=await r.json();const city=j.address?.city||j.address?.town||j.address?.village||'';if(city)document.getElementById('ploc').textContent=`📍 ${city}`;}catch{}
       return;
     }
   }
 
-  // 2. Get GPS
+  // 2. GPS
   setLoad(true,'Cargando gasolineras','Obteniendo tu ubicación…');
   let lat=40.4168,lon=-3.7038;
   try{
-    const pos=await new Promise((res,rej)=>navigator.geolocation.getCurrentPosition(res,rej,{timeout:8000,maximumAge:120000}));
+    const pos=await new Promise((r,j)=>navigator.geolocation.getCurrentPosition(r,j,{timeout:8000,maximumAge:120000}));
     lat=pos.coords.latitude;lon=pos.coords.longitude;userPos={lat,lon};
-    try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,{signal:AbortSignal.timeout(4000)});const j=await r.json();document.getElementById('ploc').textContent=`📍 ${j.address?.city||j.address?.town||j.address?.village||'Tu ubicación'}`;}catch{document.getElementById('ploc').textContent='📍 Tu ubicación';}
+    try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,{signal:AbortSignal.timeout(4000)});const j=await r.json();const city=j.address?.city||j.address?.town||j.address?.village||'';document.getElementById('ploc').textContent=`📍 ${city||'Tu ubicación'}`;}catch{document.getElementById('ploc').textContent='📍 Tu ubicación';}
   }catch{document.getElementById('ploc').textContent='📍 España';}
 
-  // 3. Init map
+  // 3. Map
   initMap(lat,lon);
-  if(allStations.length){setLoad(false);renderMarkers();}  // show stale cache while fetching
+  if(allStations.length){renderMarkers();}  // show stale cache while fetching
 
-  // 4. Fetch Ministerio (with prices)
-  setLoad(true,'Cargando precios…','Conectando con el Ministerio de Energía…');
-  const raw=await fetchMinisterio(lat,lon);
-
-  if(raw?.length){
-    const sts=raw.map(txMin).filter(Boolean);
-    const withPrices=sts.filter(s=>s.prices.G95||s.prices.GOA);
-    console.log(`Ministerio: ${sts.length} total, ${withPrices.length} with prices`);
+  // 4. Fetch — direct call, no proxy needed
+  setLoad(true,'Cargando precios…','Descargando datos del Ministerio de Energía…');
+  try{
+    const sts=await fetchMinisterio();
     allStations=sts;dataReady=true;
     saveCache(sts);
-    renderMarkers();setLoad(false);
+    renderMarkers();
+    setLoad(false);
     if(document.getElementById('lpanel').classList.contains('on')){buildBrandBtns();renderList();}
-    return;
-  }
-
-  // 5. Ministerio failed — fall back to OSM (no prices)
-  console.warn('Ministerio unavailable, trying OSM…');
-  setLoad(true,'Cargando mapa…','Usando OpenStreetMap (sin precios)…');
-  try{
-    const osmSts=await fetchOSM(lat,lon);
-    if(osmSts.length){
-      allStations=osmSts;dataReady=true;
-      // DON'T save to cache (no prices)
-      renderMarkers();setLoad(false);
-    } else {
-      setLoad(true,'Sin datos','Comprueba tu conexión e inténtalo de nuevo.',true);
+  }catch(e){
+    console.error('Ministerio error:',e);
+    if(!allStations.length){
+      setLoad(true,'Error de conexión','No se pudo conectar. Comprueba tu internet.',true);
+    }else{
+      setLoad(false); // show stale cache
     }
-  }catch{
-    if(!allStations.length)setLoad(true,'Sin datos','Comprueba tu conexión.',true);
-    else setLoad(false);
   }
 }
 
