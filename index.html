@@ -12,164 +12,169 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0d120e;--surface:rgba(14,20,14,0.96);--surface2:rgba(16,24,16,0.98);
-  --border:rgba(255,255,255,0.08);--text:#e8f0e6;--text2:#7a9278;--text3:#445542;
-  --green:#4CD964;--font:'Figtree',system-ui,sans-serif;
+  --bg:#0d120e;
+  --surface:rgba(14,20,14,0.96);
+  --surface2:rgba(18,26,18,0.98);
+  --border:rgba(255,255,255,0.09);
+  --text:#f0f5ee;
+  --text2:#a0b89e;
+  --text3:#607060;
+  --green:#4CD964;
+  --font:'Figtree',system-ui,sans-serif;
 }
 html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--font);color:var(--text);-webkit-tap-highlight-color:transparent}
-
 #map{position:fixed;inset:0;z-index:0}
 .leaflet-control-zoom,.leaflet-control-attribution{display:none!important}
 
-/* PINS — white bubble like Apple Maps */
-.pin-wrap{display:flex;flex-direction:column;align-items:center;cursor:pointer;filter:drop-shadow(0 3px 10px rgba(0,0,0,0.4))}
-.pin-bubble{display:flex;align-items:center;gap:5px;background:#fff;border-radius:20px;padding:4px 10px 4px 4px;border:2px solid rgba(0,0,0,0.08);white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.15);transition:transform .18s cubic-bezier(.34,1.56,.64,1),border-color .2s}
-.pin-bubble.selected{border-color:var(--pc,#4CD964);transform:scale(1.15);box-shadow:0 4px 16px rgba(0,0,0,0.3)}
-.pin-logo-wrap{width:24px;height:24px;border-radius:12px;overflow:hidden;flex-shrink:0;background:#f0f0f0;display:flex;align-items:center;justify-content:center}
-.pin-logo-wrap img{width:22px;height:22px;object-fit:contain}
-.pin-price{font-size:12.5px;font-weight:800;letter-spacing:-0.3px;color:#1a1a1a}
-.pin-tail{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid #fff;margin-top:-1px}
+/* ── PINS ── */
+.pw{display:flex;flex-direction:column;align-items:center;cursor:pointer;filter:drop-shadow(0 3px 10px rgba(0,0,0,0.38))}
+.pb{display:flex;align-items:center;gap:5px;background:#fff;border-radius:20px;padding:4px 10px 4px 4px;border:2.5px solid rgba(0,0,0,0.07);white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.12);transition:transform .18s cubic-bezier(.34,1.56,.64,1),border-color .2s}
+.pb.sel{border-color:var(--pc,#4CD964);transform:scale(1.16);box-shadow:0 5px 18px rgba(0,0,0,0.28)}
+.plogo{width:24px;height:24px;border-radius:12px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.plogo svg{display:block}
+.pp{font-size:12.5px;font-weight:800;letter-spacing:-0.3px;color:#111}
+.pt{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid #fff;margin-top:-1px}
 
-/* TOP BAR */
-#topbar{position:fixed;top:0;left:0;right:0;z-index:100;padding:env(safe-area-inset-top,44px) 12px 8px;display:flex;flex-direction:column;gap:7px;pointer-events:none}
-.search-row{display:flex;gap:8px;align-items:center;pointer-events:all}
-#search-box{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:0 12px;height:44px;display:flex;align-items:center;gap:8px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 2px 16px rgba(0,0,0,0.45);transition:border-color .2s}
-#search-box:focus-within{border-color:rgba(76,217,100,0.45)}
-#search-input{flex:1;background:none;border:none;outline:none;font-family:var(--font);font-size:14px;font-weight:500;color:var(--text)}
-#search-input::placeholder{color:var(--text3);font-size:12.5px}
-#search-clear{color:var(--text3);font-size:12px;cursor:pointer;padding:4px;display:none;flex-shrink:0}
+/* ── TOP BAR ── */
+#topbar{position:fixed;top:0;left:0;right:0;z-index:100;padding:env(safe-area-inset-top,46px) 12px 8px;display:flex;flex-direction:column;gap:7px;pointer-events:none}
+.srow{display:flex;gap:8px;align-items:center;pointer-events:all}
+#sbox{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:0 12px;height:44px;display:flex;align-items:center;gap:8px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 2px 16px rgba(0,0,0,0.4);transition:border-color .2s}
+#sbox:focus-within{border-color:rgba(76,217,100,0.5)}
+#sinput{flex:1;background:none;border:none;outline:none;font-family:var(--font);font-size:14px;font-weight:500;color:var(--text)}
+#sinput::placeholder{color:var(--text3);font-size:12.5px}
+#sclear{color:var(--text3);font-size:12px;cursor:pointer;padding:4px;display:none;flex-shrink:0}
 
-#search-tags{display:flex;gap:5px;overflow-x:auto;pointer-events:all;padding-bottom:1px}
-#search-tags::-webkit-scrollbar{display:none}
-.stag{background:rgba(0,0,0,0.52);border:1px solid rgba(255,255,255,0.1);border-radius:11px;padding:5px 11px;font-size:11.5px;font-weight:700;color:var(--text2);cursor:pointer;white-space:nowrap;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);flex-shrink:0;transition:all .18s;user-select:none}
-.stag:active,.stag.active-tag{color:var(--green);border-color:rgba(76,217,100,0.4);background:rgba(76,217,100,0.08)}
+#stags{display:flex;gap:5px;overflow-x:auto;pointer-events:all}
+#stags::-webkit-scrollbar{display:none}
+.stag{background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.11);border-radius:11px;padding:5px 11px;font-size:11.5px;font-weight:700;color:#c0d4be;cursor:pointer;white-space:nowrap;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);flex-shrink:0;transition:all .18s}
+.stag:active,.stag.on{color:var(--green);border-color:rgba(76,217,100,0.45);background:rgba(76,217,100,0.1)}
 
-#location-pill{align-self:center;pointer-events:all;background:rgba(0,0,0,0.52);border:1px solid rgba(255,255,255,0.09);border-radius:20px;padding:5px 14px;display:flex;gap:8px;align-items:center;font-size:12.5px;font-weight:600;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);cursor:pointer}
-#pill-loc{color:var(--text)}#pill-count{color:var(--text2);font-weight:500;font-size:11.5px}
+#ppill{align-self:center;pointer-events:all;background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:5px 15px;display:flex;gap:8px;align-items:center;font-size:12.5px;font-weight:600;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);cursor:pointer}
+#ploc{color:var(--text)}
+#pcnt{color:var(--text2);font-size:11.5px}
 
-/* FUEL TABS */
-#fuel-tabs{position:fixed;bottom:78px;left:50%;transform:translateX(-50%);z-index:100;background:var(--surface2);border:1px solid var(--border);border-radius:28px;padding:4px;display:flex;gap:2px;box-shadow:0 4px 24px rgba(0,0,0,0.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
-.fuel-tab{padding:8px 13px;border-radius:22px;font-family:var(--font);font-size:13px;font-weight:700;color:var(--text3);cursor:pointer;border:1.5px solid transparent;transition:all .18s;background:none;white-space:nowrap}
-.fuel-tab.active{color:var(--tc);border-color:var(--tc);background:rgba(255,255,255,0.05)}
+/* ── FUEL TABS ── */
+#ftabs{position:fixed;bottom:78px;left:50%;transform:translateX(-50%);z-index:100;background:var(--surface2);border:1px solid var(--border);border-radius:28px;padding:4px;display:flex;gap:2px;box-shadow:0 4px 24px rgba(0,0,0,0.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.ftab{padding:8px 13px;border-radius:22px;font-family:var(--font);font-size:13px;font-weight:700;color:var(--text3);cursor:pointer;border:1.5px solid transparent;transition:all .18s;background:none;white-space:nowrap}
+.ftab.on{color:var(--tc);border-color:var(--tc);background:rgba(255,255,255,0.05)}
 
-/* LOCATE */
-#locate-btn{position:fixed;right:14px;bottom:148px;z-index:100;width:44px;height:44px;background:var(--surface2);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.5);font-size:19px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:transform .15s;color:var(--green)}
-#locate-btn:active{transform:scale(0.88)}
+/* ── LOCATE ── */
+#locbtn{position:fixed;right:14px;bottom:148px;z-index:100;width:44px;height:44px;background:var(--surface2);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 14px rgba(0,0,0,0.5);font-size:20px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:transform .15s;color:var(--green)}
+#locbtn:active{transform:scale(0.88)}
 
-/* TAB BAR */
+/* ── TAB BAR ── */
 #tabbar{position:fixed;bottom:0;left:0;right:0;z-index:100;padding:0 12px;padding-bottom:max(env(safe-area-inset-bottom),10px)}
-.tabbar-inner{background:var(--surface2);border:1px solid var(--border);border-radius:22px;display:flex;box-shadow:0 -2px 20px rgba(0,0,0,0.5);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
-.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 8px 7px;cursor:pointer;position:relative;user-select:none}
-.tab-icon{font-size:20px;opacity:.35;transition:opacity .2s}
-.tab-label{font-size:10px;font-weight:700;color:var(--text3);transition:color .2s}
-.tab-dot{position:absolute;bottom:1px;width:4px;height:4px;border-radius:2px;background:var(--green);opacity:0;transition:opacity .2s}
-.tab-item.active .tab-icon{opacity:1}
-.tab-item.active .tab-label{color:var(--green)}
-.tab-item.active .tab-dot{opacity:1}
+.tbi{background:var(--surface2);border:1px solid var(--border);border-radius:22px;display:flex;box-shadow:0 -2px 20px rgba(0,0,0,0.5);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.ti{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 8px 7px;cursor:pointer;position:relative;user-select:none}
+.ticon{font-size:20px;opacity:.35;transition:opacity .2s}
+.tlbl{font-size:10px;font-weight:700;color:var(--text3);transition:color .2s}
+.tdot{position:absolute;bottom:1px;width:4px;height:4px;border-radius:2px;background:var(--green);opacity:0;transition:opacity .2s}
+.ti.on .ticon{opacity:1}.ti.on .tlbl{color:var(--green)}.ti.on .tdot{opacity:1}
 
-/* LOADING */
-#loading{position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:rgba(6,10,6,0.75);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:opacity .5s}
-#loading.hidden{opacity:0;pointer-events:none}
-.lcard{background:rgba(16,24,16,0.98);border:1px solid rgba(76,217,100,0.18);border-radius:28px;padding:34px 38px;display:flex;flex-direction:column;align-items:center;width:min(82vw,300px);box-shadow:0 0 50px rgba(76,217,100,0.1),0 20px 40px rgba(0,0,0,0.6)}
-.licon{font-size:52px;animation:lpulse 1.4s ease-in-out infinite;margin-bottom:16px;position:relative}
-@keyframes lpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
-.lring{position:absolute;inset:-12px;border-radius:50%;border:2px solid var(--green);animation:lring 1.4s ease-in-out infinite}
-@keyframes lring{0%{opacity:.6;transform:scale(1)}60%,100%{opacity:0;transform:scale(1.5)}}
-.ltitle{font-size:19px;font-weight:800;text-align:center;margin-bottom:5px}
+/* ── LOADING ── */
+#loading{position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:rgba(5,9,5,0.78);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:opacity .5s}
+#loading.hide{opacity:0;pointer-events:none}
+.lcard{background:rgba(14,22,14,0.99);border:1px solid rgba(76,217,100,0.18);border-radius:28px;padding:34px 38px;display:flex;flex-direction:column;align-items:center;width:min(82vw,300px);box-shadow:0 0 50px rgba(76,217,100,0.09),0 20px 40px rgba(0,0,0,0.6)}
+.lico{font-size:52px;margin-bottom:6px;position:relative;animation:lpulse 1.4s ease-in-out infinite}
+@keyframes lpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.lring{position:absolute;inset:-14px;border-radius:50%;border:2px solid var(--green);animation:lring 1.5s ease-in-out infinite}
+@keyframes lring{0%{opacity:.55;transform:scale(1)}65%,100%{opacity:0;transform:scale(1.55)}}
+.ltit{font-size:19px;font-weight:800;text-align:center;margin:10px 0 5px;color:var(--text)}
 .lsub{font-size:12px;color:var(--text2);text-align:center;line-height:1.5;margin-bottom:20px}
 .ldots{display:flex;gap:7px;margin-bottom:20px}
-.ldot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:ldot 1.2s ease-in-out infinite}
-.ldot:nth-child(2){animation-delay:.2s}.ldot:nth-child(3){animation-delay:.4s}
+.ld{width:7px;height:7px;border-radius:50%;background:var(--green);animation:ldot 1.2s ease-in-out infinite}
+.ld:nth-child(2){animation-delay:.2s}.ld:nth-child(3){animation-delay:.4s}
 @keyframes ldot{0%,100%{transform:translateY(0);opacity:.25}50%{transform:translateY(-7px);opacity:1}}
 .lbadge{background:rgba(76,217,100,0.09);border:1px solid rgba(76,217,100,0.22);border-radius:18px;padding:5px 13px;font-size:11px;font-weight:700;color:var(--green)}
+.lerrbtn{margin-top:14px;background:var(--green);border-radius:12px;padding:10px 22px;font-size:13px;font-weight:700;color:#061006;cursor:pointer;display:none}
 
-/* ERROR STATE */
-.lerror-btn{margin-top:14px;background:var(--green);border-radius:12px;padding:10px 20px;font-size:13px;font-weight:700;color:#071007;cursor:pointer}
-
-/* STATION SHEET */
-#sheet-bd{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.32);opacity:0;pointer-events:none;transition:opacity .3s}
-#sheet-bd.on{opacity:1;pointer-events:all}
-#sheet{position:fixed;bottom:0;left:0;right:0;z-index:201;background:#0e160e;border-radius:24px 24px 0 0;border-top:1px solid var(--border);padding-bottom:max(env(safe-area-inset-bottom),18px);box-shadow:0 -8px 40px rgba(0,0,0,0.6);transform:translateY(100%);transition:transform .32s cubic-bezier(.32,0,.67,0)}
+/* ── STATION SHEET ── */
+#sbd{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.32);opacity:0;pointer-events:none;transition:opacity .3s}
+#sbd.on{opacity:1;pointer-events:all}
+#sheet{position:fixed;bottom:0;left:0;right:0;z-index:201;background:#0e170e;border-radius:24px 24px 0 0;border-top:1px solid var(--border);padding-bottom:max(env(safe-area-inset-bottom),16px);box-shadow:0 -8px 40px rgba(0,0,0,0.6);transform:translateY(100%);transition:transform .32s cubic-bezier(.32,0,.67,0)}
 #sheet.on{transform:translateY(0);transition:transform .38s cubic-bezier(.34,1.08,.64,1)}
-.shandle{width:34px;height:4px;background:rgba(255,255,255,0.15);border-radius:2px;margin:9px auto 3px}
-.shdr{display:flex;align-items:center;gap:11px;padding:9px 15px 3px}
-.shlogo{width:48px;height:48px;border-radius:12px;overflow:hidden;flex-shrink:0;background:#f0f0f0;display:flex;align-items:center;justify-content:center}
-.shlogo img{width:44px;height:44px;object-fit:contain}
-.shinfo{flex:1;min-width:0}
-.shbrand{font-size:17px;font-weight:800}
-.shname{font-size:11.5px;color:var(--text2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.shaddr{font-size:10.5px;color:var(--text3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.shclose{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text2);cursor:pointer;flex-shrink:0}
+.shdl{width:34px;height:4px;background:rgba(255,255,255,0.14);border-radius:2px;margin:9px auto 3px}
+.shhdr{display:flex;align-items:center;gap:11px;padding:9px 15px 4px}
+.shlog{width:48px;height:48px;border-radius:12px;overflow:hidden;flex-shrink:0;background:#f0f2f0;display:flex;align-items:center;justify-content:center}
+.shlog svg{width:48px;height:48px;display:block}
+.shinf{flex:1;min-width:0}
+.shbr{font-size:17px;font-weight:900;color:var(--text)}
+.shnm{font-size:11.5px;color:var(--text2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shad{font-size:10.5px;color:var(--text3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shcl{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text2);cursor:pointer;flex-shrink:0}
 .pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:10px 15px}
-.pcard{background:#161e16;border:1.5px solid rgba(255,255,255,0.05);border-radius:13px;padding:9px 5px;text-align:center}
-.pcard.hi{background:#19231a}
-.plabel{font-size:9.5px;font-weight:700;letter-spacing:.3px;margin-bottom:3px}
-.pprice{font-size:16px;font-weight:900;color:var(--text)}
+.pcard{background:#161f16;border:1.5px solid rgba(255,255,255,0.06);border-radius:13px;padding:10px 5px;text-align:center}
+.pcard.hi{background:#1b2b1b}
+.plbl{font-size:9.5px;font-weight:700;letter-spacing:.3px;margin-bottom:3px}
+.pval{font-size:16px;font-weight:900;color:var(--text)}
 .punit{font-size:8.5px;color:var(--text3);margin-top:1px}
-.sfooter{padding:3px 15px 6px;display:flex;flex-direction:column;gap:9px}
+.sfoot{padding:3px 15px 6px;display:flex;flex-direction:column;gap:9px}
 .sched{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text2)}
 .navbtn{background:var(--green);border-radius:15px;padding:13px;text-align:center;font-size:14px;font-weight:700;color:#061006;cursor:pointer;transition:opacity .15s}
 .navbtn:active{opacity:.82}
 
-/* LIST PANEL */
-#list-panel{position:fixed;inset:0;z-index:300;background:#0a100a;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .32s cubic-bezier(.32,0,.67,0)}
-#list-panel.on{transform:translateX(0);transition:transform .38s cubic-bezier(.34,1.08,.64,1)}
-.lhdr{padding:env(safe-area-inset-top,44px) 15px 11px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;flex-shrink:0}
-.lback{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;flex-shrink:0}
-.ltitle2{font-size:17px;font-weight:800}
-.lsub2{font-size:11px;color:var(--text2);margin-top:1px}
-.lfstrip{display:flex;gap:5px;padding:9px 14px;background:var(--surface2);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0}
+/* ── LIST PANEL ── */
+#lpanel{position:fixed;inset:0;z-index:300;background:#0a100a;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .32s cubic-bezier(.32,0,.67,0)}
+#lpanel.on{transform:translateX(0);transition:transform .38s cubic-bezier(.34,1.08,.64,1)}
+.lhdr{padding:env(safe-area-inset-top,46px) 15px 11px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;flex-shrink:0}
+.lbk{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;flex-shrink:0;color:var(--text)}
+.lhtit{font-size:17px;font-weight:800;color:var(--text)}
+.lhsub{font-size:11px;color:var(--text2);margin-top:1px}
+.lfstrip{display:flex;gap:5px;padding:9px 13px;background:var(--surface2);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0}
 .lfstrip::-webkit-scrollbar{display:none}
 .lfbtn{padding:5px 13px;border-radius:18px;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;border:1.5px solid transparent;background:rgba(255,255,255,0.04);color:var(--text3);transition:all .18s}
-.lfbtn.active{color:var(--tc);border-color:var(--tc);background:rgba(255,255,255,0.06)}
-#list-body{flex:1;overflow-y:auto;padding:7px 11px;padding-bottom:max(env(safe-area-inset-bottom),18px)}
-#list-body::-webkit-scrollbar{display:none}
-.litem{display:flex;align-items:center;gap:11px;background:#111811;border:1px solid var(--border);border-radius:15px;padding:11px 13px;margin-bottom:7px;cursor:pointer;transition:background .14s;user-select:none}
-.litem:active{background:#192119}
-.lilogo{width:38px;height:38px;border-radius:9px;overflow:hidden;flex-shrink:0;background:#f0f0f0;display:flex;align-items:center;justify-content:center}
-.lilogo img{width:34px;height:34px;object-fit:contain}
-.liinfo{flex:1;min-width:0}
-.librand{font-size:13.5px;font-weight:700}
-.liaddr{font-size:10.5px;color:var(--text2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lidist{font-size:10px;color:var(--text3);margin-top:1px}
-.liprice{text-align:right;flex-shrink:0}
-.lipval{font-size:19px;font-weight:900}
-.lipunit{font-size:8.5px;color:var(--text3);margin-top:1px}
-.lrank{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:800}
-.r1{background:rgba(76,217,100,0.18);color:var(--green)}
-.r2{background:rgba(76,217,100,0.1);color:#3aaa4a}
-.r3{background:rgba(76,217,100,0.06);color:#2a8a3a}
+.lfbtn.on{color:var(--tc);border-color:var(--tc);background:rgba(255,255,255,0.06)}
+#lbody{flex:1;overflow-y:auto;padding:7px 11px;padding-bottom:max(env(safe-area-inset-bottom),18px)}
+#lbody::-webkit-scrollbar{display:none}
+
+/* LIST ITEM */
+.li{display:flex;align-items:flex-start;gap:10px;background:#111911;border:1px solid var(--border);border-radius:16px;padding:12px 13px;margin-bottom:8px;cursor:pointer;transition:background .14s;user-select:none}
+.li:active{background:#1a271a}
+.lilog{width:40px;height:40px;border-radius:10px;overflow:hidden;flex-shrink:0;background:#eef2ee;display:flex;align-items:center;justify-content:center}
+.lilog svg{width:40px;height:40px;display:block}
+.liinf{flex:1;min-width:0}
+.libr{font-size:14px;font-weight:800;color:var(--text)}
+.liad{font-size:11px;color:var(--text2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lihr{font-size:10.5px;color:#7ab87a;margin-top:2px;display:flex;align-items:center;gap:4px}  /* green for schedule */
+.lidt{font-size:10px;color:var(--text3);margin-top:2px}
+.lipr{text-align:right;flex-shrink:0;min-width:52px}
+.lipv{font-size:20px;font-weight:900;letter-spacing:-.5px}
+.lipu{font-size:9px;color:var(--text3);margin-top:1px}
+.lrnk{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:800;margin-top:2px}
+.r1{background:rgba(76,217,100,0.18);color:#4CD964}
+.r2{background:rgba(76,217,100,0.1);color:#38a848}
+.r3{background:rgba(76,217,100,0.06);color:#287838}
 .rx{background:rgba(255,255,255,0.05);color:var(--text3)}
 .lempty{text-align:center;padding:50px 20px;color:var(--text2);font-size:14px;line-height:1.7}
-#no-price-note{text-align:center;padding:8px 14px;font-size:11px;color:var(--text3);background:rgba(255,165,0,0.06);border-bottom:1px solid rgba(255,165,0,0.1)}
 
-/* SHARE */
-#share-modal{position:fixed;inset:0;z-index:400;display:flex;align-items:flex-end;background:rgba(0,0,0,0.4);opacity:0;pointer-events:none;transition:opacity .3s}
-#share-modal.on{opacity:1;pointer-events:all}
-.scard{width:100%;background:#0e160e;border-radius:24px 24px 0 0;border-top:1px solid var(--border);padding:18px 18px max(env(safe-area-inset-bottom),22px);transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.1,.64,1)}
-#share-modal.on .scard{transform:translateY(0)}
-.stitle{font-size:15px;font-weight:800;margin-bottom:14px;text-align:center}
-.sopt{display:flex;align-items:center;gap:13px;padding:13px 11px;border-radius:13px;cursor:pointer;transition:background .14s}
-.sopt:active{background:rgba(255,255,255,0.06)}
-.soico{font-size:24px;width:34px;text-align:center}
-.solabel{font-size:14px;font-weight:600}
-.sosub{font-size:11px;color:var(--text2)}
-.sdiv{height:1px;background:var(--border);margin:3px 0}
-.scancel{margin-top:10px;padding:13px;text-align:center;font-size:14px;font-weight:700;color:var(--text2);background:rgba(255,255,255,0.05);border-radius:13px;cursor:pointer}
+/* ── SHARE ── */
+#shmod{position:fixed;inset:0;z-index:400;display:flex;align-items:flex-end;background:rgba(0,0,0,0.42);opacity:0;pointer-events:none;transition:opacity .3s}
+#shmod.on{opacity:1;pointer-events:all}
+.shcrd{width:100%;background:#0e170e;border-radius:24px 24px 0 0;border-top:1px solid var(--border);padding:18px 18px max(env(safe-area-inset-bottom),22px);transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.1,.64,1)}
+#shmod.on .shcrd{transform:translateY(0)}
+.shtit{font-size:15px;font-weight:800;margin-bottom:14px;text-align:center;color:var(--text)}
+.shop{display:flex;align-items:center;gap:13px;padding:13px 11px;border-radius:13px;cursor:pointer;transition:background .14s}
+.shop:active{background:rgba(255,255,255,0.07)}
+.shoico{font-size:24px;width:34px;text-align:center}
+.sholbl{font-size:14px;font-weight:600;color:var(--text)}
+.shosub{font-size:11px;color:var(--text2)}
+.shdiv{height:1px;background:var(--border);margin:3px 0}
+.shcan{margin-top:10px;padding:13px;text-align:center;font-size:14px;font-weight:700;color:var(--text2);background:rgba(255,255,255,0.05);border-radius:13px;cursor:pointer}
 </style>
 </head>
 <body>
 <div id="map"></div>
 
+<!-- TOP BAR -->
 <div id="topbar">
-  <div class="search-row">
-    <div id="search-box">
-      <span style="font-size:14px;flex-shrink:0;opacity:.7">🔍</span>
-      <input id="search-input" type="search" placeholder="Marca, municipio, provincia, CP…" autocomplete="off"/>
-      <span id="search-clear">✕</span>
+  <div class="srow">
+    <div id="sbox">
+      <span style="font-size:14px;flex-shrink:0;color:var(--text3)">🔍</span>
+      <input id="sinput" type="search" placeholder="Marca, municipio, provincia, CP…" autocomplete="off"/>
+      <span id="sclear">✕</span>
     </div>
   </div>
-  <div id="search-tags">
+  <div id="stags">
     <span class="stag" data-q="Shell">Shell</span>
     <span class="stag" data-q="Repsol">Repsol</span>
     <span class="stag" data-q="Cepsa">Cepsa</span>
@@ -180,596 +185,536 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
     <span class="stag" data-q="Ballenoil">Ballenoil</span>
     <span class="stag" data-q="Tamoil">Tamoil</span>
   </div>
-  <div id="location-pill">
-    <span id="pill-loc">📍 Localizando…</span>
-    <span id="pill-count"></span>
-  </div>
+  <div id="ppill"><span id="ploc">📍 Localizando…</span><span id="pcnt"></span></div>
 </div>
 
-<div id="fuel-tabs">
-  <button class="fuel-tab active" data-fuel="G95" style="--tc:#4CD964">G-95</button>
-  <button class="fuel-tab" data-fuel="G98" style="--tc:#5AC8FA">G-98</button>
-  <button class="fuel-tab" data-fuel="GOA" style="--tc:#FF9500">Diésel</button>
-  <button class="fuel-tab" data-fuel="GOP" style="--tc:#FF6B35">D+</button>
+<!-- FUEL TABS -->
+<div id="ftabs">
+  <button class="ftab on" data-fuel="G95" style="--tc:#4CD964">G-95</button>
+  <button class="ftab" data-fuel="G98" style="--tc:#5AC8FA">G-98</button>
+  <button class="ftab" data-fuel="GOA" style="--tc:#FF9500">Diésel</button>
+  <button class="ftab" data-fuel="GOP" style="--tc:#FF6B35">D+</button>
 </div>
+<div id="locbtn">◎</div>
 
-<div id="locate-btn">◎</div>
-
+<!-- TAB BAR -->
 <div id="tabbar">
-  <div class="tabbar-inner">
-    <div class="tab-item active" data-tab="map"><div class="tab-icon">🗺️</div><div class="tab-label">Mapa</div><div class="tab-dot"></div></div>
-    <div class="tab-item" data-tab="list"><div class="tab-icon">📋</div><div class="tab-label">Lista</div><div class="tab-dot"></div></div>
-    <div class="tab-item" data-tab="share"><div class="tab-icon">↗️</div><div class="tab-label">Compartir</div><div class="tab-dot"></div></div>
+  <div class="tbi">
+    <div class="ti on" data-tab="map"><div class="ticon">🗺️</div><div class="tlbl">Mapa</div><div class="tdot"></div></div>
+    <div class="ti" data-tab="list"><div class="ticon">📋</div><div class="tlbl">Lista</div><div class="tdot"></div></div>
+    <div class="ti" data-tab="share"><div class="ticon">↗️</div><div class="tlbl">Compartir</div><div class="tdot"></div></div>
   </div>
 </div>
 
+<!-- LOADING -->
 <div id="loading">
   <div class="lcard">
-    <div class="licon" style="position:relative">⛽<div class="lring"></div></div>
-    <div class="ltitle" id="ltitle">Cargando gasolineras</div>
+    <div class="lico" style="position:relative">⛽<div class="lring"></div></div>
+    <div class="ltit" id="ltit">Cargando gasolineras</div>
     <div class="lsub" id="lsub">Buscando estaciones cerca de ti…</div>
-    <div class="ldots"><div class="ldot"></div><div class="ldot"></div><div class="ldot"></div></div>
-    <div class="lbadge" id="lbadge">📡 OpenStreetMap + Ministerio</div>
-    <div id="lerror-btn" class="lerror-btn" style="display:none" onclick="location.reload()">🔄 Reintentar</div>
+    <div class="ldots"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div>
+    <div class="lbadge">📡 OSM + Ministerio España</div>
+    <div class="lerrbtn" id="lerrbtn" onclick="location.reload()">🔄 Reintentar</div>
   </div>
 </div>
 
-<div id="sheet-bd"></div>
+<!-- SHEET -->
+<div id="sbd"></div>
 <div id="sheet">
-  <div class="shandle"></div>
-  <div class="shdr">
-    <div class="shlogo" id="shlogo"></div>
-    <div class="shinfo"><div class="shbrand" id="shbrand"></div><div class="shname" id="shname"></div><div class="shaddr" id="shaddr"></div></div>
-    <div class="shclose" id="shclose">✕</div>
+  <div class="shdl"></div>
+  <div class="shhdr">
+    <div class="shlog" id="shlog"></div>
+    <div class="shinf"><div class="shbr" id="shbr"></div><div class="shnm" id="shnm"></div><div class="shad" id="shad"></div></div>
+    <div class="shcl" id="shcl">✕</div>
   </div>
   <div class="pgrid" id="pgrid"></div>
-  <div class="sfooter">
-    <div class="sched">🕐 <span id="ssched"></span></div>
+  <div class="sfoot">
+    <div class="sched">🕐 <span id="ssched" style="color:var(--text2)"></span></div>
     <div class="navbtn" id="navbtn">🧭  Cómo llegar</div>
   </div>
 </div>
 
-<div id="list-panel">
+<!-- LIST -->
+<div id="lpanel">
   <div class="lhdr">
-    <div class="lback" id="lback">←</div>
-    <div><div class="ltitle2">Gasolineras cercanas</div><div class="lsub2" id="lsub2">Ordenadas por precio</div></div>
+    <div class="lbk" id="lbk">←</div>
+    <div><div class="lhtit">Gasolineras cercanas</div><div class="lhsub" id="lhsub">Ordenadas por precio</div></div>
   </div>
-  <div id="no-price-note" style="display:none">⚠️ Mostrando ubicaciones de OSM · Los precios se cargan del Ministerio</div>
   <div class="lfstrip">
-    <button class="lfbtn active" data-fuel="G95" style="--tc:#4CD964">G-95</button>
+    <button class="lfbtn on" data-fuel="G95" style="--tc:#4CD964">G-95</button>
     <button class="lfbtn" data-fuel="G98" style="--tc:#5AC8FA">G-98</button>
     <button class="lfbtn" data-fuel="GOA" style="--tc:#FF9500">Diésel</button>
     <button class="lfbtn" data-fuel="GOP" style="--tc:#FF6B35">D+</button>
   </div>
-  <div id="list-body"><div class="lempty">⛽ Cargando…</div></div>
+  <div id="lbody"><div class="lempty">⛽ Cargando datos…</div></div>
 </div>
 
-<div id="share-modal">
-  <div class="scard">
-    <div class="stitle">Compartir app</div>
-    <div class="sopt" id="slink"><div class="soico">🔗</div><div><div class="solabel">Copiar enlace</div><div class="sosub">Copia la dirección web</div></div></div>
-    <div class="sdiv"></div>
-    <div class="sopt" id="snative"><div class="soico">📤</div><div><div class="solabel">Más opciones</div><div class="sosub">WhatsApp, Telegram…</div></div></div>
-    <div class="scancel" id="scancel">Cancelar</div>
+<!-- SHARE -->
+<div id="shmod">
+  <div class="shcrd">
+    <div class="shtit">Compartir app</div>
+    <div class="shop" id="shlink"><div class="shoico">🔗</div><div><div class="sholbl">Copiar enlace</div><div class="shosub">Copia la dirección web</div></div></div>
+    <div class="shdiv"></div>
+    <div class="shop" id="shnative"><div class="shoico">📤</div><div><div class="sholbl">Más opciones</div><div class="shosub">WhatsApp, Telegram…</div></div></div>
+    <div class="shcan" id="shcan">Cancelar</div>
   </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════
-// BRANDS — logo from Clearbit (CORS-free CDN)
-// ═══════════════════════════════════════════
+// ════════════════════════════════════════
+// SVG LOGOS — inline, no external deps
+// ════════════════════════════════════════
+function svgLogo(brand, sz) {
+  const s = sz || 24;
+  const logos = {
+    SHELL: `<svg viewBox="0 0 100 100" width="${s}" height="${s}" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="49" fill="#FBCE07"/>
+      <path d="M50 6 C50 6 16 22 11 50 C6 78 26 92 50 94 C74 92 94 78 89 50 C84 22 50 6 50 6Z" fill="#DD1D21"/>
+      <line x1="50" y1="6" x2="50" y2="94" stroke="#FBCE07" stroke-width="4" opacity=".55"/>
+      <path d="M50 6 C36 26 18 40 11 50" stroke="#FBCE07" stroke-width="3.5" fill="none" opacity=".55"/>
+      <path d="M50 6 C64 26 82 40 89 50" stroke="#FBCE07" stroke-width="3.5" fill="none" opacity=".55"/>
+      <path d="M50 94 C34 84 17 67 11 50" stroke="#FBCE07" stroke-width="3.5" fill="none" opacity=".55"/>
+      <path d="M50 94 C66 84 83 67 89 50" stroke="#FBCE07" stroke-width="3.5" fill="none" opacity=".55"/>
+    </svg>`,
+
+    REPSOL: `<svg viewBox="0 0 100 100" width="${s}" height="${s}" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="49" fill="#FF6B00"/>
+      <circle cx="50" cy="50" r="30" fill="#FFB300" opacity=".4"/>
+      <path d="M28 20 L28 80 M28 20 L58 20 C72 20 78 29 78 40 C78 51 72 57 58 57 L28 57 M52 57 L76 80" stroke="white" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+
+    CEPSA: `<svg viewBox="0 0 100 100" width="${s}" height="${s}" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="49" fill="#00A651"/>
+      <path d="M76 30 C68 19 55 14 41 17 C25 21 14 36 14 50 C14 64 25 79 41 83 C55 86 68 81 76 70" stroke="white" stroke-width="11" fill="none" stroke-linecap="round"/>
+    </svg>`,
+
+    BP: `<svg viewBox="0 0 100 100" width="${s}" height="${s}" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="49" fill="#007f00"/>
+      ${[0,30,60,90,120,150,180,210,240,270,300,330].map(a=>{
+        const r=a*Math.PI/180,cx=(50+21*Math.cos(r)).toFixed(1),cy=(50+21*Math.sin(r)).toFixed(1);
+        return `<ellipse cx="${cx}" cy="${cy}" rx="7.5" ry="14" fill="#FFDA00" transform="rotate(${a} ${cx} ${cy})" opacity=".9"/>`;
+      }).join('')}
+      <circle cx="50" cy="50" r="16" fill="#007f00"/>
+      <text x="50" y="55" text-anchor="middle" font-size="16" font-weight="900" fill="white" font-family="sans-serif">bp</text>
+    </svg>`,
+
+    GALP: `<svg viewBox="0 0 100 100" width="${s}" height="${s}" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="49" fill="#E30613"/>
+      <path d="M50 8 L92 90 L8 90 Z" fill="#F7A600" opacity=".65"/>
+      <circle cx="50" cy="50" r="22" fill="#E30613"/>
+      <text x="50" y="56" text-anchor="middle" font-size="18" font-weight="900" fill="white" font-family="sans-serif">GALP</text>
+    </svg>`,
+
+    TAMOIL: `<svg viewBox="0 0 100 100" width="${s}" height="${s}" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="49" fill="#003DA5"/>
+      <rect x="4" y="39" width="92" height="22" fill="#E4002B"/>
+      <rect x="33" y="17" width="34" height="9" fill="white" rx="3"/>
+      <rect x="45" y="17" width="10" height="44" fill="white" rx="3"/>
+    </svg>`,
+
+    CAMPSA: `<svg viewBox="0 0 100 100" width="${s}" height="${s}" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="49" fill="#C8102E"/>
+      <circle cx="50" cy="50" r="30" fill="none" stroke="white" stroke-width="5"/>
+      <text x="50" y="58" text-anchor="middle" font-size="26" font-weight="900" fill="white" font-family="sans-serif">C</text>
+    </svg>`,
+
+    PETRONOR: `<svg viewBox="0 0 100 100" width="${s}" height="${s}" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="49" fill="#E4002B"/>
+      <path d="M22 20 L50 80 L78 20" stroke="white" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+
+    PLENOIL: `<svg viewBox="0 0 100 100" width="${s}" height="${s}" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="49" fill="#00B140"/>
+      <circle cx="50" cy="50" r="28" fill="white" opacity=".95"/>
+      <text x="50" y="55" text-anchor="middle" font-size="16" font-weight="900" fill="#00B140" font-family="sans-serif">PLeno</text>
+    </svg>`,
+
+    BALLENOIL: `<svg viewBox="0 0 100 100" width="${s}" height="${s}" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="49" fill="#0057A8"/>
+      <path d="M18 62 C24 40 40 26 57 29 C72 32 80 48 74 60 C68 72 50 74 37 64" stroke="white" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <circle cx="70" cy="32" r="5" fill="white"/>
+    </svg>`,
+
+    MEROIL: `<svg viewBox="0 0 100 100" width="${s}" height="${s}" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="49" fill="#CC0000"/>
+      <text x="50" y="56" text-anchor="middle" font-size="22" font-weight="900" fill="white" font-family="sans-serif">M</text>
+    </svg>`,
+
+    CARREFOUR: `<svg viewBox="0 0 100 100" width="${s}" height="${s}" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="49" fill="#003DA5"/>
+      <path d="M50 20 L30 50 L50 80" stroke="#E4002B" stroke-width="14" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M50 20 L70 50 L50 80" stroke="white" stroke-width="14" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+
+    UNKNOWN: `<svg viewBox="0 0 100 100" width="${s}" height="${s}" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="49" fill="#3a4e3a"/>
+      <rect x="22" y="28" width="38" height="56" rx="5" fill="white" opacity=".9"/>
+      <rect x="29" y="35" width="24" height="17" rx="2" fill="#3a4e3a"/>
+      <path d="M60 44 L76 38 L80 56 L73 60 L73 76 L63 76 L63 60" fill="white" opacity=".9"/>
+    </svg>`,
+  };
+  return logos[brand] || logos.UNKNOWN;
+}
+
+// ════════════════════════════════════════
+// BRAND CONFIG
+// ════════════════════════════════════════
 const BRANDS = {
-  SHELL:     { name:'Shell',     color:'#DD1D21', logo:'https://logo.clearbit.com/shell.com' },
-  REPSOL:    { name:'Repsol',    color:'#FF6B00', logo:'https://logo.clearbit.com/repsol.com' },
-  CEPSA:     { name:'Cepsa',     color:'#00A651', logo:'https://logo.clearbit.com/cepsa.com' },
-  BP:        { name:'BP',        color:'#007f00', logo:'https://logo.clearbit.com/bp.com' },
-  GALP:      { name:'Galp',      color:'#E30613', logo:'https://logo.clearbit.com/galp.com' },
-  TAMOIL:    { name:'Tamoil',    color:'#003DA5', logo:'https://logo.clearbit.com/tamoil.it' },
-  CAMPSA:    { name:'Campsa',    color:'#C8102E', logo:'https://logo.clearbit.com/campsa.es' },
-  PETRONOR:  { name:'Petronor',  color:'#E4002B', logo:'https://logo.clearbit.com/petronor.es' },
-  PLENOIL:   { name:'Plenoil',   color:'#00B140', logo:'https://logo.clearbit.com/plenoil.es' },
-  BALLENOIL: { name:'Ballenoil', color:'#0057A8', logo:'https://logo.clearbit.com/ballenoil.es' },
-  MEROIL:    { name:'Meroil',    color:'#CC0000', logo:'https://logo.clearbit.com/meroil.es' },
-  CARREFOUR: { name:'Carrefour', color:'#003DA5', logo:'https://logo.clearbit.com/carrefour.es' },
-  ALCAMPO:   { name:'Alcampo',   color:'#E4002B', logo:'https://logo.clearbit.com/alcampo.es' },
-  Q8:        { name:'Q8',        color:'#002F6C', logo:'https://logo.clearbit.com/q8.es' },
-  UNKNOWN:   { name:'Gasolinera',color:'#4a5a48', logo:null },
+  SHELL:    {name:'Shell',    color:'#DD1D21'},
+  REPSOL:   {name:'Repsol',   color:'#FF6B00'},
+  CEPSA:    {name:'Cepsa',    color:'#00A651'},
+  BP:       {name:'BP',       color:'#007f00'},
+  GALP:     {name:'Galp',     color:'#E30613'},
+  TAMOIL:   {name:'Tamoil',   color:'#003DA5'},
+  CAMPSA:   {name:'Campsa',   color:'#C8102E'},
+  PETRONOR: {name:'Petronor', color:'#E4002B'},
+  PLENOIL:  {name:'Plenoil',  color:'#00B140'},
+  BALLENOIL:{name:'Ballenoil',color:'#0057A8'},
+  MEROIL:   {name:'Meroil',   color:'#CC0000'},
+  CARREFOUR:{name:'Carrefour',color:'#003DA5'},
+  UNKNOWN:  {name:'Gasolinera',color:'#4a5e4a'},
 };
 
 function detectBrand(r='') {
   const u = r.toUpperCase().trim();
-  if (u.includes('SHELL'))      return 'SHELL';
-  if (u.includes('REPSOL'))     return 'REPSOL';
-  if (u.includes('CEPSA'))      return 'CEPSA';
-  if (u==='BP'||u.startsWith('BP ')) return 'BP';
-  if (u.includes('GALP'))       return 'GALP';
-  if (u.includes('TAMOIL'))     return 'TAMOIL';
-  if (u.includes('CAMPSA'))     return 'CAMPSA';
-  if (u.includes('PETRONOR'))   return 'PETRONOR';
-  if (u.includes('PLENOIL'))    return 'PLENOIL';
-  if (u.includes('BALLENOIL'))  return 'BALLENOIL';
-  if (u.includes('MEROIL'))     return 'MEROIL';
-  if (u.includes('CARREFOUR'))  return 'CARREFOUR';
-  if (u.includes('ALCAMPO'))    return 'ALCAMPO';
-  if (u.includes('Q8'))         return 'Q8';
+  if(u.includes('SHELL'))     return 'SHELL';
+  if(u.includes('REPSOL'))    return 'REPSOL';
+  if(u.includes('CEPSA'))     return 'CEPSA';
+  if(u==='BP'||u.startsWith('BP ')) return 'BP';
+  if(u.includes('GALP'))      return 'GALP';
+  if(u.includes('TAMOIL'))    return 'TAMOIL';
+  if(u.includes('CAMPSA'))    return 'CAMPSA';
+  if(u.includes('PETRONOR'))  return 'PETRONOR';
+  if(u.includes('PLENOIL'))   return 'PLENOIL';
+  if(u.includes('BALLENOIL')) return 'BALLENOIL';
+  if(u.includes('MEROIL'))    return 'MEROIL';
+  if(u.includes('CARREFOUR')) return 'CARREFOUR';
   return 'UNKNOWN';
 }
 
-function brandLogo(brandId, sz=24) {
-  const b = BRANDS[brandId] || BRANDS.UNKNOWN;
-  if (!b.logo) return `<div style="width:${sz}px;height:${sz}px;background:${b.color};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:${Math.round(sz*.45)}px;color:#fff;font-weight:900">⛽</div>`;
-  const fb = `this.onerror=null;this.parentNode.innerHTML='<div style="width:${sz}px;height:${sz}px;background:${b.color};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:${Math.round(sz*.45)}px;color:#fff;font-weight:900">⛽</div>'`;
-  return `<img src="${b.logo}" width="${sz}" height="${sz}" style="object-fit:contain" onerror="${fb}" loading="lazy">`;
-}
-
-// ═══════════════════════════════════════════
+// ════════════════════════════════════════
 // FUELS
-// ═══════════════════════════════════════════
+// ════════════════════════════════════════
 const FUELS = {
-  G95:{ label:'G-95',   apiKey:'PrecioGasolina95E5',   osmKey:'fuel:octane_95',  color:'#4CD964' },
-  G98:{ label:'G-98',   apiKey:'PrecioGasolina98E5',   osmKey:'fuel:octane_98',  color:'#5AC8FA' },
-  GOA:{ label:'Diésel', apiKey:'PrecioGasoleoA',       osmKey:'fuel:diesel',     color:'#FF9500' },
-  GOP:{ label:'D+',     apiKey:'PrecioGasoleoPremium', osmKey:'fuel:diesel_plus',color:'#FF6B35' },
+  G95:{label:'G-95',  apiKey:'PrecioGasolina95E5',  color:'#4CD964'},
+  G98:{label:'G-98',  apiKey:'PrecioGasolina98E5',  color:'#5AC8FA'},
+  GOA:{label:'Diésel',apiKey:'PrecioGasoleoA',      color:'#FF9500'},
+  GOP:{label:'D+',    apiKey:'PrecioGasoleoPremium',color:'#FF6B35'},
 };
 
-// ═══════════════════════════════════════════
+// ════════════════════════════════════════
 // STATE
-// ═══════════════════════════════════════════
+// ════════════════════════════════════════
 let map, userPos=null, allStations=[], currentFuel='G95', listFuel='G95';
-let mapMarkers=[], selectedId=null, dataReady=false, hasPrices=false;
-let searchFilter=null;
-const CACHE_KEY='gasv7', CACHE_TTL=90*60*1000; // 90 min
+let mapMarkers=[], selId=null, dataReady=false, hasPrices=false, searchFn=null;
+const CACHE_KEY='gasv8', CACHE_TTL=90*60*1000;
 
-// ═══════════════════════════════════════════
-// UTILITIES
-// ═══════════════════════════════════════════
-function haversine(a,b,c,d){
+// ════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════
+function hav(a,b,c,d){
   const R=6371,dL=(c-a)*Math.PI/180,dO=(d-b)*Math.PI/180;
   const x=Math.sin(dL/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dO/2)**2;
   return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
 }
-
-function priceColor(p,all){
-  const v=all.filter(x=>x!=null&&x>0);
-  if(!p||!v.length)return'#888';
-  const mn=Math.min(...v),mx=Math.max(...v);
-  if(mx===mn)return'#4CD964';
-  const r=(p-mn)/(mx-mn);
-  return r<0.33?'#4CD964':r<0.66?'#FF9500':'#FF3B30';
+function pColor(p,all){
+  const v=all.filter(x=>x>0);if(!p||!v.length)return'#999';
+  const mn=Math.min(...v),mx=Math.max(...v);if(mx===mn)return'#4CD964';
+  const r=(p-mn)/(mx-mn);return r<0.33?'#4CD964':r<0.66?'#FF9500':'#FF3B30';
 }
+function parseP(s){if(!s)return null;const n=parseFloat(String(s).replace(',','.'));return(isNaN(n)||n<0.5)?null:n;}
 
-function parseP(s){if(!s)return null;const n=parseFloat(String(s).replace(',','.'));return isNaN(n)||n<=0?null:n;}
-
-// ═══════════════════════════════════════════
+// ════════════════════════════════════════
 // CACHE
-// ═══════════════════════════════════════════
+// ════════════════════════════════════════
 function loadCache(){
-  try{
-    const r=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');
-    if(!r||!r.data?.length)return null;
-    return{data:r.data,stale:Date.now()-r.ts>CACHE_TTL,hasPrices:!!r.hasPrices};
-  }catch{return null;}
+  try{const r=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');if(!r?.data?.length)return null;return{data:r.data,stale:Date.now()-r.ts>CACHE_TTL,hasPrices:!!r.hp};}catch{return null;}
 }
-function saveCache(data,hp){
-  try{localStorage.setItem(CACHE_KEY,JSON.stringify({ts:Date.now(),data,hasPrices:hp}));}catch{}
-}
+function saveCache(d,hp){try{localStorage.setItem(CACHE_KEY,JSON.stringify({ts:Date.now(),data:d,hp}));}catch{}}
 
-// ═══════════════════════════════════════════
-// SOURCE 1: Overpass API (OpenStreetMap)
-// CORS-open, always works, has brands + coords
-// No prices, but reliable
-// ═══════════════════════════════════════════
-async function fetchOverpass(lat, lon, radiusKm=20) {
-  const r = radiusKm * 1000;
-  const query = `
-    [out:json][timeout:25];
-    (
-      node["amenity"="fuel"](around:${r},${lat},${lon});
-      way["amenity"="fuel"](around:${r},${lat},${lon});
-    );
-    out center tags;
-  `;
-  const url = 'https://overpass-api.de/api/interpreter';
-  const res = await fetch(url, {
-    method:'POST',
-    body:'data='+encodeURIComponent(query),
-    signal: AbortSignal.timeout(20000),
-  });
-  if (!res.ok) throw new Error('Overpass '+res.status);
-  const json = await res.json();
-  return (json.elements||[]).map(el => {
-    const t = el.tags||{};
-    const slat = el.lat ?? el.center?.lat;
-    const slon = el.lon ?? el.center?.lon;
-    if (!slat||!slon) return null;
-    const rawBrand = t.brand||t.name||t.operator||'';
-    const brand = detectBrand(rawBrand);
-    return {
-      id: 'osm_'+el.id,
-      name: t.name||t.brand||BRANDS[brand].name||'Gasolinera',
-      address: [t['addr:street'], t['addr:housenumber']].filter(Boolean).join(' '),
-      municipality: t['addr:city']||t['addr:town']||'',
-      province: t['addr:province']||'',
-      cp: t['addr:postcode']||'',
-      schedule: t.opening_hours||'',
+// ════════════════════════════════════════
+// SOURCE A: Overpass / OSM — always works, no CORS
+// ════════════════════════════════════════
+async function fetchOSM(lat, lon) {
+  const q=`[out:json][timeout:25];(node["amenity"="fuel"](around:20000,${lat},${lon});way["amenity"="fuel"](around:20000,${lat},${lon}););out center tags;`;
+  const res=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:'data='+encodeURIComponent(q),signal:AbortSignal.timeout(22000)});
+  if(!res.ok)throw new Error('OSM '+res.status);
+  const j=await res.json();
+  return (j.elements||[]).map(el=>{
+    const t=el.tags||{}, slat=el.lat??el.center?.lat, slon=el.lon??el.center?.lon;
+    if(!slat||!slon)return null;
+    const brand=detectBrand(t.brand||t.name||t.operator||'');
+    return{
+      id:'o'+el.id, name:t.name||t.brand||BRANDS[brand].name,
+      address:[t['addr:street'],t['addr:housenumber']].filter(Boolean).join(' '),
+      municipality:t['addr:city']||t['addr:town']||'', province:t['addr:province']||'',
+      cp:t['addr:postcode']||'', schedule:t.opening_hours||'',
       brand, lat:slat, lon:slon,
-      prices:{ G95:null, G98:null, GOA:null, GOP:null },
-      osmId: el.id,
+      prices:{G95:null,G98:null,GOA:null,GOP:null},
     };
   }).filter(Boolean);
 }
 
-// ═══════════════════════════════════════════
-// SOURCE 2: Ministerio API via proxy
-// Has real-time prices but CORS issues
-// ═══════════════════════════════════════════
-async function fetchMinisterioProxy(lat, lon) {
-  const apiUrl = `https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestresHB/FiltroMunicipioDistanciaProducto/${lat}/${lon}/25/6`;
-  const proxies = [
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`,
-    `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`,
+// ════════════════════════════════════════
+// SOURCE B: Ministerio — has prices, CORS via proxy
+// ════════════════════════════════════════
+async function fetchMinisterio(lat, lon) {
+  const base = 'https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes';
+  // Try nearby radius first (faster), fallback to all Spain
+  const urls = [
+    `${base}/EstacionesTerrestresHB/FiltroMunicipioDistanciaProducto/${lat}/${lon}/25/6`,
+    `${base}/EstacionesTerrestres/`,
   ];
-  for (const px of proxies) {
-    try {
-      const res = await fetch(px, { signal: AbortSignal.timeout(14000) });
-      if (!res.ok) continue;
-      const text = await res.text();
-      let json; try { json=JSON.parse(text); } catch { continue; }
-      if (json.contents) try { json=JSON.parse(json.contents); } catch { continue; }
-      const list = json.ListaEESSPrecio||[];
-      if (list.length>0) return list;
-    } catch(e){ console.warn('ministerio proxy fail',e?.message); }
+  const proxies = [
+    u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+    u=>`https://corsproxy.io/?${encodeURIComponent(u)}`,
+  ];
+  for(const apiUrl of urls){
+    for(const px of proxies){
+      try{
+        const res=await fetch(px(apiUrl),{signal:AbortSignal.timeout(15000)});
+        if(!res.ok)continue;
+        const text=await res.text();
+        let json;
+        try{json=JSON.parse(text);}catch{continue;}
+        // allorigins sometimes wraps in {contents}
+        if(typeof json.contents==='string'){try{json=JSON.parse(json.contents);}catch{continue;}}
+        const list=json.ListaEESSPrecio||[];
+        if(list.length>0)return list;
+      }catch(e){console.warn('Min proxy fail:',e?.message);}
+    }
   }
   return null;
 }
 
-function transformMinisterio(raw) {
-  const brand = detectBrand(raw['Rótulo']||'');
-  const lat = parseFloat((raw['Latitud']||'').replace(',','.'));
-  const lon = parseFloat((raw['Longitud (WGS84)']||'').replace(',','.'));
-  if (isNaN(lat)||isNaN(lon)) return null;
-  return {
-    id: 'min_'+raw['IDEESS'],
-    name: raw['Rótulo']||'Gasolinera',
-    address: raw['Dirección']||'',
-    municipality: raw['Municipio']||'',
-    province: raw['Provincia']||'',
-    cp: raw['C.P.']||'',
-    schedule: raw['Horario']||'',
-    brand, lat, lon,
-    prices:{
-      G95: parseP(raw['PrecioGasolina95E5']),
-      G98: parseP(raw['PrecioGasolina98E5']),
-      GOA: parseP(raw['PrecioGasoleoA']),
-      GOP: parseP(raw['PrecioGasoleoPremium']),
-    },
+function transformMin(raw){
+  const brand=detectBrand(raw['Rótulo']||'');
+  const lat=parseFloat((raw['Latitud']||'').replace(',','.'));
+  const lon=parseFloat((raw['Longitud (WGS84)']||'').replace(',','.'));
+  if(isNaN(lat)||isNaN(lon))return null;
+  return{
+    id:'m'+raw['IDEESS'], name:raw['Rótulo']||'Gasolinera',
+    address:raw['Dirección']||'', municipality:raw['Municipio']||'',
+    province:raw['Provincia']||'', cp:raw['C.P.']||'',
+    schedule:raw['Horario']||'', brand, lat, lon,
+    prices:{G95:parseP(raw['PrecioGasolina95E5']),G98:parseP(raw['PrecioGasolina98E5']),GOA:parseP(raw['PrecioGasoleoA']),GOP:parseP(raw['PrecioGasoleoPremium'])},
   };
 }
 
-// ═══════════════════════════════════════════
+// ════════════════════════════════════════
 // MAP
-// ═══════════════════════════════════════════
-function initMap(lat=40.4168, lon=-3.7038) {
-  map = L.map('map',{center:[lat,lon],zoom:13,zoomControl:false,attributionControl:false});
+// ════════════════════════════════════════
+function initMap(lat,lon){
+  map=L.map('map',{center:[lat,lon],zoom:13,zoomControl:false,attributionControl:false});
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
-  map.on('moveend', renderMarkers);
+  map.on('moveend',renderMarkers);
 }
 
-const MAX_PINS = 60;
+const MAX=60;
+function clearM(){mapMarkers.forEach(m=>map.removeLayer(m));mapMarkers=[];}
 
-function clearMarkers(){mapMarkers.forEach(m=>map.removeLayer(m));mapMarkers=[];}
-
-function renderMarkers() {
-  if (!allStations.length||!map) return;
-  const bounds = map.getBounds().pad(0.3);
-  let pool = searchFilter ? allStations.filter(searchFilter) : allStations;
-  let vis = pool.filter(s=>bounds.contains([s.lat,s.lon]));
-
-  // Prefer stations with prices for selected fuel
-  const withPrice = vis.filter(s=>s.prices[currentFuel]);
-  const shown = withPrice.length>0 ? withPrice : vis;
-  const limited = shown.length>MAX_PINS
-    ? shown.sort((a,b)=>(a.prices[currentFuel]||99)-(b.prices[currentFuel]||99)).slice(0,MAX_PINS)
-    : shown;
-
-  const prices = limited.map(s=>s.prices[currentFuel]);
-  clearMarkers();
-
-  limited.forEach(s => {
-    const p = s.prices[currentFuel];
-    const col = p ? priceColor(p, prices) : '#aaa';
-    const prStr = p ? p.toFixed(3).replace('.',',') : '—';
-    const isSel = selectedId===s.id;
-    const el = document.createElement('div');
-    el.className = 'pin-wrap';
-    el.innerHTML = `
-      <div class="pin-bubble${isSel?' selected':''}" style="--pc:${col}">
-        <div class="pin-logo-wrap">${brandLogo(s.brand,22)}</div>
-        <span class="pin-price">${prStr}</span>
-      </div>
-      <div class="pin-tail"></div>`;
-    const mk = L.marker([s.lat,s.lon],{
-      icon:L.divIcon({html:el,className:'',iconAnchor:[38,40]}),
-      zIndexOffset: isSel?1000:0
-    });
+function renderMarkers(){
+  if(!allStations.length||!map)return;
+  const bounds=map.getBounds().pad(0.3);
+  const pool=searchFn?allStations.filter(searchFn):allStations;
+  let vis=pool.filter(s=>bounds.contains([s.lat,s.lon]));
+  // prefer stations with prices
+  const wP=vis.filter(s=>s.prices[currentFuel]>0);
+  const shown=(wP.length>0?wP:vis);
+  const lim=shown.length>MAX?shown.sort((a,b)=>(a.prices[currentFuel]||9)-(b.prices[currentFuel]||9)).slice(0,MAX):shown;
+  const prices=lim.map(s=>s.prices[currentFuel]);
+  clearM();
+  lim.forEach(s=>{
+    const p=s.prices[currentFuel];
+    const col=p?pColor(p,prices):'#bbb';
+    const prStr=p?p.toFixed(3).replace('.',','):'—';
+    const isSel=selId===s.id;
+    const el=document.createElement('div');
+    el.className='pw';
+    el.innerHTML=`<div class="pb${isSel?' sel':''}" style="--pc:${col}"><div class="plogo">${svgLogo(s.brand,24)}</div><span class="pp" style="color:${p?col:'#777'}">${prStr}</span></div><div class="pt"></div>`;
+    const mk=L.marker([s.lat,s.lon],{icon:L.divIcon({html:el,className:'',iconAnchor:[38,40]}),zIndexOffset:isSel?1000:0});
     el.addEventListener('click',e=>{e.stopPropagation();openSheet(s);});
-    mk.addTo(map); mapMarkers.push(mk);
+    mk.addTo(map);mapMarkers.push(mk);
   });
-
-  const cnt = pool.filter(s=>bounds.contains([s.lat,s.lon])).length;
-  document.getElementById('pill-count').textContent = cnt>0?`${cnt} estaciones`:'';
+  const cnt=pool.filter(s=>bounds.contains([s.lat,s.lon])).length;
+  document.getElementById('pcnt').textContent=cnt>0?`${cnt} estaciones`:'';
 }
 
-// ═══════════════════════════════════════════
+// ════════════════════════════════════════
 // SHEET
-// ═══════════════════════════════════════════
-function openSheet(s) {
-  selectedId = s.id;
-  document.getElementById('shlogo').innerHTML = brandLogo(s.brand,44);
-  document.getElementById('shbrand').textContent = BRANDS[s.brand]?.name||s.name;
-  document.getElementById('shname').textContent  = s.name;
-  document.getElementById('shaddr').textContent  = [s.address,s.municipality,s.province].filter(Boolean).join(', ')||'Sin dirección';
-  document.getElementById('ssched').textContent  = s.schedule||'Consultar horario';
-  const g = document.getElementById('pgrid');
-  const rows = Object.entries(FUELS).map(([id,f])=>{
+// ════════════════════════════════════════
+function openSheet(s){
+  selId=s.id;
+  document.getElementById('shlog').innerHTML=svgLogo(s.brand,48);
+  document.getElementById('shbr').textContent=BRANDS[s.brand]?.name||s.name;
+  document.getElementById('shnm').textContent=s.name;
+  document.getElementById('shad').textContent=[s.address,s.municipality,s.province].filter(Boolean).join(', ')||'Sin dirección';
+  document.getElementById('ssched').textContent=s.schedule||'Consultar horario';
+  document.getElementById('pgrid').innerHTML=Object.entries(FUELS).map(([id,f])=>{
     const p=s.prices[id];
-    if(!p) return `<div class="pcard" style="opacity:.4"><div class="plabel" style="color:${f.color}">${f.label}</div><div class="pprice">—</div><div class="punit">€/L</div></div>`;
-    return `<div class="pcard${id===currentFuel?' hi':''}"${id===currentFuel?` style="border-color:${f.color}44"`:''}><div class="plabel" style="color:${f.color}">${f.label}</div><div class="pprice">${p.toFixed(3).replace('.',',')}</div><div class="punit">€/L</div></div>`;
+    if(!p)return`<div class="pcard" style="opacity:.35"><div class="plbl" style="color:${f.color}">${f.label}</div><div class="pval">—</div><div class="punit">€/L</div></div>`;
+    return`<div class="pcard${id===currentFuel?' hi':''}"${id===currentFuel?` style="border-color:${f.color}44"`:''}><div class="plbl" style="color:${f.color}">${f.label}</div><div class="pval" style="color:${f.color}">${p.toFixed(3).replace('.',',')}</div><div class="punit">€/L</div></div>`;
   }).join('');
-  g.innerHTML = rows;
   document.getElementById('navbtn').onclick=()=>window.open(`https://maps.google.com/?q=${s.lat},${s.lon}`,'_blank');
   document.getElementById('sheet').classList.add('on');
-  document.getElementById('sheet-bd').classList.add('on');
-  renderMarkers(); // re-render to show selected state
-}
-function closeSheet(){
-  selectedId=null;
-  document.getElementById('sheet').classList.remove('on');
-  document.getElementById('sheet-bd').classList.remove('on');
+  document.getElementById('sbd').classList.add('on');
   renderMarkers();
 }
+function closeSheet(){selId=null;document.getElementById('sheet').classList.remove('on');document.getElementById('sbd').classList.remove('on');renderMarkers();}
 
-// ═══════════════════════════════════════════
+// ════════════════════════════════════════
 // LIST
-// ═══════════════════════════════════════════
-function openList(){document.getElementById('list-panel').classList.add('on');renderList();}
-function closeList(){document.getElementById('list-panel').classList.remove('on');}
+// ════════════════════════════════════════
+function openList(){document.getElementById('lpanel').classList.add('on');renderList();}
+function closeList(){document.getElementById('lpanel').classList.remove('on');}
 
 function renderList(){
-  const c = document.getElementById('list-body');
-  if (!dataReady||!allStations.length){
-    c.innerHTML='<div class="lempty">⛽ Cargando datos…</div>'; return;
-  }
+  const c=document.getElementById('lbody');
+  if(!dataReady||!allStations.length){c.innerHTML='<div class="lempty">⛽ Cargando datos…</div>';return;}
   const fuel=listFuel;
-  let sts = allStations;
-  if (userPos) sts=sts.map(s=>({...s,dist:haversine(userPos.lat,userPos.lon,s.lat,s.lon)}));
-
-  // Stations with price for this fuel first, then rest
-  const withP  = sts.filter(s=>s.prices[fuel]>0).sort((a,b)=>a.prices[fuel]-b.prices[fuel]);
-  const noP    = sts.filter(s=>!s.prices[fuel]).sort((a,b)=>(a.dist||99)-(b.dist||99));
-  const sorted = [...withP,...noP].slice(0,150);
-
-  document.getElementById('no-price-note').style.display = hasPrices?'none':'block';
-  document.getElementById('lsub2').textContent=`${sorted.length} estaciones · precio más barato primero`;
-
-  if (!sorted.length){c.innerHTML='<div class="lempty">No hay estaciones disponibles</div>';return;}
-
+  let sts=allStations;
+  if(userPos)sts=sts.map(s=>({...s,dist:hav(userPos.lat,userPos.lon,s.lat,s.lon)}));
+  const wP=sts.filter(s=>s.prices[fuel]>0).sort((a,b)=>a.prices[fuel]-b.prices[fuel]);
+  const noP=sts.filter(s=>!s.prices[fuel]).sort((a,b)=>(a.dist||999)-(b.dist||999));
+  const sorted=[...wP,...noP].slice(0,150);
+  document.getElementById('lhsub').textContent=`${sorted.length} estaciones · precio más barato primero`;
+  if(!sorted.length){c.innerHTML='<div class="lempty">No hay estaciones disponibles</div>';return;}
   const prices=sorted.map(s=>s.prices[fuel]);
-  c.innerHTML = sorted.map((s,i)=>{
+  const fuelColor=FUELS[fuel].color;
+  c.innerHTML=sorted.map((s,i)=>{
     const p=s.prices[fuel];
-    const col=p?priceColor(p,prices):'#666';
+    const col=p?pColor(p,prices):'#666';
     const rc=i===0?'r1':i===1?'r2':i===2?'r3':'rx';
     const dt=s.dist?(s.dist<1?`${(s.dist*1000).toFixed(0)} m`:`${s.dist.toFixed(1)} km`):'';
-    const prText=p?p.toFixed(3).replace('.',','):'—';
-    return `<div class="litem" data-id="${s.id}">
-      <div class="lrank ${rc}">${i+1}</div>
-      <div class="lilogo">${brandLogo(s.brand,34)}</div>
-      <div class="liinfo">
-        <div class="librand">${BRANDS[s.brand]?.name||s.name}</div>
-        <div class="liaddr">${s.address||s.municipality||s.name}</div>
-        ${dt?`<div class="lidist">📍 ${dt}</div>`:''}
+    const prTxt=p?p.toFixed(3).replace('.',','):'—';
+    const schedHtml=s.schedule?`<div class="lihr">🕐 ${s.schedule}</div>`:'';
+    return`<div class="li" data-id="${s.id}">
+      <div class="lrnk ${rc}">${i+1}</div>
+      <div class="lilog">${svgLogo(s.brand,40)}</div>
+      <div class="liinf">
+        <div class="libr">${BRANDS[s.brand]?.name||s.name}</div>
+        <div class="liad">${s.address||s.municipality||s.name}</div>
+        ${schedHtml}
+        ${dt?`<div class="lidt">📍 ${dt}</div>`:''}
       </div>
-      <div class="liprice"><div class="lipval" style="color:${col}">${prText}</div><div class="lipunit">€/L</div></div>
+      <div class="lipr"><div class="lipv" style="color:${col}">${prTxt}</div><div class="lipu">€/L</div></div>
     </div>`;
   }).join('');
-
-  c.querySelectorAll('.litem').forEach(el=>{
+  c.querySelectorAll('.li').forEach(el=>{
     el.addEventListener('click',()=>{
-      const s=allStations.find(x=>x.id===el.dataset.id); if(!s)return;
-      closeList();
-      setActiveTab('map');
+      const s=allStations.find(x=>x.id===el.dataset.id);if(!s)return;
+      closeList();setTab('map');
       currentFuel=listFuel;
-      document.querySelectorAll('.fuel-tab').forEach(b=>b.classList.toggle('active',b.dataset.fuel===currentFuel));
+      document.querySelectorAll('.ftab').forEach(b=>b.classList.toggle('on',b.dataset.fuel===currentFuel));
       setTimeout(()=>{map.flyTo([s.lat,s.lon],15,{duration:.5});setTimeout(()=>openSheet(s),600);},380);
     });
   });
 }
 
-// ═══════════════════════════════════════════
+// ════════════════════════════════════════
 // SEARCH
-// ═══════════════════════════════════════════
-let searchTm;
+// ════════════════════════════════════════
+let stm;
 function applySearch(q){
-  document.querySelectorAll('.stag').forEach(t=>t.classList.remove('active-tag'));
-  if(!q||q.length<2){searchFilter=null;document.getElementById('pill-count').textContent='';renderMarkers();return;}
+  document.querySelectorAll('.stag').forEach(t=>t.classList.remove('on'));
+  if(!q||q.length<2){searchFn=null;document.getElementById('pcnt').textContent='';renderMarkers();return;}
   const ql=q.toLowerCase().trim();
-  searchFilter=s=>
-    s.name.toLowerCase().includes(ql)||
-    (BRANDS[s.brand]?.name||'').toLowerCase().includes(ql)||
-    s.municipality.toLowerCase().includes(ql)||
-    s.province.toLowerCase().includes(ql)||
-    s.address.toLowerCase().includes(ql)||
-    s.cp.startsWith(ql);
-  const found=allStations.filter(searchFilter);
-  document.getElementById('pill-count').textContent=found.length?`${found.length} encontradas`:'Sin resultados';
+  searchFn=s=>(BRANDS[s.brand]?.name||'').toLowerCase().includes(ql)||s.name.toLowerCase().includes(ql)||s.municipality.toLowerCase().includes(ql)||s.province.toLowerCase().includes(ql)||s.address.toLowerCase().includes(ql)||s.cp.startsWith(ql);
+  const found=allStations.filter(searchFn);
+  document.getElementById('pcnt').textContent=found.length?`${found.length} encontradas`:'Sin resultados';
   renderMarkers();
   if(found.length&&map)map.flyTo([found[0].lat,found[0].lon],13,{duration:.4});
 }
 
-// ═══════════════════════════════════════════
-// SHARE
-// ═══════════════════════════════════════════
-function openShare(){document.getElementById('share-modal').classList.add('on');}
-function closeShare(){document.getElementById('share-modal').classList.remove('on');}
+// ════════════════════════════════════════
+// SHARE / TABS
+// ════════════════════════════════════════
+function openShare(){document.getElementById('shmod').classList.add('on');}
+function closeShare(){document.getElementById('shmod').classList.remove('on');}
+function setTab(t){document.querySelectorAll('.ti').forEach(x=>x.classList.toggle('on',x.dataset.tab===t));}
 
-// ═══════════════════════════════════════════
-// TAB HELPER
-// ═══════════════════════════════════════════
-function setActiveTab(tab){
-  document.querySelectorAll('.tab-item').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
-}
-
-// ═══════════════════════════════════════════
+// ════════════════════════════════════════
 // LOADING UI
-// ═══════════════════════════════════════════
-function setLoading(show,title,sub,error){
-  if(title)document.getElementById('ltitle').textContent=title;
+// ════════════════════════════════════════
+function setLoad(show,tit,sub,err){
+  if(tit)document.getElementById('ltit').textContent=tit;
   if(sub)document.getElementById('lsub').textContent=sub;
-  document.getElementById('lerror-btn').style.display=error?'block':'none';
-  document.getElementById('loading').classList.toggle('hidden',!show);
+  document.getElementById('lerrbtn').style.display=err?'block':'none';
+  document.getElementById('loading').classList.toggle('hide',!show);
 }
 
-// ═══════════════════════════════════════════
+// ════════════════════════════════════════
 // MAIN
-// ═══════════════════════════════════════════
+// ════════════════════════════════════════
 async function main(){
-  // 1. Cache → instant display
-  const cache = loadCache();
-  if(cache?.data?.length){
-    allStations=cache.data; dataReady=true; hasPrices=!!cache.hasPrices;
-    if(cache.stale) setLoading(true,'Actualizando…',`Mostrando ${allStations.length} estaciones guardadas`);
-  }
+  // Cache
+  const cache=loadCache();
+  if(cache?.data?.length){allStations=cache.data;dataReady=true;hasPrices=!!cache.hasPrices;if(cache.stale)setLoad(true,'Actualizando…',`Mostrando ${allStations.length} estaciones guardadas`);}
 
-  // 2. GPS
-  let lat=40.4168, lon=-3.7038;
+  // GPS
+  let lat=40.4168,lon=-3.7038;
   try{
-    const pos=await new Promise((res,rej)=>
-      navigator.geolocation.getCurrentPosition(res,rej,{timeout:7000,maximumAge:120000})
-    );
-    lat=pos.coords.latitude; lon=pos.coords.longitude; userPos={lat,lon};
-    try{
-      const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,{signal:AbortSignal.timeout(4000)});
-      const j=await r.json();
-      const city=j.address?.city||j.address?.town||j.address?.village||j.address?.suburb||'';
-      document.getElementById('pill-loc').textContent=`📍 ${city||'Tu ubicación'}`;
-    }catch{ document.getElementById('pill-loc').textContent='📍 Tu ubicación'; }
-  }catch{
-    document.getElementById('pill-loc').textContent='📍 España';
-  }
+    const pos=await new Promise((res,rej)=>navigator.geolocation.getCurrentPosition(res,rej,{timeout:7000,maximumAge:120000}));
+    lat=pos.coords.latitude;lon=pos.coords.longitude;userPos={lat,lon};
+    try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,{signal:AbortSignal.timeout(4000)});const j=await r.json();const city=j.address?.city||j.address?.town||j.address?.village||j.address?.suburb||'';document.getElementById('ploc').textContent=`📍 ${city||'Tu ubicación'}`;}catch{document.getElementById('ploc').textContent='📍 Tu ubicación';}
+  }catch{document.getElementById('ploc').textContent='📍 España';}
 
-  // 3. Init map immediately
-  initMap(lat, lon);
-  if(allStations.length&&!cache?.stale){ setLoading(false); renderMarkers(); return; }
+  // Map
+  initMap(lat,lon);
+  if(allStations.length&&!cache?.stale){setLoad(false);renderMarkers();return;}
 
-  // 4. Fetch data — both sources in parallel
-  setLoading(true,'Buscando gasolineras','Cargando desde OpenStreetMap…');
+  setLoad(true,'Buscando gasolineras','Cargando desde OpenStreetMap…');
 
-  // Run both in parallel, use whichever comes first
-  let osmDone=false, minDone=false;
+  // Run OSM and Ministerio in parallel
+  let osmOk=false, minOk=false;
 
-  // Overpass OSM (reliable, no prices)
-  const osmPromise = fetchOverpass(lat, lon, 20).then(stations=>{
-    if(stations.length>0 && !minDone){
-      allStations=stations; dataReady=true; hasPrices=false;
-      saveCache(stations, false);
+  const osmP=fetchOSM(lat,lon).then(sts=>{
+    osmOk=true;
+    if(sts.length>0&&!minOk){
+      allStations=sts;dataReady=true;hasPrices=false;
+      saveCache(sts,false);
       renderMarkers();
-      setLoading(false);
-      document.getElementById('lsub2').textContent=`${stations.length} estaciones de OpenStreetMap`;
+      setLoad(false);
     }
-    osmDone=true;
-    return stations;
-  }).catch(e=>{console.warn('OSM fail',e);osmDone=true;return[];});
+    return sts;
+  }).catch(e=>{console.warn('OSM err',e);return[];});
 
-  // Ministerio (prices but CORS issues)
-  const minPromise = fetchMinisterioProxy(lat,lon).then(raw=>{
-    if(raw&&raw.length>0){
-      const stations=raw.map(transformMinisterio).filter(Boolean);
-      allStations=stations; dataReady=true; hasPrices=true; minDone=true;
-      saveCache(stations,true);
+  const minP=fetchMinisterio(lat,lon).then(raw=>{
+    if(!raw?.length)return null;
+    const sts=raw.map(transformMin).filter(Boolean);
+    if(sts.length){
+      minOk=true;allStations=sts;dataReady=true;hasPrices=true;
+      saveCache(sts,true);
       renderMarkers();
-      setLoading(false);
-      document.getElementById('no-price-note').style.display='none';
+      setLoad(false);
+      if(document.getElementById('lpanel').classList.contains('on'))renderList();
     }
-    return raw;
-  }).catch(e=>{console.warn('Min fail',e);return null;});
+    return sts;
+  }).catch(e=>{console.warn('Min err',e);return null;});
 
-  // Wait for both to settle
-  await Promise.allSettled([osmPromise, minPromise]);
-
-  if(!allStations.length){
-    setLoading(true,'No se pudo cargar','Comprueba tu conexión a internet',true);
-  } else {
-    setLoading(false);
-  }
+  await Promise.allSettled([osmP,minP]);
+  if(!allStations.length)setLoad(true,'Sin datos','Comprueba tu conexión e inténtalo de nuevo',true);
+  else setLoad(false);
 }
 
-// ═══════════════════════════════════════════
+// ════════════════════════════════════════
 // EVENTS
-// ═══════════════════════════════════════════
-document.querySelectorAll('.fuel-tab').forEach(b=>{
-  b.addEventListener('click',()=>{
-    document.querySelectorAll('.fuel-tab').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active'); currentFuel=b.dataset.fuel; closeSheet(); renderMarkers();
-  });
-});
-
-document.querySelectorAll('.lfbtn').forEach(b=>{
-  b.addEventListener('click',()=>{
-    document.querySelectorAll('.lfbtn').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active'); listFuel=b.dataset.fuel; renderList();
-  });
-});
-
-document.querySelectorAll('.tab-item').forEach(item=>{
-  item.addEventListener('click',()=>{
-    const tab=item.dataset.tab;
-    setActiveTab(tab);
-    if(tab==='list') openList();
-    else if(tab==='share') openShare();
-    else { closeList(); closeShare(); }
-  });
-});
-
-document.querySelectorAll('.stag').forEach(tag=>{
-  tag.addEventListener('click',()=>{
-    document.querySelectorAll('.stag').forEach(t=>t.classList.remove('active-tag'));
-    tag.classList.add('active-tag');
-    const q=tag.dataset.q;
-    document.getElementById('search-input').value=q;
-    document.getElementById('search-clear').style.display='block';
-    applySearch(q);
-  });
-});
-
-document.getElementById('search-input').addEventListener('input',e=>{
-  const q=e.target.value;
-  document.getElementById('search-clear').style.display=q?'block':'none';
-  clearTimeout(searchTm); searchTm=setTimeout(()=>applySearch(q),300);
-});
-document.getElementById('search-clear').addEventListener('click',()=>{
-  document.getElementById('search-input').value='';
-  document.getElementById('search-clear').style.display='none';
-  document.querySelectorAll('.stag').forEach(t=>t.classList.remove('active-tag'));
-  applySearch('');
-});
-
-document.getElementById('shclose').addEventListener('click',closeSheet);
-document.getElementById('sheet-bd').addEventListener('click',closeSheet);
-document.getElementById('lback').addEventListener('click',()=>{closeList();setActiveTab('map');});
-document.getElementById('locate-btn').addEventListener('click',()=>{if(userPos&&map)map.flyTo([userPos.lat,userPos.lon],14,{duration:.6});});
-document.getElementById('location-pill').addEventListener('click',()=>{if(userPos&&map)map.flyTo([userPos.lat,userPos.lon],14,{duration:.6});});
-
-document.getElementById('slink').addEventListener('click',()=>{
-  navigator.clipboard?.writeText(location.href).then(()=>alert('¡Enlace copiado!')).catch(()=>prompt('Copia:',location.href));
-  closeShare();
-});
-document.getElementById('snative').addEventListener('click',()=>{
-  if(navigator.share)navigator.share({title:'Gasolineras',url:location.href});
-  else prompt('Copia:',location.href);
-  closeShare();
-});
-document.getElementById('scancel').addEventListener('click',closeShare);
-document.getElementById('share-modal').addEventListener('click',e=>{if(e.target.id==='share-modal')closeShare();});
+// ════════════════════════════════════════
+document.querySelectorAll('.ftab').forEach(b=>{b.addEventListener('click',()=>{document.querySelectorAll('.ftab').forEach(x=>x.classList.remove('on'));b.classList.add('on');currentFuel=b.dataset.fuel;closeSheet();renderMarkers();});});
+document.querySelectorAll('.lfbtn').forEach(b=>{b.addEventListener('click',()=>{document.querySelectorAll('.lfbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');listFuel=b.dataset.fuel;renderList();});});
+document.querySelectorAll('.ti').forEach(item=>{item.addEventListener('click',()=>{const t=item.dataset.tab;setTab(t);if(t==='list')openList();else if(t==='share')openShare();else{closeList();closeShare();}});});
+document.querySelectorAll('.stag').forEach(tag=>{tag.addEventListener('click',()=>{document.querySelectorAll('.stag').forEach(t=>t.classList.remove('on'));tag.classList.add('on');const q=tag.dataset.q;document.getElementById('sinput').value=q;document.getElementById('sclear').style.display='block';applySearch(q);});});
+document.getElementById('sinput').addEventListener('input',e=>{const q=e.target.value;document.getElementById('sclear').style.display=q?'block':'none';clearTimeout(stm);stm=setTimeout(()=>applySearch(q),300);});
+document.getElementById('sclear').addEventListener('click',()=>{document.getElementById('sinput').value='';document.getElementById('sclear').style.display='none';document.querySelectorAll('.stag').forEach(t=>t.classList.remove('on'));applySearch('');});
+document.getElementById('shcl').addEventListener('click',closeSheet);
+document.getElementById('sbd').addEventListener('click',closeSheet);
+document.getElementById('lbk').addEventListener('click',()=>{closeList();setTab('map');});
+document.getElementById('locbtn').addEventListener('click',()=>{if(userPos&&map)map.flyTo([userPos.lat,userPos.lon],14,{duration:.6});});
+document.getElementById('ppill').addEventListener('click',()=>{if(userPos&&map)map.flyTo([userPos.lat,userPos.lon],14,{duration:.6});});
+document.getElementById('shlink').addEventListener('click',()=>{navigator.clipboard?.writeText(location.href).then(()=>alert('¡Enlace copiado!')).catch(()=>prompt('Copia:',location.href));closeShare();});
+document.getElementById('shnative').addEventListener('click',()=>{if(navigator.share)navigator.share({title:'Gasolineras',url:location.href});else prompt('Copia:',location.href);closeShare();});
+document.getElementById('shcan').addEventListener('click',closeShare);
+document.getElementById('shmod').addEventListener('click',e=>{if(e.target.id==='shmod')closeShare();});
 
 main();
 </script>
