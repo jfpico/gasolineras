@@ -37,7 +37,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 #sinput{flex:1;background:none;border:none;outline:none;font-family:var(--font);font-size:14px;font-weight:500;color:var(--text)}
 #sinput::placeholder{color:var(--text3);font-size:13px}
 #sclear{color:var(--text3);font-size:12px;cursor:pointer;padding:4px;display:none;flex-shrink:0}
-#autocomplete{position:fixed;top:0;left:12px;right:12px;background:#131e13;border:1px solid rgba(76,217,100,0.25);border-radius:12px;overflow:hidden;z-index:9999;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.6)}
+#autocomplete{position:fixed;left:12px;right:12px;top:120px;background:#131e13;border:1px solid rgba(76,217,100,0.3);border-radius:12px;overflow:hidden;z-index:99999;display:none;box-shadow:0 8px 32px rgba(0,0,0,0.75);max-height:55vh;overflow-y:auto}
 .ac-item{padding:11px 14px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
 .ac-item:last-child{border-bottom:none}
 .ac-item:active{background:rgba(76,217,100,0.08)}
@@ -187,7 +187,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
       <span style="font-size:14px;flex-shrink:0;color:var(--text3)">🔍</span>
       <input id="sinput" type="search" placeholder="Localidad o código postal…" autocomplete="off"/>
       <span id="sclear">✕</span>
-      <div id="autocomplete"></div>
     </div>
   </div>
   <div id="dstrip">
@@ -203,6 +202,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
   </div>
   <div id="ppill"><span id="ploc">📍 Localizando…</span><span id="pcnt"></span></div>
 </div>
+
+<!-- Autocomplete OUTSIDE topbar so it's never clipped -->
+<div id="autocomplete"></div>
 
 <div id="ftabs">
   <button class="ftab on" data-fuel="G95" style="--tc:#4CD964">G-95</button>
@@ -333,23 +335,37 @@ const SVG_FALLBACKS = {
   UNKNOWN:  `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#4a5e4a"/><rect x="24" y="26" width="36" height="58" rx="5" fill="white" opacity=".9"/><rect x="30" y="32" width="24" height="18" rx="3" fill="#4a5e4a"/><path d="M60 44 L78 37 L82 57 L74 62 L74 78 L62 78 L62 62" fill="white" opacity=".9"/></svg>`,
 };
 
-// Build logo: img tag with Google favicon + SVG fallback
-function logoHtml(brand, sz) {
-  const s = sz||24;
-  const url = LOGO_URLS[brand];
-  const fb = (SVG_FALLBACKS[brand]||SVG_FALLBACKS.UNKNOWN)
-    .replace('viewBox="0 0 100 100"',`viewBox="0 0 100 100" width="${s}" height="${s}"`);
-  if (!url) return fb;
-  // White background circle behind the favicon for small sizes
-  const bg = brand==='CARREFOUR' ? '#fff' : 'transparent';
-  return `<img src="${url}" width="${s}" height="${s}" style="border-radius:${Math.round(s/2)}px;object-fit:contain;background:${bg};display:block" onerror="this.outerHTML='${fb.replace(/'/g,"\\'").replace(/\n/g,' ')}'">`;
-}
-
-// svgLogo kept for list brand filter buttons (small 14px icons)
-function svgLogo(brand, sz) {
+// Build logo: SVG shown immediately, real img loaded via JS after insertion
+// This avoids ALL inline onerror string escaping issues
+function makeSvg(brand, sz) {
   const s = sz||24;
   return (SVG_FALLBACKS[brand]||SVG_FALLBACKS.UNKNOWN)
-    .replace('viewBox="0 0 100 100"',`viewBox="0 0 100 100" width="${s}" height="${s}"`);
+    .replace('viewBox="0 0 100 100"', `viewBox="0 0 100 100" width="${s}" height="${s}"`);
+}
+
+function logoHtml(brand, sz) {
+  const s = sz||24;
+  // Always start with SVG. JS will swap to real img after DOM insertion via activateLogos()
+  return `<span class="lw" data-b="${brand}" data-s="${s}" style="width:${s}px;height:${s}px;display:flex;align-items:center;justify-content:center;flex-shrink:0">${makeSvg(brand,s)}</span>`;
+}
+
+// Call after inserting logoHtml into the DOM — swaps SVG for real favicon img
+function activateLogos(root) {
+  root.querySelectorAll('.lw[data-b]').forEach(wrap => {
+    const brand = wrap.dataset.b;
+    const sz = parseInt(wrap.dataset.s)||26;
+    const url = LOGO_URLS[brand];
+    if (!url) return;
+    const img = new Image(sz, sz);
+    img.style.cssText = `border-radius:${Math.round(sz/2)}px;object-fit:contain;background:#fff;display:block;flex-shrink:0`;
+    img.onload = () => { wrap.innerHTML=''; wrap.appendChild(img); };
+    img.src = url; // onerror → keep SVG fallback silently
+  });
+}
+
+// svgLogo — pure SVG, no img attempt (used for tiny 14px brand filter icons)
+function svgLogo(brand, sz) {
+  return makeSvg(brand, sz||24);
 }
 
 // ══════════════════════════════════════
@@ -516,6 +532,7 @@ function renderMarkers(){
     const mk=L.marker([s.lat,s.lon],{icon:L.divIcon({html:el,className:'',iconAnchor:[40,42]}),zIndexOffset:isSel?1000:0});
     el.addEventListener('click',e=>{e.stopPropagation();openSheet(s);});
     mk.addTo(map);mapMarkers.push(mk);
+    activateLogos(el);
   });
   const cnt=pool.filter(s=>bounds.contains([s.lat,s.lon])).length;
   document.getElementById('pcnt').textContent=cnt>0?`${cnt} estaciones`:'';
@@ -538,6 +555,7 @@ function openSheet(s){
   }).join('');
   document.getElementById('navbtn').onclick=()=>window.open(`https://maps.google.com/?q=${s.lat},${s.lon}`,'_blank');
   document.getElementById('sheet').classList.add('on');document.getElementById('sbd').classList.add('on');
+  activateLogos(document.getElementById('sheet'));
   renderMarkers();
 }
 function closeSheet(){selId=null;document.getElementById('sheet').classList.remove('on');document.getElementById('sbd').classList.remove('on');renderMarkers();}
@@ -559,14 +577,18 @@ function buildBrandBtns(){
 
 function buildMapBrandBtns(){
   const strip=document.getElementById('mbstrip');
+  // Clear previous brand btns (keep ALL)
   strip.querySelectorAll('.mbtag:not([data-brand="ALL"])').forEach(b=>b.remove());
+
   const present=[...new Set(allStations.map(s=>s.brand))].filter(b=>b!=='UNKNOWN').sort();
   present.forEach(bid=>{
     const b=BRANDS[bid];
     const btn=document.createElement('span');
-    btn.className='mbtag';btn.dataset.brand=bid;
+    btn.className='mbtag';
+    btn.dataset.brand=bid;
     btn.style.setProperty('--mbc',b.color);
-    btn.innerHTML=`${logoHtml(bid,16)} ${b.name}`;
+    // Same structure as list brand buttons: logo + name
+    btn.innerHTML=`${logoHtml(bid,18)}<span style="margin-left:4px">${b.name}</span>`;
     btn.addEventListener('click',()=>{
       mapBrand=bid;
       document.querySelectorAll('#mbstrip .mbtag').forEach(t=>t.classList.toggle('on',t.dataset.brand===bid));
@@ -574,8 +596,14 @@ function buildMapBrandBtns(){
     });
     strip.appendChild(btn);
   });
-  // All button
-  document.querySelector('#mbstrip .mbtag[data-brand="ALL"]').addEventListener('click',()=>{
+  activateLogos(strip);
+
+  // ALL button — re-attach listener cleanly
+  const allBtn=strip.querySelector('[data-brand="ALL"]');
+  const newAllBtn=allBtn.cloneNode(true);
+  allBtn.replaceWith(newAllBtn);
+  strip.insertBefore(newAllBtn, strip.firstChild);
+  newAllBtn.addEventListener('click',()=>{
     mapBrand='ALL';
     document.querySelectorAll('#mbstrip .mbtag').forEach(t=>t.classList.toggle('on',t.dataset.brand==='ALL'));
     renderMarkers();
@@ -620,12 +648,12 @@ function renderList(){
   c.querySelectorAll('.li').forEach(el=>{
     el.addEventListener('click',()=>{
       const s=allStations.find(x=>x.id===el.dataset.id);if(!s)return;
-
       closeList();setTab('map');currentFuel=listFuel;
       document.querySelectorAll('.ftab').forEach(b=>b.classList.toggle('on',b.dataset.fuel===currentFuel));
       setTimeout(()=>{map.flyTo([s.lat,s.lon],15,{duration:.5});setTimeout(()=>openSheet(s),600);},380);
     });
   });
+  activateLogos(c);
 }
 function clearFilt(){selectedBrands.clear();listDistKm=0;document.querySelectorAll('.ldbtn').forEach(b=>b.classList.toggle('on',b.dataset.km==='0'));document.getElementById('bbtn-all').classList.add('on');document.querySelectorAll('.bbtn').forEach(b=>b.classList.remove('on'));renderList();}
 
