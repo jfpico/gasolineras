@@ -280,8 +280,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
   </div>
   <div class="lsortbar">
     <span class="lsortlbl">Ordenar:</span>
-    <button class="lsortbtn on" id="lsort-price" onclick="setListSort('price')">💰 Precio</button>
-    <button class="lsortbtn" id="lsort-dist" onclick="setListSort('dist')">📍 Distancia</button>
+    <button class="lsortbtn on" id="lsort-price" onclick="setSort('price')">💰 Precio</button>
+    <button class="lsortbtn on" id="lsort-dist" onclick="setSort('dist')">📍 Distancia</button>
   </div>
   <div id="lbody"><div class="lempty">⛽ Cargando datos…</div></div>
 </div>
@@ -424,9 +424,14 @@ const FUELS={
 // ══════════════════════════════════════
 // STATE
 // ══════════════════════════════════════
-let map, userPos=null, allStations=[], currentFuel='G95', listFuel='G95';
+let map, userPos=null, allStations=[];
 let mapMarkers=[], distCircle=null, selId=null, dataReady=false;
-let mapDistKm=0, listDistKm=0, selectedBrands=new Set(), mapBrand='ALL';
+// Unified filter state shared between map and list
+let fuel='G95';              // combustible seleccionado
+let distKm=0;                // radio en km (0 = todas)
+let brands=new Set();        // marcas seleccionadas (vacío = todas)
+let sortPrice=true;          // ordenar lista por precio
+let sortDist=true;           // ordenar lista por distancia
 const CACHE_KEY='gas_min_v1', CACHE_TTL=90*60*1000;
 
 // ══════════════════════════════════════
@@ -504,7 +509,12 @@ async function fetchMinisterio(){
 // ══════════════════════════════════════
 function initMap(lat,lon){
   map=L.map('map',{center:[lat,lon],zoom:13,zoomControl:false,attributionControl:false});
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
+  // CartoDB Voyager — sin restricción de Referer, estilo claro y legible
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
+    maxZoom:19,
+    subdomains:'abcd',
+    crossOrigin:true
+  }).addTo(map);
   map.on('moveend',renderMarkers);
 }
 
@@ -513,27 +523,31 @@ function clearM(){mapMarkers.forEach(m=>map.removeLayer(m));mapMarkers=[];}
 
 function getPool(){
   let pool=allStations;
-  if(mapDistKm>0&&userPos)pool=pool.filter(s=>hav(userPos.lat,userPos.lon,s.lat,s.lon)<=mapDistKm);
-  if(mapBrand&&mapBrand!=='ALL')pool=pool.filter(s=>s.brand===mapBrand);
+  if(distKm>0&&userPos)pool=pool.filter(s=>hav(userPos.lat,userPos.lon,s.lat,s.lon)<=distKm);
+  if(brands.size>0)pool=pool.filter(s=>brands.has(s.brand));
   return pool;
 }
 function updateCircle(){
+  if(!map)return;
   if(distCircle){map.removeLayer(distCircle);distCircle=null;}
-  if(mapDistKm>0&&userPos)distCircle=L.circle([userPos.lat,userPos.lon],{radius:mapDistKm*1000,color:'#4CD964',weight:1.5,fillColor:'#4CD964',fillOpacity:.04,dashArray:'6 4'}).addTo(map);
+  if(distKm>0&&userPos)distCircle=L.circle([userPos.lat,userPos.lon],{radius:distKm*1000,color:'#4CD964',weight:1.5,fillColor:'#4CD964',fillOpacity:.04,dashArray:'6 4'}).addTo(map);
 }
+
+// Re-render both views after any filter change
+function renderAll(){ renderMarkers(); renderList(); }
 
 function renderMarkers(){
   if(!allStations.length||!map)return;
   const bounds=map.getBounds().pad(0.3);
   const pool=getPool();
   let vis=pool.filter(s=>bounds.contains([s.lat,s.lon]));
-  const wP=vis.filter(s=>s.prices[currentFuel]>0);
+  const wP=vis.filter(s=>s.prices[fuel]>0);
   const shown=wP.length>0?wP:vis;
-  const lim=shown.length>MAX?shown.sort((a,b)=>(a.prices[currentFuel]||9)-(b.prices[currentFuel]||9)).slice(0,MAX):shown;
-  const prices=lim.map(s=>s.prices[currentFuel]);
+  const lim=shown.length>MAX?shown.sort((a,b)=>(a.prices[fuel]||9)-(b.prices[fuel]||9)).slice(0,MAX):shown;
+  const prices=lim.map(s=>s.prices[fuel]);
   clearM();
   lim.forEach(s=>{
-    const p=s.prices[currentFuel];
+    const p=s.prices[fuel];
     const col=p?pColor(p,prices):'#888';
     const txt=p?p.toFixed(3).replace('.',','):'—';
     const isSel=selId===s.id;
@@ -561,7 +575,7 @@ function openSheet(s){
   document.getElementById('pgrid').innerHTML=Object.entries(FUELS).map(([id,f])=>{
     const p=s.prices[id];
     if(!p)return`<div class="pcard" style="opacity:.35"><div class="plbl" style="color:${f.color}">${f.label}</div><div class="pval" style="color:${f.color}">—</div><div class="punit">€/L</div></div>`;
-    return`<div class="pcard${id===currentFuel?' hi':''}"${id===currentFuel?` style="border-color:${f.color}44"`:''}><div class="plbl" style="color:${f.color}">${f.label}</div><div class="pval" style="color:${f.color}">${p.toFixed(3).replace('.',',')}</div><div class="punit">€/L</div></div>`;
+    return`<div class="pcard${id===fuel?' hi':''}"${id===fuel?` style="border-color:${f.color}44"`:''}><div class="plbl" style="color:${f.color}">${f.label}</div><div class="pval" style="color:${f.color}">${p.toFixed(3).replace('.',',')}</div><div class="punit">€/L</div></div>`;
   }).join('');
   document.getElementById('navbtn').onclick=()=>window.open(`https://maps.google.com/?q=${s.lat},${s.lon}`,'_blank');
   document.getElementById('sheet').classList.add('on');document.getElementById('sbd').classList.add('on');
@@ -580,7 +594,8 @@ function buildBrandBtns(){
     const b=BRANDS[bid],btn=document.createElement('button');
     btn.className='bbtn';btn.dataset.brand=bid;btn.style.setProperty('--bc',b.color);
     btn.innerHTML=`${logoHtml(bid,16)} <span>${b.name}</span>`;
-    btn.addEventListener('click',()=>{if(selectedBrands.has(bid))selectedBrands.delete(bid);else selectedBrands.add(bid);document.getElementById('bbtn-all').classList.toggle('on',selectedBrands.size===0);document.querySelectorAll('.bbtn').forEach(x=>x.classList.toggle('on',selectedBrands.has(x.dataset.brand)));renderList();});
+    if(brands.has(bid))btn.classList.add('on');
+    btn.addEventListener('click',()=>toggleBrand(bid));
     bar.appendChild(btn);
   });
   activateLogos(bar);
@@ -596,15 +611,11 @@ function buildMapBrandBtns(){
     const b=BRANDS[bid];
     const btn=document.createElement('span');
     btn.className='mbtag';
+    if(brands.has(bid))btn.classList.add('on');
     btn.dataset.brand=bid;
     btn.style.setProperty('--mbc',b.color);
-    // Same structure as list brand buttons: logo + name
     btn.innerHTML=`${logoHtml(bid,18)}<span style="margin-left:4px">${b.name}</span>`;
-    btn.addEventListener('click',()=>{
-      mapBrand=bid;
-      document.querySelectorAll('#mbstrip .mbtag').forEach(t=>t.classList.toggle('on',t.dataset.brand===bid));
-      renderMarkers();
-    });
+    btn.addEventListener('click',()=>toggleBrand(bid));
     strip.appendChild(btn);
   });
   activateLogos(strip);
@@ -614,49 +625,74 @@ function buildMapBrandBtns(){
   const newAllBtn=allBtn.cloneNode(true);
   allBtn.replaceWith(newAllBtn);
   strip.insertBefore(newAllBtn, strip.firstChild);
-  newAllBtn.addEventListener('click',()=>{
-    mapBrand='ALL';
-    document.querySelectorAll('#mbstrip .mbtag').forEach(t=>t.classList.toggle('on',t.dataset.brand==='ALL'));
-    renderMarkers();
+  newAllBtn.classList.toggle('on',brands.size===0);
+  newAllBtn.addEventListener('click',clearBrands);
+}
+
+// Toggle brand in unified state; sync both views
+function toggleBrand(bid){
+  if(brands.has(bid))brands.delete(bid); else brands.add(bid);
+  syncBrandUI();
+  renderAll();
+}
+function clearBrands(){
+  brands.clear();
+  syncBrandUI();
+  renderAll();
+}
+function syncBrandUI(){
+  document.querySelectorAll('#mbstrip .mbtag').forEach(t=>{
+    if(t.dataset.brand==='ALL')t.classList.toggle('on',brands.size===0);
+    else t.classList.toggle('on',brands.has(t.dataset.brand));
   });
+  const ball=document.getElementById('bbtn-all');
+  if(ball)ball.classList.toggle('on',brands.size===0);
+  document.querySelectorAll('.bbtn').forEach(b=>b.classList.toggle('on',brands.has(b.dataset.brand)));
 }
 
 function openList(){document.getElementById('lpanel').classList.add('on');if(allStations.length)buildBrandBtns();renderList();}
 function closeList(){document.getElementById('lpanel').classList.remove('on');}
 
-let listSort='price'; // 'price' | 'dist'
-function setListSort(s){
-  listSort=s;
-  document.getElementById('lsort-price').classList.toggle('on',s==='price');
-  document.getElementById('lsort-dist').classList.toggle('on',s==='dist');
+// Toggle independiente para ordenar la lista (ambos ON por defecto)
+function setSort(key){
+  if(key==='price')sortPrice=!sortPrice;
+  else if(key==='dist')sortDist=!sortDist;
+  document.getElementById('lsort-price').classList.toggle('on',sortPrice);
+  document.getElementById('lsort-dist').classList.toggle('on',sortDist);
   renderList();
 }
 
 function renderList(){
   const c=document.getElementById('lbody');
+  if(!c)return;
   if(!dataReady||!allStations.length){c.innerHTML='<div class="lempty">⛽ Cargando datos…</div>';return;}
   let pool=allStations;
-  if(listDistKm>0&&userPos)pool=pool.filter(s=>hav(userPos.lat,userPos.lon,s.lat,s.lon)<=listDistKm);
-  if(selectedBrands.size>0)pool=pool.filter(s=>selectedBrands.has(s.brand));
+  if(distKm>0&&userPos)pool=pool.filter(s=>hav(userPos.lat,userPos.lon,s.lat,s.lon)<=distKm);
+  if(brands.size>0)pool=pool.filter(s=>brands.has(s.brand));
   if(userPos)pool=pool.map(s=>({...s,dist:hav(userPos.lat,userPos.lon,s.lat,s.lon)}));
-  const wP=pool.filter(s=>s.prices[listFuel]>0);
-  const noP=pool.filter(s=>!s.prices[listFuel]);
-  if(listSort==='dist'){
-    wP.sort((a,b)=>(a.dist||999)-(b.dist||999));
+  const wP=pool.filter(s=>s.prices[fuel]>0);
+  const noP=pool.filter(s=>!s.prices[fuel]);
+  // Sort keys: combinación de los toggles sortPrice / sortDist
+  const effSortDist=sortDist&&!!userPos; // distancia requiere GPS
+  if(sortPrice&&effSortDist){
+    wP.sort((a,b)=>{const d=a.prices[fuel]-b.prices[fuel];return d!==0?d:((a.dist||999)-(b.dist||999));});
     noP.sort((a,b)=>(a.dist||999)-(b.dist||999));
-  } else {
-    wP.sort((a,b)=>a.prices[listFuel]-b.prices[listFuel]);
+  } else if(sortPrice){
+    wP.sort((a,b)=>a.prices[fuel]-b.prices[fuel]);
+  } else if(effSortDist){
+    wP.sort((a,b)=>(a.dist||999)-(b.dist||999));
     noP.sort((a,b)=>(a.dist||999)-(b.dist||999));
   }
   const sorted=[...wP,...noP].slice(0,150);
   let sub=`${sorted.length} estaciones`;
-  if(listDistKm>0)sub+=` · ${listDistKm} km`;
-  if(selectedBrands.size>0)sub+=` · ${selectedBrands.size} marca${selectedBrands.size>1?'s':''}`;
-  document.getElementById('lhsub').textContent=sub;
+  if(distKm>0)sub+=` · ${distKm} km`;
+  if(brands.size>0)sub+=` · ${brands.size} marca${brands.size>1?'s':''}`;
+  const lhsub=document.getElementById('lhsub');
+  if(lhsub)lhsub.textContent=sub;
   if(!sorted.length){c.innerHTML=`<div class="lempty">Sin estaciones.<br><span style="color:var(--green);cursor:pointer" onclick="clearFilt()">Limpiar filtros</span></div>`;return;}
-  const prices=sorted.map(s=>s.prices[listFuel]);
+  const prices=sorted.map(s=>s.prices[fuel]);
   c.innerHTML=sorted.map((s,i)=>{
-    const p=s.prices[listFuel],col=p?pColor(p,prices):'#666';
+    const p=s.prices[fuel],col=p?pColor(p,prices):'#666';
     const rc=i===0?'r1':i===1?'r2':i===2?'r3':'rx';
     const dt=s.dist?(s.dist<1?`${(s.dist*1000).toFixed(0)} m`:`${s.dist.toFixed(1)} km`):'';
     return`<div class="li" data-id="${s.id}">
@@ -674,14 +710,20 @@ function renderList(){
   c.querySelectorAll('.li').forEach(el=>{
     el.addEventListener('click',()=>{
       const s=allStations.find(x=>x.id===el.dataset.id);if(!s)return;
-      closeList();setTab('map');currentFuel=listFuel;
-      document.querySelectorAll('.ftab').forEach(b=>b.classList.toggle('on',b.dataset.fuel===currentFuel));
+      closeList();setTab('map');
       setTimeout(()=>{map.flyTo([s.lat,s.lon],15,{duration:.5});setTimeout(()=>openSheet(s),600);},380);
     });
   });
   activateLogos(c);
 }
-function clearFilt(){selectedBrands.clear();listDistKm=0;document.querySelectorAll('.ldbtn').forEach(b=>b.classList.toggle('on',b.dataset.km==='0'));document.getElementById('bbtn-all').classList.add('on');document.querySelectorAll('.bbtn').forEach(b=>b.classList.remove('on'));renderList();}
+function clearFilt(){
+  brands.clear();distKm=0;
+  syncBrandUI();
+  document.querySelectorAll('.dtag').forEach(t=>t.classList.toggle('on',parseInt(t.dataset.km)===0));
+  document.querySelectorAll('.ldbtn').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.km)===0));
+  updateCircle();
+  renderAll();
+}
 
 // ══════════════════════════════════════
 // SEARCH — locality/CP autocomplete
@@ -789,11 +831,27 @@ async function main(){
 // ══════════════════════════════════════
 // EVENTS
 // ══════════════════════════════════════
-document.querySelectorAll('.ftab').forEach(b=>{b.addEventListener('click',()=>{document.querySelectorAll('.ftab').forEach(x=>x.classList.remove('on'));b.classList.add('on');currentFuel=b.dataset.fuel;closeSheet();renderMarkers();});});
-document.querySelectorAll('.lfbtn').forEach(b=>{b.addEventListener('click',()=>{document.querySelectorAll('.lfbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');listFuel=b.dataset.fuel;renderList();});});
-document.querySelectorAll('.dtag').forEach(t=>{t.addEventListener('click',()=>{document.querySelectorAll('.dtag').forEach(x=>x.classList.remove('on'));t.classList.add('on');mapDistKm=parseInt(t.dataset.km)||0;updateCircle();if(mapDistKm>0&&userPos)map.flyTo([userPos.lat,userPos.lon],mapDistKm<=5?14:mapDistKm<=10?13:mapDistKm<=25?12:11,{duration:.5});renderMarkers();});});
-document.querySelectorAll('.ldbtn').forEach(b=>{b.addEventListener('click',()=>{document.querySelectorAll('.ldbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');listDistKm=parseInt(b.dataset.km)||0;renderList();});});
-document.getElementById('bbtn-all').addEventListener('click',()=>{selectedBrands.clear();document.getElementById('bbtn-all').classList.add('on');document.querySelectorAll('.bbtn').forEach(b=>b.classList.remove('on'));renderList();});
+// Unified filter handlers — any change in map OR list syncs both views
+function setFuel(f){
+  fuel=f;
+  document.querySelectorAll('.ftab').forEach(b=>b.classList.toggle('on',b.dataset.fuel===f));
+  document.querySelectorAll('.lfbtn').forEach(b=>b.classList.toggle('on',b.dataset.fuel===f));
+  closeSheet();
+  renderAll();
+}
+function setDistKm(km){
+  distKm=km;
+  document.querySelectorAll('.dtag').forEach(t=>t.classList.toggle('on',parseInt(t.dataset.km)===km));
+  document.querySelectorAll('.ldbtn').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.km)===km));
+  updateCircle();
+  if(km>0&&userPos&&map)map.flyTo([userPos.lat,userPos.lon],km<=5?14:km<=10?13:km<=25?12:11,{duration:.5});
+  renderAll();
+}
+document.querySelectorAll('.ftab').forEach(b=>b.addEventListener('click',()=>setFuel(b.dataset.fuel)));
+document.querySelectorAll('.lfbtn').forEach(b=>b.addEventListener('click',()=>setFuel(b.dataset.fuel)));
+document.querySelectorAll('.dtag').forEach(t=>t.addEventListener('click',()=>setDistKm(parseInt(t.dataset.km)||0)));
+document.querySelectorAll('.ldbtn').forEach(b=>b.addEventListener('click',()=>setDistKm(parseInt(b.dataset.km)||0)));
+document.getElementById('bbtn-all').addEventListener('click',clearBrands);
 document.querySelectorAll('.ti').forEach(i=>{i.addEventListener('click',()=>{const t=i.dataset.tab;setTab(t);if(t==='list')openList();else if(t==='share')openShare();else{closeList();closeShare();}});});
 document.getElementById('sinput').addEventListener('input',e=>{
   const q=e.target.value;
