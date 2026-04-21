@@ -22,11 +22,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 
 /* PINS */
 .pw{display:flex;flex-direction:column;align-items:center;cursor:pointer;filter:drop-shadow(0 3px 10px rgba(0,0,0,0.5))}
-.pb{display:flex;align-items:center;gap:5px;background:#1c1c1c;border-radius:22px;padding:5px 12px 5px 5px;border:2px solid transparent;white-space:nowrap;box-shadow:0 2px 12px rgba(0,0,0,0.5);transition:transform .18s cubic-bezier(.34,1.56,.64,1),border-color .2s}
+.pb{display:flex;align-items:center;gap:5px;background:rgba(28, 28, 28, 0.5);border-radius:22px;padding:5px 12px 5px 5px;border:1px solid #14120f;white-space:nowrap;box-shadow:0 2px 12px rgba(0,0,0,0.5);transition:transform .18s cubic-bezier(.34,1.56,.64,1),border-color .2s}
 .pb.sel{border-color:var(--pc,#4CD964);transform:scale(1.15)}
 .plogo{width:26px;height:26px;border-radius:13px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .plogo svg{display:block}
-.pp{font-size:13px;font-weight:800;letter-spacing:-0.3px;color:#fff}
+.pp{font-family: 'Calibri', 'Candara', 'Segoe UI', sans-serif;font-size:19px;font-weight:700;letter-spacing:-0.3px;color:#fff}
 .pt{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:8px solid #1c1c1c;margin-top:-1px}
 
 /* TOP BAR */
@@ -433,7 +433,7 @@ const CACHE_KEY='gas_min_v1', CACHE_TTL=90*60*1000;
 // UTILS
 // ══════════════════════════════════════
 function hav(a,b,c,d){const R=6371,dL=(c-a)*Math.PI/180,dO=(d-b)*Math.PI/180;const x=Math.sin(dL/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dO/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
-function pColor(p,all){const v=all.filter(x=>x>0);if(!p||!v.length)return'#aaa';const mn=Math.min(...v),mx=Math.max(...v);if(mx===mn)return'#4CD964';const r=(p-mn)/(mx-mn);return r<0.33?'#4CD964':r<0.66?'#FF9500':'#FF3B30';}
+function pColor(p,all){const v=all.filter(x=>x>0);if(!p||!v.length)return'#aaa';const mn=Math.min(...v),mx=Math.max(...v);if(mx===mn)return'#4CD964';const r=(p-mn)/(mx-mn);return r<0.33?'#02c90f':r<0.66?'#FF9500':'#e61105';}
 
 // Parse price — handles "1,749" and "1.749" and empty
 function parseP(s){
