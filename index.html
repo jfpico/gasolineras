@@ -24,7 +24,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 .pw{display:flex;flex-direction:column;align-items:center;cursor:pointer;filter:drop-shadow(0 3px 10px rgba(0,0,0,0.5))}
 .pb{display:flex;align-items:center;gap:5px;background:rgba(28, 28, 28, 0.5);border-radius:22px;padding:5px 12px 5px 5px;border:1px solid #14120f;white-space:nowrap;box-shadow:0 2px 12px rgba(0,0,0,0.5);transition:transform .18s cubic-bezier(.34,1.56,.64,1),border-color .2s}
 .pb.sel{border-color:var(--pc,#4CD964);transform:scale(1.15)}
-.plogo{width:26px;height:26px;border-radius:13px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.plogo{width:40px;height:40px;border-radius:20px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .plogo svg{display:block}
 .pp{font-family: 'Calibri', 'Candara', 'Segoe UI', sans-serif;font-size:19px;font-weight:700;letter-spacing:-0.3px;color:#fff}
 .pt{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:8px solid #1c1c1c;margin-top:-1px}
@@ -296,13 +296,13 @@ const FKEY = { G95: 'Precio Gasolina 95 E5', G98: 'Precio Gasolina 98 E5', GOA: 
 
 const LOGO_URLS = {
   SHELL:     'https://www.google.com/s2/favicons?domain=shell.com&sz=64',
-  REPSOL:    'https://www.google.com/s2/favicons?domain=repsol.com&sz=64',
+  REPSOL:    'https://upload.wikimedia.org/wikipedia/commons/d/df/Logo_de_Repsol.jpg',
   CEPSA:     'https://www.google.com/s2/favicons?domain=cepsa.com&sz=64',
   BP:        'https://www.google.com/s2/favicons?domain=bp.com&sz=64',
   GALP:      'https://www.google.com/s2/favicons?domain=galp.com&sz=64',
-  TAMOIL:    'https://www.google.com/s2/favicons?domain=tamoil.es&sz=64',
-  // CAMPSA: dominio inactivo — usa SVG fallback directamente
+  TAMOIL:    'https://upload.wikimedia.org/wikipedia/commons/5/5a/Tamoil.svg',
   PETRONOR:  'https://www.google.com/s2/favicons?domain=petronor.es&sz=64',
+  CAMPSA  :  'https://upload.wikimedia.org/wikipedia/commons/3/3c/Logo_de_Campsa.jpg',
   PLENOIL:   'https://www.google.com/s2/favicons?domain=plenoil.es&sz=64',
   BALLENOIL: 'https://www.google.com/s2/favicons?domain=ballenoil.es&sz=64',
   MEROIL:    'https://www.google.com/s2/favicons?domain=meroil.es&sz=64',
