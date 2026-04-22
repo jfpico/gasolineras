@@ -174,6 +174,57 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 .lsortlbl{font-size:11px;font-weight:700;color:var(--text3);flex-shrink:0}
 .lsortbtn{padding:5px 13px;border-radius:18px;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;border:1.5px solid transparent;background:rgba(255,255,255,0.04);color:var(--text3);transition:all .18s;flex-shrink:0}
 .lsortbtn.on{color:#4CD964;border-color:#4CD964;background:rgba(76,217,100,0.08)}
+
+/* ── EV CHARGING ── */
+.ev-pin{display:flex;flex-direction:column;align-items:center;cursor:pointer;filter:drop-shadow(0 3px 10px rgba(0,0,0,0.5))}
+.ev-pb{display:flex;align-items:center;gap:5px;background:rgba(10,20,35,0.85);border-radius:22px;padding:5px 10px 5px 6px;border:1.5px solid #1a3a6a;white-space:nowrap;box-shadow:0 2px 12px rgba(0,0,0,0.5);transition:transform .18s cubic-bezier(.34,1.56,.64,1),border-color .2s}
+.ev-pb.sel{border-color:#5AC8FA;transform:scale(1.15)}
+.ev-ico{font-size:14px;line-height:1}
+.ev-pw{font-size:12px;font-weight:800;color:#5AC8FA;letter-spacing:-.2px}
+.ev-pt{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid #1a3a6a;margin-top:-1px}
+/* EV filter strip */
+#evstrip{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none}
+#evstrip::-webkit-scrollbar{display:none}
+.evtag{background:rgba(0,10,30,0.7);border:1px solid rgba(90,200,250,0.2);border-radius:11px;padding:5px 12px;font-size:11.5px;font-weight:700;color:#7ab8d4;cursor:pointer;white-space:nowrap;backdrop-filter:blur(14px);flex-shrink:0;transition:all .18s;user-select:none}
+.evtag.on{color:#5AC8FA;border-color:rgba(90,200,250,0.6);background:rgba(90,200,250,0.12)}
+/* EV list panel */
+#evpanel{position:fixed;inset:0;z-index:300;background:#080f14;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .32s cubic-bezier(.32,0,.67,0)}
+#evpanel.on{transform:translateX(0);transition:transform .38s cubic-bezier(.34,1.08,.64,1)}
+.evhdr{padding:env(safe-area-inset-top,46px) 15px 11px;background:#0a1520;border-bottom:1px solid rgba(90,200,250,0.12);display:flex;align-items:center;gap:11px;flex-shrink:0}
+.evbk{width:34px;height:34px;border-radius:50%;background:rgba(90,200,250,0.08);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;flex-shrink:0;color:var(--text)}
+.evhtit{font-size:17px;font-weight:800;color:#5AC8FA}
+.evhsub{font-size:11px;color:#7ab8d4;margin-top:1px}
+.evfilters{background:#0a1520;border-bottom:1px solid rgba(90,200,250,0.1);flex-shrink:0;padding:8px 13px 10px;display:flex;flex-direction:column;gap:7px}
+.evflbl{font-size:11px;font-weight:700;color:#5a7a8a;flex-shrink:0}
+.evfrow{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;align-items:center}
+.evfrow::-webkit-scrollbar{display:none}
+.evfbtn{padding:5px 12px;border-radius:18px;font-family:var(--font);font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap;border:1.5px solid rgba(90,200,250,0.15);background:rgba(90,200,250,0.04);color:#7ab8d4;transition:all .18s;flex-shrink:0}
+.evfbtn.on{color:#5AC8FA;border-color:#5AC8FA;background:rgba(90,200,250,0.1)}
+#evbody{flex:1;overflow-y:auto;padding:7px 11px;padding-bottom:max(env(safe-area-inset-bottom),18px)}
+#evbody::-webkit-scrollbar{display:none}
+.evi{display:flex;align-items:flex-start;gap:10px;background:#0a1218;border:1px solid rgba(90,200,250,0.08);border-radius:16px;padding:12px 13px;margin-bottom:8px;cursor:pointer;transition:background .14s;user-select:none}
+.evi:active{background:#0f1e2a}
+.eviico{width:40px;height:40px;border-radius:10px;background:#0f2035;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.eviinf{flex:1;min-width:0}
+.evibr{font-size:13px;font-weight:800;color:var(--text)}
+.eviad{font-size:11px;color:var(--text2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.evihr{font-size:10.5px;color:#7ab87a;margin-top:2px}
+.evidt{font-size:10px;color:var(--text3);margin-top:2px}
+.evipr{text-align:right;flex-shrink:0;min-width:44px}
+.evipw{font-size:16px;font-weight:900;color:#5AC8FA;letter-spacing:-.3px}
+.evipu{font-size:9px;color:#5a7a8a;margin-top:1px}
+/* EV Sheet */
+#evsheet{position:fixed;bottom:0;left:0;right:0;z-index:201;background:#0a1520;border-radius:24px 24px 0 0;border-top:1px solid rgba(90,200,250,0.2);padding-bottom:max(env(safe-area-inset-bottom),16px);box-shadow:0 -8px 40px rgba(0,50,100,0.4);transform:translateY(100%);transition:transform .32s cubic-bezier(.32,0,.67,0)}
+#evsheet.on{transform:translateY(0);transition:transform .38s cubic-bezier(.34,1.08,.64,1)}
+.evshhdr{display:flex;align-items:center;gap:11px;padding:9px 15px 4px}
+.evshico{width:48px;height:48px;border-radius:12px;background:#0f2035;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+.evshcl{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text2);cursor:pointer;flex-shrink:0}
+.evgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:10px 15px}
+.evcard{background:#0f1e2a;border:1.5px solid rgba(90,200,250,0.1);border-radius:13px;padding:10px 5px;text-align:center}
+.evcard.hi{background:#0f2035;border-color:#5AC8FA44}
+.evclbl{font-size:9px;font-weight:700;letter-spacing:.3px;color:#5a7a8a;margin-bottom:3px}
+.evcval{font-size:15px;font-weight:900;color:#5AC8FA}
+.evcunit{font-size:8.5px;color:#3a6a7a;margin-top:1px}
 </style>
 </head>
 <body>
@@ -197,6 +248,19 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
   </div>
   <div id="mbstrip" style="display:flex;gap:5px;overflow-x:auto;scrollbar-width:none">
     <span class="mbtag on" data-brand="ALL">Todas</span>
+  </div>
+  <!-- EV filters — solo visibles en modo recarga -->
+  <div id="evstrip" style="display:none">
+    <span class="evtag on" data-pw="0">⚡ Todos</span>
+    <span class="evtag" data-pw="7">7+ kW</span>
+    <span class="evtag" data-pw="22">22+ kW</span>
+    <span class="evtag" data-pw="50">50+ kW</span>
+    <span class="evtag" data-pw="150">150+ kW</span>
+  </div>
+  <div id="evtypestrip" style="display:none;gap:5px;overflow-x:auto;scrollbar-width:none">
+    <span class="evtag on" data-conn="ALL">Todos los tipos</span>
+    <span class="evtag" data-conn="AC">AC</span>
+    <span class="evtag" data-conn="DC">DC Rápido</span>
   </div>
 </div>
 
@@ -224,18 +288,18 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
     <div class="ti on" data-tab="map"><div class="ticon">🗺️</div><div class="tlbl">Mapa</div><div class="tdot"></div></div>
     <div class="ti" data-tab="list"><div class="ticon">📋</div><div class="tlbl">Lista</div><div class="tdot"></div></div>
     <div class="ti" data-tab="favs"><div class="ticon">❤️</div><div class="tlbl">Favoritos</div><div class="tdot"></div></div>
+    <div class="ti" data-tab="ev"><div class="ticon">⚡</div><div class="tlbl">Recarga</div><div class="tdot"></div></div>
   </div>
 </div>
 
 <div id="loading">
   <div class="lcard">
     <div class="lico" style="position:relative">⛽<div class="lring"></div></div>
-    <div style="font-size:32px;font-weight:900;letter-spacing:-1px;color:#fff;margin:8px 0 2px;font-family:var(--font)">RUTA BARATO</div>
-    <div style="font-size:12px;font-weight:59;letter-spacing:-1px;color:#fff;margin:8px 0 2px;font-family:var(--font)">Tus gasolineras y puntos de recargas eléctricos</div>
+    <div style="font-size:28px;font-weight:900;letter-spacing:-1px;color:#fff;margin:8px 0 2px;font-family:var(--font)">GASOBARATO</div>
     <div class="ltit" id="ltit" style="font-size:13px;font-weight:600;opacity:.7;margin:0 0 4px">Cargando gasolineras</div>
     <div class="lsub" id="lsub">Conectando con el Ministerio de Energía…</div>
     <div class="ldots"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div>
-    <div class="lbadge">🏛 Datos oficiales · Precios en tiempo real.</div>
+    <div class="lbadge">🏛 Datos oficiales · Precios en tiempo real</div>
     <div class="lerrbtn" id="lerrbtn" onclick="main()">🔄 Reintentar</div>
   </div>
 </div>
@@ -287,6 +351,54 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
     <button class="lsortbtn on" id="lsort-dist" onclick="setSort('dist')">📍 Distancia</button>
   </div>
   <div id="lbody"><div class="lempty">⛽ Cargando datos…</div></div>
+</div>
+
+<!-- EV Panel -->
+<div id="evpanel">
+  <div class="evhdr">
+    <div class="evbk" id="evbk">←</div>
+    <div><div class="evhtit">⚡ Puntos de recarga</div><div class="evhsub" id="evhsub">Cargando…</div></div>
+  </div>
+  <div class="evfilters">
+    <div class="evfrow">
+      <span class="evflbl">📍 Radio:</span>
+      <button class="evfbtn on" data-km="0">Todas</button>
+      <button class="evfbtn" data-km="5">5 km</button>
+      <button class="evfbtn" data-km="10">10 km</button>
+      <button class="evfbtn" data-km="25">25 km</button>
+      <button class="evfbtn" data-km="50">50 km</button>
+    </div>
+    <div class="evfrow">
+      <span class="evflbl">⚡ Potencia:</span>
+      <button class="evfbtn on" data-pw="0">Todas</button>
+      <button class="evfbtn" data-pw="7">7+ kW</button>
+      <button class="evfbtn" data-pw="22">22+ kW</button>
+      <button class="evfbtn" data-pw="50">50+ kW</button>
+      <button class="evfbtn" data-pw="150">150+ kW</button>
+    </div>
+    <div class="evfrow">
+      <span class="evflbl">🔌 Tipo:</span>
+      <button class="evfbtn on" data-conn="ALL">Todos</button>
+      <button class="evfbtn" data-conn="AC">AC</button>
+      <button class="evfbtn" data-conn="DC">DC Rápido</button>
+    </div>
+  </div>
+  <div id="evbody"><div class="lempty" style="color:#7ab8d4">⚡ Cargando puntos de recarga…</div></div>
+</div>
+
+<!-- EV Sheet -->
+<div id="evsheet">
+  <div class="shdl"></div>
+  <div class="evshhdr">
+    <div class="evshico">⚡</div>
+    <div class="shinf"><div class="shbr" id="evshbr"></div><div class="shnm" id="evshnm"></div><div class="shad" id="evshad"></div></div>
+    <div class="evshcl" id="evshcl">✕</div>
+  </div>
+  <div class="evgrid" id="evgrid"></div>
+  <div class="sfoot">
+    <div class="sched">🕐 <span id="evssched"></span></div>
+    <div class="navbtn" id="evnavbtn" style="background:#1a5fa5">🧭 Cómo llegar</div>
+  </div>
 </div>
 
 <script>
@@ -408,7 +520,7 @@ async function fetchMinisterio(){
 function initMap(lat,lon){
   map=L.map('map',{center:[lat,lon],zoom:13,zoomControl:false,attributionControl:false});
   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:19,subdomains:'abcd',crossOrigin:true}).addTo(map);
-  map.on('moveend',renderMarkers);
+  map.on('moveend',()=>{if(evMode)renderEVMarkers();else renderMarkers();});
 }
 
 const MAX=60;
@@ -429,6 +541,7 @@ function updateCircle(){
 function renderAll(){ renderMarkers(); renderList(); }
 
 function renderMarkers(){
+  if(evMode)return; // En modo EV no pintar gasolineras
   if(!allStations.length||!map)return;
   const bounds=map.getBounds().pad(0.3);
   const pool=getPool();
@@ -635,16 +748,22 @@ function buildAC(q){
 
 function setTab(t){
   document.querySelectorAll('.ti').forEach(x=>x.classList.toggle('on',x.dataset.tab===t));
+  // Desactivar modo EV si salimos de él
+  if(t!=='ev'&&evMode) deactivateEVMode();
   if(t==='list'){
-    showFavsOnly = false;
-    document.querySelector('.lhtit').textContent = 'Gasolineras';
-    openList();
+    showFavsOnly=false;
+    document.querySelector('.lhtit').textContent='Gasolineras';
+    openList(); closeEVPanel();
   } else if(t==='favs'){
-    showFavsOnly = true;
-    document.querySelector('.lhtit').textContent = 'Tus Favoritos';
-    openList();
-  } else {
+    showFavsOnly=true;
+    document.querySelector('.lhtit').textContent='Tus Favoritos';
+    openList(); closeEVPanel();
+  } else if(t==='ev'){
     closeList();
+    activateEVMode();
+    openEVPanel();
+  } else {
+    closeList(); closeEVPanel();
   }
 }
 
@@ -670,6 +789,220 @@ document.addEventListener('click', (e) => {
     document.getElementById('infopanel').classList.remove('on');
   }
 });
+
+
+// ══════════════════════════════════════
+// EV CHARGING — Puntos de recarga eléctrica
+// ══════════════════════════════════════
+let evMode=false, allEV=[], evMarkers=[], evDataReady=false;
+let evDistKm=0, evMinPow=0, evConnType='ALL', evSelId=null;
+const EV_CACHE_KEY='gas_ev_v1', EV_CACHE_TTL=120*60*1000;
+
+function loadEVCache(){try{const r=JSON.parse(localStorage.getItem(EV_CACHE_KEY)||'null');if(!r?.data?.length)return null;return{data:r.data,stale:Date.now()-r.ts>EV_CACHE_TTL};}catch{return null;}}
+function saveEVCache(data){try{localStorage.setItem(EV_CACHE_KEY,JSON.stringify({ts:Date.now(),data}));}catch{}}
+
+async function fetchEV(){
+  const url='https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/Recarga/';
+  const res=await fetch(url,{signal:AbortSignal.timeout(20000)});
+  if(!res.ok)throw new Error('HTTP '+res.status);
+  const data=await res.json();
+  const list=data.ListaEESSPrecio||data.ListaPuntosRecarga||[];
+  return list.map(raw=>{
+    const lat=parseFloat((raw['Latitud']||'').replace(',','.'));
+    const lon=parseFloat((raw['Longitud (WGS84)']||raw['Longitud']||'').replace(',','.'));
+    if(isNaN(lat)||isNaN(lon)||lat===0||lon===0)return null;
+    // Extraer potencia máxima
+    const pwRaw=raw['Potencia']||raw['Potencia (kW)']||raw['KW']||'';
+    const pw=parseFloat(String(pwRaw).replace(',','.'))||0;
+    // Tipo de cargador
+    const connRaw=(raw['Tipo de Conector']||raw['TipoConector']||raw['Tipo']||'').toUpperCase();
+    const conn=connRaw.includes('DC')||connRaw.includes('CCS')||connRaw.includes('CHAdeMO')?'DC':'AC';
+    return{
+      id:raw['IDEESS']||raw['ID']||('ev_'+Math.random()),
+      name:raw['Rótulo']||raw['Nombre']||'Punto de recarga',
+      address:raw['Dirección']||raw['Direccion']||'',
+      municipality:raw['Municipio']||'',
+      province:raw['Provincia']||'',
+      schedule:raw['Horario']||'',
+      operator:raw['Operador']||raw['Gestor']||'',
+      connectors:parseInt(raw['Número de Conectores']||raw['Conectores']||'1')||1,
+      pw, conn, lat, lon,
+    };
+  }).filter(Boolean);
+}
+
+function getEVPool(){
+  let pool=allEV;
+  if(evDistKm>0&&userPos)pool=pool.filter(s=>hav(userPos.lat,userPos.lon,s.lat,s.lon)<=evDistKm);
+  if(evMinPow>0)pool=pool.filter(s=>s.pw>=evMinPow);
+  if(evConnType!=='ALL')pool=pool.filter(s=>s.conn===evConnType);
+  return pool;
+}
+
+function clearEVMarkers(){evMarkers.forEach(m=>map.removeLayer(m));evMarkers=[];}
+
+function renderEVMarkers(){
+  if(!map)return;
+  clearEVMarkers();
+  if(!evMode||!allEV.length)return;
+  const bounds=map.getBounds().pad(0.3);
+  const pool=getEVPool();
+  const vis=pool.filter(s=>bounds.contains([s.lat,s.lon])).slice(0,80);
+  vis.forEach(s=>{
+    const isSel=evSelId===s.id;
+    const pwTxt=s.pw>0?s.pw+'kW':'⚡';
+    const el=document.createElement('div');el.className='ev-pin';
+    el.innerHTML=`<div class="ev-pb${isSel?' sel':''}"><span class="ev-ico">⚡</span><span class="ev-pw">${pwTxt}</span></div><div class="ev-pt"></div>`;
+    const mk=L.marker([s.lat,s.lon],{icon:L.divIcon({html:el,className:'',iconAnchor:[30,36]}),zIndexOffset:isSel?1000:0});
+    el.addEventListener('click',e=>{e.stopPropagation();openEVSheet(s);});
+    mk.addTo(map);evMarkers.push(mk);
+  });
+}
+
+function openEVSheet(s){
+  evSelId=s.id;
+  document.getElementById('evshbr').textContent=s.name;
+  document.getElementById('evshnm').textContent=s.operator||'Operador desconocido';
+  document.getElementById('evshad').textContent=[s.address,s.municipality,s.province].filter(Boolean).join(', ')||'Sin dirección';
+  document.getElementById('evssched').textContent=s.schedule||'Consultar horario';
+  document.getElementById('evnavbtn').onclick=()=>window.open(`https://maps.google.com/?q=${s.lat},${s.lon}`,'_blank');
+  document.getElementById('evgrid').innerHTML=`
+    <div class="evcard hi"><div class="evclbl">POTENCIA</div><div class="evcval">${s.pw>0?s.pw:'—'}</div><div class="evcunit">kW</div></div>
+    <div class="evcard"><div class="evclbl">TIPO</div><div class="evcval" style="font-size:13px">${s.conn}</div><div class="evcunit">corriente</div></div>
+    <div class="evcard"><div class="evclbl">CONECTORES</div><div class="evcval">${s.connectors}</div><div class="evcunit">puntos</div></div>
+  `;
+  document.getElementById('evsheet').classList.add('on');
+  document.getElementById('sbd').classList.add('on');
+  renderEVMarkers();
+}
+function closeEVSheet(){evSelId=null;document.getElementById('evsheet').classList.remove('on');document.getElementById('sbd').classList.remove('on');renderEVMarkers();}
+
+function renderEVList(){
+  const c=document.getElementById('evbody');if(!c)return;
+  if(!evDataReady||!allEV.length){c.innerHTML='<div class="lempty" style="color:#7ab8d4">⚡ Cargando puntos de recarga…</div>';return;}
+  let pool=getEVPool();
+  if(userPos)pool=pool.map(s=>({...s,dist:hav(userPos.lat,userPos.lon,s.lat,s.lon)}));
+  pool.sort((a,b)=>{
+    if(userPos)return(a.dist||999)-(b.dist||999);
+    return(b.pw||0)-(a.pw||0);
+  });
+  const shown=pool.slice(0,150);
+  const sub=document.getElementById('evhsub');
+  if(sub)sub.textContent=`${shown.length} puntos${evDistKm>0?' · '+evDistKm+' km':''}${evMinPow>0?' · '+evMinPow+'+ kW':''}`;
+  if(!shown.length){c.innerHTML='<div class="lempty" style="color:#7ab8d4">Sin puntos de recarga con estos filtros.</div>';return;}
+  c.innerHTML=shown.map(s=>{
+    const dt=s.dist?(s.dist<1?`${(s.dist*1000).toFixed(0)} m`:`${s.dist.toFixed(1)} km`):'';
+    const pwColor=s.pw>=150?'#ff9f0a':s.pw>=50?'#5AC8FA':s.pw>=22?'#4CD964':'#a0b89e';
+    return`<div class="evi" data-id="${s.id}">
+      <div class="eviico">⚡</div>
+      <div class="eviinf">
+        <div class="evibr">${s.name}</div>
+        <div class="eviad">${s.address||s.municipality||'Sin dirección'}</div>
+        ${s.operator?`<div class="evihr">🔌 ${s.operator}</div>`:''}
+        ${dt?`<div class="evidt">📍 ${dt}</div>`:''}
+      </div>
+      <div class="evipr">
+        <div class="evipw" style="color:${pwColor}">${s.pw>0?s.pw+'kW':'—'}</div>
+        <div class="evipu">${s.conn} · ${s.connectors}🔌</div>
+      </div>
+    </div>`;
+  }).join('');
+  c.querySelectorAll('.evi').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const s=allEV.find(x=>x.id===el.dataset.id);if(!s)return;
+      closeEVPanel();
+      setTimeout(()=>{map.flyTo([s.lat,s.lon],16,{duration:.5});setTimeout(()=>openEVSheet(s),600);},380);
+    });
+  });
+}
+
+function openEVPanel(){document.getElementById('evpanel').classList.add('on');renderEVList();}
+function closeEVPanel(){document.getElementById('evpanel').classList.remove('on');}
+
+async function activateEVMode(){
+  evMode=true;
+  // Ocultar elementos de gasolineras
+  document.getElementById('ftabs').style.display='none';
+  document.getElementById('mbstrip').style.display='none';
+  document.getElementById('evstrip').style.display='flex';
+  document.getElementById('evtypestrip').style.display='flex';
+  // Limpiar markers de gasolineras
+  clearM();
+  // Cargar datos si no están
+  if(!evDataReady){
+    const cache=loadEVCache();
+    if(cache?.data?.length){
+      allEV=cache.data;evDataReady=true;
+      renderEVMarkers();
+      if(!cache.stale)fetchEV().then(d=>{if(d?.length){allEV=d;saveEVCache(d);renderEVMarkers();renderEVList();}}).catch(()=>{});
+    } else {
+      document.getElementById('evbody').innerHTML='<div class="lempty" style="color:#7ab8d4"><span style="font-size:28px">⚡</span><br>Cargando puntos de recarga…</div>';
+      try{
+        const d=await fetchEV();
+        allEV=d;evDataReady=true;saveEVCache(d);renderEVMarkers();renderEVList();
+      }catch(e){
+        document.getElementById('evbody').innerHTML='<div class="lempty" style="color:#e05a5a">Error cargando puntos de recarga.<br><small>'+e.message+'</small></div>';
+      }
+    }
+  } else {
+    renderEVMarkers();
+  }
+}
+
+function deactivateEVMode(){
+  evMode=false;
+  closeEVSheet();
+  closeEVPanel();
+  // Restaurar elementos de gasolineras
+  document.getElementById('ftabs').style.display='';
+  document.getElementById('mbstrip').style.display='flex';
+  document.getElementById('evstrip').style.display='none';
+  document.getElementById('evtypestrip').style.display='none';
+  // Limpiar markers EV y repintar gasolineras
+  clearEVMarkers();
+  renderMarkers();
+}
+
+// Eventos filtros EV
+document.querySelectorAll('#evstrip .evtag').forEach(t=>{
+  t.addEventListener('click',()=>{
+    const pw=parseInt(t.dataset.pw)||0;
+    evMinPow=pw;
+    document.querySelectorAll('#evstrip .evtag').forEach(x=>x.classList.toggle('on',parseInt(x.dataset.pw)===pw));
+    renderEVMarkers();
+  });
+});
+document.querySelectorAll('#evtypestrip .evtag').forEach(t=>{
+  t.addEventListener('click',()=>{
+    evConnType=t.dataset.conn;
+    document.querySelectorAll('#evtypestrip .evtag').forEach(x=>x.classList.toggle('on',x.dataset.conn===evConnType));
+    renderEVMarkers();
+  });
+});
+document.querySelectorAll('#evpanel .evfbtn[data-km]').forEach(b=>{
+  b.addEventListener('click',()=>{
+    evDistKm=parseInt(b.dataset.km)||0;
+    document.querySelectorAll('#evpanel .evfbtn[data-km]').forEach(x=>x.classList.toggle('on',parseInt(x.dataset.km)===evDistKm));
+    renderEVList();renderEVMarkers();
+  });
+});
+document.querySelectorAll('#evpanel .evfbtn[data-pw]').forEach(b=>{
+  b.addEventListener('click',()=>{
+    evMinPow=parseInt(b.dataset.pw)||0;
+    document.querySelectorAll('#evpanel .evfbtn[data-pw]').forEach(x=>x.classList.toggle('on',parseInt(x.dataset.pw)===evMinPow));
+    renderEVList();renderEVMarkers();
+  });
+});
+document.querySelectorAll('#evpanel .evfbtn[data-conn]').forEach(b=>{
+  b.addEventListener('click',()=>{
+    evConnType=b.dataset.conn;
+    document.querySelectorAll('#evpanel .evfbtn[data-conn]').forEach(x=>x.classList.toggle('on',x.dataset.conn===evConnType));
+    renderEVList();renderEVMarkers();
+  });
+});
+document.getElementById('evbk').addEventListener('click',()=>{closeEVPanel();});
+document.getElementById('evshcl').addEventListener('click',closeEVSheet);
+// Al mover el mapa en modo EV, repintar markers EV
 
 async function main(){
   const cache=loadCache();
