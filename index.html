@@ -301,7 +301,7 @@ const LOGO_URLS = {
   BP:        'https://www.google.com/s2/favicons?domain=bp.com&sz=64',
   GALP:      'https://www.google.com/s2/favicons?domain=galp.com&sz=64',
   TAMOIL:    'https://www.google.com/s2/favicons?domain=tamoil.es&sz=64',
-  CAMPSA:    'https://www.google.com/s2/favicons?domain=campsa.es&sz=64',
+  // CAMPSA: dominio inactivo — usa SVG fallback directamente
   PETRONOR:  'https://www.google.com/s2/favicons?domain=petronor.es&sz=64',
   PLENOIL:   'https://www.google.com/s2/favicons?domain=plenoil.es&sz=64',
   BALLENOIL: 'https://www.google.com/s2/favicons?domain=ballenoil.es&sz=64',
@@ -349,7 +349,7 @@ const BRANDS={
 
 function detectBrand(r=''){
   const u=(r||'').toUpperCase().trim();
-  if(u.includes('SHELL'))return'SHELL'; if(u.includes('REPSOL'))return'REPSOL'; if(u.includes('CEPSA'))return'CEPSA';
+  if(u.includes('SHELL'))return'SHELL'; if(u.includes('REPSOL'))return'REPSOL'; if(u.includes('CEPSA')||u.includes('MOEVE'))return'CEPSA';
   if(u==='BP'||u.startsWith('BP '))return'BP'; if(u.includes('GALP'))return'GALP'; if(u.includes('TAMOIL'))return'TAMOIL';
   if(u.includes('CAMPSA'))return'CAMPSA'; if(u.includes('PETRONOR'))return'PETRONOR'; if(u.includes('PLENOIL'))return'PLENOIL';
   if(u.includes('BALLENOIL'))return'BALLENOIL'; if(u.includes('MEROIL'))return'MEROIL'; if(u.includes('CARREFOUR'))return'CARREFOUR';
