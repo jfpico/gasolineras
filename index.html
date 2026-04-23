@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Gasolineras</title>
+<title>Gasolineras y Recarga</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -29,7 +29,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 .pp{font-family: 'Calibri', 'Candara', 'Segoe UI', sans-serif;font-size:19px;font-weight:700;letter-spacing:-0.3px;color:#fff}
 .pt{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:8px solid #1c1c1c;margin-top:-1px}
 
-/* TOP BAR (Modificado con fondo oscuro y bloqueo de mapa) */
+/* TOP BAR */
 #topbar{position:fixed;top:0;left:0;right:0;z-index:100;padding:env(safe-area-inset-top,46px) 12px 24px;display:flex;flex-direction:column;gap:7px;pointer-events:auto;background:linear-gradient(to bottom, rgba(8,12,8,0.98) 40%, rgba(8,12,8,0.85) 75%, transparent 100%);}
 .srow{display:flex;gap:8px;align-items:center;}
 #sbox{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:0 12px;height:44px;display:flex;align-items:center;gap:8px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 2px 16px rgba(0,0,0,0.4);transition:border-color .2s;position:relative}
@@ -71,8 +71,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 .inforow span:first-child{font-size:16px;}
 
 /* Tab bar */
-#tabbar{position:fixed;bottom:0;left:0;right:0;z-index:100;padding:0 12px;padding-bottom:max(env(safe-area-inset-bottom),10px)}
-.tbi{background:var(--surface2);border:1px solid var(--border);border-radius:22px;display:flex;box-shadow:0 -2px 20px rgba(0,0,0,0.5);backdrop-filter:blur(20px)}
+#tabbar{position:fixed;bottom:0;left:0;right:0;z-index:1000;padding:0 12px;padding-bottom:max(env(safe-area-inset-bottom),10px);pointer-events:none;}
+.tbi{background:var(--surface2);border:1px solid var(--border);border-radius:22px;display:flex;box-shadow:0 -2px 20px rgba(0,0,0,0.5);backdrop-filter:blur(20px);pointer-events:auto;}
 .ti{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 8px 7px;cursor:pointer;position:relative;user-select:none}
 .ticon{font-size:20px;opacity:.35;transition:opacity .2s}
 .tlbl{font-size:10px;font-weight:700;color:var(--text3);transition:color .2s}
@@ -80,7 +80,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 .ti.on .ticon{opacity:1}.ti.on .tlbl{color:var(--green)}.ti.on .tdot{opacity:1}
 
 /* Loading */
-#loading{position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:rgba(5,9,5,0.8);backdrop-filter:blur(12px);transition:opacity .5s}
+#loading{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(5,9,5,0.8);backdrop-filter:blur(12px);transition:opacity .5s}
 #loading.hide{opacity:0;pointer-events:none}
 .lcard{background:rgba(14,22,14,0.99);border:1px solid rgba(76,217,100,0.18);border-radius:28px;padding:34px 38px;display:flex;flex-direction:column;align-items:center;width:min(82vw,300px);box-shadow:0 0 50px rgba(76,217,100,0.09),0 20px 40px rgba(0,0,0,0.6)}
 .lico{font-size:52px;margin-bottom:6px;position:relative;animation:lpulse 1.4s ease-in-out infinite}
@@ -97,9 +97,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 .lerrbtn{margin-top:14px;background:var(--green);border-radius:12px;padding:10px 22px;font-size:13px;font-weight:700;color:#061006;cursor:pointer;display:none}
 
 /* Sheet */
-#sbd{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.32);opacity:0;pointer-events:none;transition:opacity .3s}
+#sbd{position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,0.32);opacity:0;pointer-events:none;transition:opacity .3s}
 #sbd.on{opacity:1;pointer-events:all}
-#sheet{position:fixed;bottom:0;left:0;right:0;z-index:201;background:#0e170e;border-radius:24px 24px 0 0;border-top:1px solid var(--border);padding-bottom:max(env(safe-area-inset-bottom),16px);box-shadow:0 -8px 40px rgba(0,0,0,0.6);transform:translateY(100%);transition:transform .32s cubic-bezier(.32,0,.67,0)}
+#sheet{position:fixed;bottom:0;left:0;right:0;z-index:1200;background:#0e170e;border-radius:24px 24px 0 0;border-top:1px solid var(--border);padding-bottom:max(env(safe-area-inset-bottom),16px);box-shadow:0 -8px 40px rgba(0,0,0,0.6);transform:translateY(100%);transition:transform .32s cubic-bezier(.32,0,.67,0)}
 #sheet.on{transform:translateY(0);transition:transform .38s cubic-bezier(.34,1.08,.64,1)}
 .shdl{width:34px;height:4px;background:rgba(255,255,255,0.14);border-radius:2px;margin:9px auto 3px}
 .shhdr{display:flex;align-items:center;gap:11px;padding:9px 15px 4px}
@@ -150,7 +150,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 .bbtn.on{border-color:var(--bc,#4CD964);background:rgba(255,255,255,0.08);color:var(--text)}
 .bbtn-all{padding:4px 12px;border-radius:18px;font-family:var(--font);font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:var(--text2);transition:all .18s;flex-shrink:0}
 .bbtn-all.on{border-color:var(--green);background:rgba(76,217,100,0.08);color:var(--green)}
-#lbody{flex:1;overflow-y:auto;padding:7px 11px;padding-bottom:max(env(safe-area-inset-bottom),18px)}
+#lbody{flex:1;overflow-y:auto;padding:7px 11px;padding-bottom:90px}
 #lbody::-webkit-scrollbar{display:none}
 .li{display:flex;align-items:flex-start;gap:10px;background:#111911;border:1px solid var(--border);border-radius:16px;padding:12px 13px;margin-bottom:8px;cursor:pointer;transition:background .14s;user-select:none}
 .li:active{background:#1a271a}
@@ -200,7 +200,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 .evfrow::-webkit-scrollbar{display:none}
 .evfbtn{padding:5px 12px;border-radius:18px;font-family:var(--font);font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap;border:1.5px solid rgba(90,200,250,0.15);background:rgba(90,200,250,0.04);color:#7ab8d4;transition:all .18s;flex-shrink:0}
 .evfbtn.on{color:#5AC8FA;border-color:#5AC8FA;background:rgba(90,200,250,0.1)}
-#evbody{flex:1;overflow-y:auto;padding:7px 11px;padding-bottom:max(env(safe-area-inset-bottom),18px)}
+#evbody{flex:1;overflow-y:auto;padding:7px 11px;padding-bottom:90px}
 #evbody::-webkit-scrollbar{display:none}
 .evi{display:flex;align-items:flex-start;gap:10px;background:#0a1218;border:1px solid rgba(90,200,250,0.08);border-radius:16px;padding:12px 13px;margin-bottom:8px;cursor:pointer;transition:background .14s;user-select:none}
 .evi:active{background:#0f1e2a}
@@ -214,7 +214,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 .evipw{font-size:16px;font-weight:900;color:#5AC8FA;letter-spacing:-.3px}
 .evipu{font-size:9px;color:#5a7a8a;margin-top:1px}
 /* EV Sheet */
-#evsheet{position:fixed;bottom:0;left:0;right:0;z-index:201;background:#0a1520;border-radius:24px 24px 0 0;border-top:1px solid rgba(90,200,250,0.2);padding-bottom:max(env(safe-area-inset-bottom),16px);box-shadow:0 -8px 40px rgba(0,50,100,0.4);transform:translateY(100%);transition:transform .32s cubic-bezier(.32,0,.67,0)}
+#evsheet{position:fixed;bottom:0;left:0;right:0;z-index:1200;background:#0a1520;border-radius:24px 24px 0 0;border-top:1px solid rgba(90,200,250,0.2);padding-bottom:max(env(safe-area-inset-bottom),16px);box-shadow:0 -8px 40px rgba(0,50,100,0.4);transform:translateY(100%);transition:transform .32s cubic-bezier(.32,0,.67,0)}
 #evsheet.on{transform:translateY(0);transition:transform .38s cubic-bezier(.34,1.08,.64,1)}
 .evshhdr{display:flex;align-items:center;gap:11px;padding:9px 15px 4px}
 .evshico{width:48px;height:48px;border-radius:12px;background:#0f2035;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
@@ -481,13 +481,21 @@ let showFavsOnly = false;
 let lastUpdateDate = "Actualizado recientemente";
 const CACHE_KEY='gas_min_v1', CACHE_TTL=90*60*1000;
 
-// Favoritos en LocalStorage
 let myFavs = new Set(JSON.parse(localStorage.getItem('gas_favs')||'[]'));
 function saveFavs() { localStorage.setItem('gas_favs', JSON.stringify([...myFavs])); }
 
 // ══════════════════════════════════════
 // UTILS & MAP
 // ══════════════════════════════════════
+
+// Función de protección estricta. Ninguna cabecera que bloquee CORS.
+function fetchWithTimeout(url, options = {}, timeout = 12000) {
+  return Promise.race([
+    fetch(url, options),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo agotado')), timeout))
+  ]);
+}
+
 function hav(a,b,c,d){const R=6371,dL=(c-a)*Math.PI/180,dO=(d-b)*Math.PI/180;const x=Math.sin(dL/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dO/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
 function pColor(p,all){const v=all.filter(x=>x>0);if(!p||!v.length)return'#aaa';const mn=Math.min(...v),mx=Math.max(...v);if(mx===mn)return'#4CD964';const r=(p-mn)/(mx-mn);return r<0.33?'#02c90f':r<0.66?'#FF9500':'#e61105';}
 function parseP(s){if(!s||!String(s).trim())return null; const n=parseFloat(String(s).trim().replace(',','.')); return(isNaN(n)||n<0.5||n>4)?null:n;}
@@ -506,7 +514,7 @@ function saveCache(data){ if(!data.some(s=>s.prices?.G95||s.prices?.GOA))return;
 
 async function fetchMinisterio(){
   const url='https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/';
-  const res=await fetch(url,{signal:AbortSignal.timeout(20000)});
+  const res=await fetchWithTimeout(url, {}, 20000);
   if(!res.ok)throw new Error('HTTP '+res.status);
   const data=await res.json();
   if(!data.ListaEESSPrecio||!data.ListaEESSPrecio.length)throw new Error('Lista vacía');
@@ -656,10 +664,9 @@ function setSort(key){
 
 function renderList(){
   const c=document.getElementById('lbody'); if(!c)return;
-  if(!dataReady||!allStations.length){c.innerHTML='<div class="lempty">⛽ Cargando datos…</div>';return;}
+  if(!dataReady){c.innerHTML='<div class="lempty">⛽ Cargando datos…</div>';return;}
   
   let pool=allStations;
-  // FILTRO MODO FAVORITOS
   if(showFavsOnly) pool = pool.filter(s => myFavs.has(s.id));
   
   if(distKm>0&&userPos)pool=pool.filter(s=>hav(userPos.lat,userPos.lon,s.lat,s.lon)<=distKm);
@@ -691,7 +698,6 @@ function renderList(){
     const p=s.prices[fuel],col=p?pColor(p,prices):'#666';
     const rc=i===0?'r1':i===1?'r2':i===2?'r3':'rx';
     const dt=s.dist?(s.dist<1?`${(s.dist*1000).toFixed(0)} m`:`${s.dist.toFixed(1)} km`):'';
-    // Muestra el corazón si es favorito
     const isFav = myFavs.has(s.id) ? '<span style="font-size:12px;margin-left:4px">❤️</span>' : '';
     return`<div class="li" data-id="${s.id}">
       <div class="lrnk ${rc}">${i+1}</div>
@@ -748,22 +754,30 @@ function buildAC(q){
 
 function setTab(t){
   document.querySelectorAll('.ti').forEach(x=>x.classList.toggle('on',x.dataset.tab===t));
-  // Desactivar modo EV si salimos de él
-  if(t!=='ev'&&evMode) deactivateEVMode();
+  
   if(t==='list'){
     showFavsOnly=false;
-    document.querySelector('.lhtit').textContent='Gasolineras';
-    openList(); closeEVPanel();
+    if(evMode){
+      openEVPanel();
+    } else {
+      document.querySelector('.lhtit').textContent='Gasolineras';
+      openList();
+      closeEVPanel();
+    }
   } else if(t==='favs'){
     showFavsOnly=true;
+    if(evMode) deactivateEVMode();
     document.querySelector('.lhtit').textContent='Tus Favoritos';
-    openList(); closeEVPanel();
+    openList();
+    closeEVPanel();
   } else if(t==='ev'){
     closeList();
-    activateEVMode();
-    openEVPanel();
-  } else {
-    closeList(); closeEVPanel();
+    closeEVPanel();
+    if (!evMode) activateEVMode();
+  } else { // 'map'
+    if(evMode) deactivateEVMode();
+    closeList();
+    closeEVPanel();
   }
 }
 
@@ -801,34 +815,93 @@ const EV_CACHE_KEY='gas_ev_v1', EV_CACHE_TTL=120*60*1000;
 function loadEVCache(){try{const r=JSON.parse(localStorage.getItem(EV_CACHE_KEY)||'null');if(!r?.data?.length)return null;return{data:r.data,stale:Date.now()-r.ts>EV_CACHE_TTL};}catch{return null;}}
 function saveEVCache(data){try{localStorage.setItem(EV_CACHE_KEY,JSON.stringify({ts:Date.now(),data}));}catch{}}
 
+// FUNCIÓN PROTEGIDA: Túnel Proxy para evadir restricciones de Archivos Locales (file://)
 async function fetchEV(){
-  const url='https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/Recarga/';
-  const res=await fetch(url,{signal:AbortSignal.timeout(20000)});
-  if(!res.ok)throw new Error('HTTP '+res.status);
-  const data=await res.json();
-  const list=data.ListaEESSPrecio||data.ListaPuntosRecarga||[];
-  return list.map(raw=>{
-    const lat=parseFloat((raw['Latitud']||'').replace(',','.'));
-    const lon=parseFloat((raw['Longitud (WGS84)']||raw['Longitud']||'').replace(',','.'));
-    if(isNaN(lat)||isNaN(lon)||lat===0||lon===0)return null;
-    // Extraer potencia máxima
-    const pwRaw=raw['Potencia']||raw['Potencia (kW)']||raw['KW']||'';
-    const pw=parseFloat(String(pwRaw).replace(',','.'))||0;
-    // Tipo de cargador
-    const connRaw=(raw['Tipo de Conector']||raw['TipoConector']||raw['Tipo']||'').toUpperCase();
-    const conn=connRaw.includes('DC')||connRaw.includes('CCS')||connRaw.includes('CHAdeMO')?'DC':'AC';
-    return{
-      id:raw['IDEESS']||raw['ID']||('ev_'+Math.random()),
-      name:raw['Rótulo']||raw['Nombre']||'Punto de recarga',
-      address:raw['Dirección']||raw['Direccion']||'',
-      municipality:raw['Municipio']||'',
-      province:raw['Provincia']||'',
-      schedule:raw['Horario']||'',
-      operator:raw['Operador']||raw['Gestor']||'',
-      connectors:parseInt(raw['Número de Conectores']||raw['Conectores']||'1')||1,
-      pw, conn, lat, lon,
-    };
-  }).filter(Boolean);
+  // Toma el centro del mapa si no hay GPS
+  const c = map ? map.getCenter() : (userPos || {lat: 40.4168, lng: -3.7038});
+  const cLat = parseFloat(c.lat).toFixed(5);
+  const cLon = parseFloat(c.lng !== undefined ? c.lng : c.lon).toFixed(5);
+  
+  try {
+    // 1. TÚNEL PROXY: Envolvemos OpenChargeMap en AllOrigins para evadir cualquier bloqueo del móvil por archivo local
+    const targetUrl = `https://api.openchargemap.io/v3/poi/?output=json&countrycode=ES&maxresults=150&compact=true&verbose=false&latitude=${cLat}&longitude=${cLon}&distance=30&distanceunit=KM&key=8001e719-7ba5-4122-824b-32ebf25608b2`;
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+
+    const res = await fetchWithTimeout(proxyUrl, { cache: 'no-store' }, 12000);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    
+    if(!data || !Array.isArray(data)) throw new Error('Proxy falló');
+
+    return data.map(raw => {
+      const lat = raw.AddressInfo?.Latitude;
+      const lon = raw.AddressInfo?.Longitude;
+      if(!lat || !lon) return null;
+      
+      let pw = 0, conn = 'AC', connectors = 1;
+
+      if (raw.Connections && raw.Connections.length > 0) {
+          connectors = raw.Connections.length;
+          raw.Connections.forEach(c => {
+              if (c.PowerKW && c.PowerKW > pw) pw = c.PowerKW;
+              const cName = (c.ConnectionType?.Title || '').toUpperCase();
+              if (cName.includes('DC') || cName.includes('CCS') || cName.includes('CHADEMO')) conn = 'DC';
+          });
+      }
+
+      return {
+        id: 'ev_ocm_' + (raw.ID || Math.random()),
+        name: raw.AddressInfo?.Title || 'Punto de recarga',
+        address: raw.AddressInfo?.AddressLine1 || '',
+        municipality: raw.AddressInfo?.Town || '',
+        province: raw.AddressInfo?.StateOrProvince || '',
+        schedule: raw.UsageCost || 'Consultar app',
+        operator: raw.OperatorInfo?.Title || 'Operador',
+        connectors: connectors,
+        pw: pw || ((conn === 'DC') ? 50 : 22), 
+        conn: conn, 
+        lat: lat, 
+        lon: lon,
+      };
+    }).filter(Boolean);
+
+  } catch(err1) {
+    // 2. RESPALDO: Si el túnel también falla, probamos con OpenStreetMap
+    const query = `[out:json][timeout:10];nwr["amenity"="charging_station"](around:20000,${cLat},${cLon});out center 150;`;
+    const overpassUrl = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
+
+    const res2 = await fetchWithTimeout(overpassUrl, {}, 10000);
+    if (!res2.ok) throw new Error('Ambas redes fallaron');
+    const data2 = await res2.json();
+
+    return data2.elements.map(raw => {
+      const lat = raw.lat || raw.center?.lat;
+      const lon = raw.lon || raw.center?.lon;
+      if (!lat || !lon || !raw.tags) return null;
+      
+      const t = raw.tags;
+      let conn = 'AC';
+      let connectors = parseInt(t.capacity) || 1;
+
+      if (t['socket:ccs'] || t['socket:chademo']) { conn = 'DC'; }
+
+      let pw = 0;
+      const pwStr = t['socket:ccs:output'] || t['capacity:kw'] || t['charge:kw'] || '';
+      const match = pwStr.match(/(\d+)/);
+      if (match) pw = parseInt(match[1]);
+      if (isNaN(pw) || pw === 0) pw = (conn === 'DC') ? 50 : 22;
+
+      return {
+        id: 'ev_osm_' + raw.id,
+        name: t.name || 'Punto de recarga',
+        address: t['addr:street'] ? `${t['addr:street']}` : '',
+        municipality: t['addr:city'] || '',
+        operator: t.operator || t.brand || 'Desconocido',
+        connectors: connectors,
+        pw: pw, conn: conn, lat: lat, lon: lon,
+      };
+    }).filter(Boolean);
+  }
 }
 
 function getEVPool(){
@@ -857,6 +930,10 @@ function renderEVMarkers(){
     el.addEventListener('click',e=>{e.stopPropagation();openEVSheet(s);});
     mk.addTo(map);evMarkers.push(mk);
   });
+
+  // Actualiza el contador inferior también para EV
+  const cnt=pool.filter(s=>bounds.contains([s.lat,s.lon])).length;
+  document.getElementById('infocount').textContent = cnt > 0 ? `${cnt} puntos en pantalla` : '0 puntos';
 }
 
 function openEVSheet(s){
@@ -879,7 +956,7 @@ function closeEVSheet(){evSelId=null;document.getElementById('evsheet').classLis
 
 function renderEVList(){
   const c=document.getElementById('evbody');if(!c)return;
-  if(!evDataReady||!allEV.length){c.innerHTML='<div class="lempty" style="color:#7ab8d4">⚡ Cargando puntos de recarga…</div>';return;}
+  if(!evDataReady){c.innerHTML='<div class="lempty" style="color:#7ab8d4">⚡ Cargando puntos de recarga…</div>';return;}
   let pool=getEVPool();
   if(userPos)pool=pool.map(s=>({...s,dist:hav(userPos.lat,userPos.lon,s.lat,s.lon)}));
   pool.sort((a,b)=>{
@@ -889,7 +966,7 @@ function renderEVList(){
   const shown=pool.slice(0,150);
   const sub=document.getElementById('evhsub');
   if(sub)sub.textContent=`${shown.length} puntos${evDistKm>0?' · '+evDistKm+' km':''}${evMinPow>0?' · '+evMinPow+'+ kW':''}`;
-  if(!shown.length){c.innerHTML='<div class="lempty" style="color:#7ab8d4">Sin puntos de recarga con estos filtros.</div>';return;}
+  if(!shown.length){c.innerHTML='<div class="lempty" style="color:#7ab8d4">Sin puntos de recarga en la zona descargada.</div>';return;}
   c.innerHTML=shown.map(s=>{
     const dt=s.dist?(s.dist<1?`${(s.dist*1000).toFixed(0)} m`:`${s.dist.toFixed(1)} km`):'';
     const pwColor=s.pw>=150?'#ff9f0a':s.pw>=50?'#5AC8FA':s.pw>=22?'#4CD964':'#a0b89e';
@@ -911,6 +988,7 @@ function renderEVList(){
     el.addEventListener('click',()=>{
       const s=allEV.find(x=>x.id===el.dataset.id);if(!s)return;
       closeEVPanel();
+      setTab('ev'); // Refuerza que activemos el mapa de EV
       setTimeout(()=>{map.flyTo([s.lat,s.lon],16,{duration:.5});setTimeout(()=>openEVSheet(s),600);},380);
     });
   });
@@ -921,13 +999,13 @@ function closeEVPanel(){document.getElementById('evpanel').classList.remove('on'
 
 async function activateEVMode(){
   evMode=true;
-  // Ocultar elementos de gasolineras
+  // Ocultar elementos y limpiar pines de gasolineras
+  clearM();
   document.getElementById('ftabs').style.display='none';
   document.getElementById('mbstrip').style.display='none';
   document.getElementById('evstrip').style.display='flex';
   document.getElementById('evtypestrip').style.display='flex';
-  // Limpiar markers de gasolineras
-  clearM();
+  
   // Cargar datos si no están
   if(!evDataReady){
     const cache=loadEVCache();
@@ -936,12 +1014,24 @@ async function activateEVMode(){
       renderEVMarkers();
       if(!cache.stale)fetchEV().then(d=>{if(d?.length){allEV=d;saveEVCache(d);renderEVMarkers();renderEVList();}}).catch(()=>{});
     } else {
-      document.getElementById('evbody').innerHTML='<div class="lempty" style="color:#7ab8d4"><span style="font-size:28px">⚡</span><br>Cargando puntos de recarga…</div>';
+      setLoad(true, 'Buscando cargadores', 'Localizando puntos de recarga en el mapa...');
+      document.getElementById('lerrbtn').onclick = () => { setLoad(false); activateEVMode(); };
+      
       try{
         const d=await fetchEV();
-        allEV=d;evDataReady=true;saveEVCache(d);renderEVMarkers();renderEVList();
+        if(d && d.length > 0) {
+            allEV=d;evDataReady=true;saveEVCache(d);renderEVMarkers();renderEVList();
+            setLoad(false);
+        } else {
+            throw new Error("No se encontraron puntos en la zona.");
+        }
       }catch(e){
-        document.getElementById('evbody').innerHTML='<div class="lempty" style="color:#e05a5a">Error cargando puntos de recarga.<br><small>'+e.message+'</small></div>';
+        evDataReady=false; 
+        allEV=[];
+        renderEVList();
+        
+        let msj = 'El navegador ha bloqueado la conexión, típico al abrir archivos locales en móviles.';
+        setLoad(true, 'Conexión bloqueada', msj, true);
       }
     }
   } else {
@@ -953,13 +1043,13 @@ function deactivateEVMode(){
   evMode=false;
   closeEVSheet();
   closeEVPanel();
-  // Restaurar elementos de gasolineras
+  // Limpiar markers EV y repintar gasolineras
+  clearEVMarkers();
+  
   document.getElementById('ftabs').style.display='';
   document.getElementById('mbstrip').style.display='flex';
   document.getElementById('evstrip').style.display='none';
   document.getElementById('evtypestrip').style.display='none';
-  // Limpiar markers EV y repintar gasolineras
-  clearEVMarkers();
   renderMarkers();
 }
 
@@ -1000,9 +1090,8 @@ document.querySelectorAll('#evpanel .evfbtn[data-conn]').forEach(b=>{
     renderEVList();renderEVMarkers();
   });
 });
-document.getElementById('evbk').addEventListener('click',()=>{closeEVPanel();});
+document.getElementById('evbk').addEventListener('click',()=>{closeEVPanel();setTab('ev');});
 document.getElementById('evshcl').addEventListener('click',closeEVSheet);
-// Al mover el mapa en modo EV, repintar markers EV
 
 async function main(){
   const cache=loadCache();
@@ -1010,19 +1099,27 @@ async function main(){
     allStations=cache.data;dataReady=true;
     if(!cache.stale){
       let lat=40.4168,lon=-3.7038;
-      try{const p=await new Promise((r,j)=>navigator.geolocation.getCurrentPosition(r,j,{timeout:5000,maximumAge:300000}));lat=p.coords.latitude;lon=p.coords.longitude;userPos={lat,lon};}catch{}
+      try{
+          const p=await new Promise((r,j)=>navigator.geolocation.getCurrentPosition(r,j,{timeout:4000,maximumAge:300000}));
+          lat=p.coords.latitude;lon=p.coords.longitude;
+      }catch(e){ console.warn("GPS oculto por el navegador"); }
+      
+      userPos={lat,lon}; // Garantizamos que userPos nunca sea nulo
       initMap(lat,lon);setLoad(false);renderMarkers();
       fetchMinisterio().then(sts=>{if(sts?.length){allStations=sts;saveCache(sts);buildMapBrandBtns();renderMarkers();if(document.getElementById('lpanel').classList.contains('on')){buildBrandBtns();renderList();}}}).catch(()=>{});
       return;
     }
   }
 
-  setLoad(true,'Cargando gasolineras','Obteniendo tu ubicación…');
+  setLoad(true,'Cargando gasolineras','Iniciando mapa…');
   let lat=40.4168,lon=-3.7038;
   try{
-    const pos=await new Promise((r,j)=>navigator.geolocation.getCurrentPosition(r,j,{timeout:8000,maximumAge:120000}));
-    lat=pos.coords.latitude;lon=pos.coords.longitude;userPos={lat,lon};
-  }catch{}
+    const pos=await new Promise((r,j)=>navigator.geolocation.getCurrentPosition(r,j,{timeout:4000,maximumAge:120000}));
+    lat=pos.coords.latitude;lon=pos.coords.longitude;
+  }catch(e){}
+  
+  userPos={lat,lon}; // Garantizamos que userPos nunca sea nulo
+  document.getElementById('lerrbtn').onclick = () => { setLoad(false); main(); };
 
   initMap(lat,lon);
   if(allStations.length){renderMarkers();buildMapBrandBtns();}
@@ -1066,7 +1163,32 @@ document.getElementById('shfav').addEventListener('click', toggleFav);
 document.getElementById('shcl').addEventListener('click',closeSheet);
 document.getElementById('sbd').addEventListener('click',closeSheet);
 document.getElementById('lbk').addEventListener('click',()=>{closeList();setTab('map');});
-document.getElementById('locbtn').addEventListener('click',()=>{if(userPos&&map)map.flyTo([userPos.lat,userPos.lon],14,{duration:.6});});
+
+// Botón explícito de GPS
+document.getElementById('locbtn').addEventListener('click',()=>{
+  const btn = document.getElementById('locbtn');
+  btn.style.transform = 'scale(0.8)';
+  btn.style.opacity = '0.5';
+  setTimeout(() => btn.style.transform = 'scale(1)', 150);
+  
+  if(navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(pos => {
+      btn.style.opacity = '1';
+      userPos = {lat: pos.coords.latitude, lon: pos.coords.longitude};
+      if(map) map.flyTo([userPos.lat, userPos.lon], 14, {duration: 0.6});
+      updateCircle();
+      
+      if (evMode) { evDataReady=false; activateEVMode(); }
+      else { renderAll(); }
+      
+    }, err => {
+      btn.style.opacity = '1';
+      alert("El navegador del móvil tiene bloqueado el GPS para los archivos locales descargados. Mueve el mapa manualmente a tu zona.");
+    }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+  } else {
+    alert("Tu navegador no soporta geolocalización.");
+  }
+});
 
 main();
 </script>
