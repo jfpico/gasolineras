@@ -895,7 +895,7 @@ async function fetchEV(){
   
   try {
     // 1. TÚNEL PROXY: Envolvemos OpenChargeMap en AllOrigins para evadir cualquier bloqueo del móvil por archivo local
-    const targetUrl = `https://api.openchargemap.io/v3/poi/?output=json&countrycode=ES&maxresults=150&compact=true&verbose=false&latitude=${cLat}&longitude=${cLon}&distance=30&distanceunit=KM&key=8001e719-7ba5-4122-824b-32ebf25608b2`;
+    const targetUrl = `https://api.openchargemap.io/v3/poi/?output=json&countrycode=ES&maxresults=1000&compact=true&verbose=false&latitude=${cLat}&longitude=${cLon}&distance=30&distanceunit=KM&key=8001e719-7ba5-4122-824b-32ebf25608b2`;
     const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
 
     const res = await fetchWithTimeout(proxyUrl, { cache: 'no-store' }, 12000);
@@ -938,7 +938,7 @@ async function fetchEV(){
 
   } catch(err1) {
     // 2. RESPALDO: Si el túnel también falla, probamos con OpenStreetMap
-    const query = `[out:json][timeout:10];nwr["amenity"="charging_station"](around:20000,${cLat},${cLon});out center 150;`;
+    const query = `[out:json][timeout:10];nwr["amenity"="charging_station"](around:20000,${cLat},${cLon});out center 1000;`;
     const overpassUrl = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
 
     const res2 = await fetchWithTimeout(overpassUrl, {}, 10000);
