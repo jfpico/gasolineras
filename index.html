@@ -886,19 +886,33 @@ const EV_CACHE_KEY='gas_ev_v1', EV_CACHE_TTL=120*60*1000;
 function loadEVCache(){try{const r=JSON.parse(localStorage.getItem(EV_CACHE_KEY)||'null');if(!r?.data?.length)return null;return{data:r.data,stale:Date.now()-r.ts>EV_CACHE_TTL};}catch{return null;}}
 function saveEVCache(data){try{localStorage.setItem(EV_CACHE_KEY,JSON.stringify({ts:Date.now(),data}));}catch{}}
 
-// FUNCIÓN PROTEGIDA: Túnel Proxy para evadir restricciones de Archivos Locales (file://)
 async function fetchEV(){
-  // Toma el centro del mapa si no hay GPS
+  // Usar el centro del mapa visible, no solo la posición del usuario
   const c = map ? map.getCenter() : (userPos || {lat: 40.4168, lng: -3.7038});
   const cLat = parseFloat(c.lat).toFixed(5);
   const cLon = parseFloat(c.lng !== undefined ? c.lng : c.lon).toFixed(5);
   
+  // Radio dinámico según el zoom del mapa
+  const zoom = map ? map.getZoom() : 13;
+  let distance, maxResults;
+  
+  if (zoom < 6) {
+    distance = 800;      // Muy alejado: todo España
+    maxResults = 500;
+  } else if (zoom < 10) {
+    distance = 200;      // Medio: comunidad autónoma
+    maxResults = 300;
+  } else {
+    distance = 50;       // Cerca: provincia/ciudad
+    maxResults = 150;
+  }
+  
   try {
-    // 1. TÚNEL PROXY: Envolvemos OpenChargeMap en AllOrigins para evadir cualquier bloqueo del móvil por archivo local
-    const targetUrl = `https://api.openchargemap.io/v3/poi/?output=json&countrycode=ES&maxresults=1000&compact=true&verbose=false&latitude=${cLat}&longitude=${cLon}&distance=30&distanceunit=KM&key=8001e719-7ba5-4122-824b-32ebf25608b2`;
+    // 1. TÚNEL PROXY: Envolvemos OpenChargeMap en AllOrigins
+    const targetUrl = `https://api.openchargemap.io/v3/poi/?output=json&countrycode=ES&maxresults=${maxResults}&compact=true&verbose=false&latitude=${cLat}&longitude=${cLon}&distance=${distance}&distanceunit=KM&key=8001e719-7ba5-4122-824b-32ebf25608b2`;
     const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
 
-    const res = await fetchWithTimeout(proxyUrl, { cache: 'no-store' }, 12000);
+    const res = await fetchWithTimeout(proxyUrl, { cache: 'no-store' }, 15000);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     
@@ -935,6 +949,46 @@ async function fetchEV(){
         lon: lon,
       };
     }).filter(Boolean);
+
+  } catch(err1) {
+    // 2. RESPALDO: OpenStreetMap con radio dinámico
+    const overpassRadius = distance * 1000; // convertir km a metros
+    const query = `[out:json][timeout:25];nwr["amenity"="charging_station"](around:${overpassRadius},${cLat},${cLon});out center ${maxResults};`;
+    const overpassUrl = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
+
+    const res2 = await fetchWithTimeout(overpassUrl, {}, 15000);
+    if (!res2.ok) throw new Error('Ambas redes fallaron');
+    const data2 = await res2.json();
+
+    return data2.elements.map(raw => {
+      const lat = raw.lat || raw.center?.lat;
+      const lon = raw.lon || raw.center?.lon;
+      if (!lat || !lon || !raw.tags) return null;
+      
+      const t = raw.tags;
+      let conn = 'AC';
+      let connectors = parseInt(t.capacity) || 1;
+
+      if (t['socket:ccs'] || t['socket:chademo']) { conn = 'DC'; }
+
+      let pw = 0;
+      const pwStr = t['socket:ccs:output'] || t['capacity:kw'] || t['charge:kw'] || '';
+      const match = pwStr.match(/(\d+)/);
+      if (match) pw = parseInt(match[1]);
+      if (isNaN(pw) || pw === 0) pw = (conn === 'DC') ? 50 : 22;
+
+      return {
+        id: 'ev_osm_' + raw.id,
+        name: t.name || 'Punto de recarga',
+        address: t['addr:street'] ? `${t['addr:street']}` : '',
+        municipality: t['addr:city'] || '',
+        operator: t.operator || t.brand || 'Desconocido',
+        connectors: connectors,
+        pw: pw, conn: conn, lat: lat, lon: lon,
+      };
+    }).filter(Boolean);
+  }
+}
 
   } catch(err1) {
     // 2. RESPALDO: Si el túnel también falla, probamos con OpenStreetMap
