@@ -29,6 +29,16 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 .pp{font-family: 'Calibri', 'Candara', 'Segoe UI', sans-serif;font-size:19px;font-weight:700;letter-spacing:-0.3px;color:#fff}
 .pt{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:8px solid #1c1c1c;margin-top:-1px}
 
+/* PUNTO DE UBICACIÓN DEL USUARIO */
+.user-loc-dot {
+  width: 16px;
+  height: 16px;
+  background: #0A84FF;
+  border: 3px solid #FFF;
+  border-radius: 50%;
+  box-shadow: 0 0 12px rgba(10, 132, 255, 0.8);
+}
+
 /* TOP BAR */
 #topbar{position:fixed;top:0;left:0;right:0;z-index:100;padding:env(safe-area-inset-top,46px) 12px 24px;display:flex;flex-direction:column;gap:7px;pointer-events:auto;background:linear-gradient(to bottom, rgba(8,12,8,0.98) 40%, rgba(8,12,8,0.85) 75%, transparent 100%);}
 .srow{display:flex;gap:8px;align-items:center;}
@@ -474,7 +484,7 @@ const FUELS={ G95:{label:'G-95',color:'#4CD964'}, G98:{label:'G-98',color:'#5AC8
 // ══════════════════════════════════════
 // STATE & FAVORITES
 // ══════════════════════════════════════
-let map, userPos=null, allStations=[];
+let map, userPos=null, userMarker=null, allStations=[];
 let mapMarkers=[], distCircle=null, selId=null, dataReady=false;
 let fuel='G95', distKm=0, brands=new Set(), sortPrice=true, sortDist=true;
 let showFavsOnly = false;
@@ -529,6 +539,16 @@ function initMap(lat,lon){
   map=L.map('map',{center:[lat,lon],zoom:13,zoomControl:false,attributionControl:false});
   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:19,subdomains:'abcd',crossOrigin:true}).addTo(map);
   map.on('moveend',()=>{if(evMode)renderEVMarkers();else renderMarkers();});
+}
+
+function updateUserMarker(lat, lon) {
+  if (!map) return;
+  if (userMarker) {
+    userMarker.setLatLng([lat, lon]);
+  } else {
+    const icon = L.divIcon({html: '<div class="user-loc-dot"></div>', className: '', iconSize: [16, 16], iconAnchor: [8, 8]});
+    userMarker = L.marker([lat, lon], {icon: icon, zIndexOffset: 2000}).addTo(map);
+  }
 }
 
 const MAX=60;
@@ -1105,7 +1125,9 @@ async function main(){
       }catch(e){ console.warn("GPS oculto por el navegador"); }
       
       userPos={lat,lon}; // Garantizamos que userPos nunca sea nulo
-      initMap(lat,lon);setLoad(false);renderMarkers();
+      initMap(lat,lon);
+      updateUserMarker(lat,lon); // <-- Añadir marcador
+      setLoad(false);renderMarkers();
       fetchMinisterio().then(sts=>{if(sts?.length){allStations=sts;saveCache(sts);buildMapBrandBtns();renderMarkers();if(document.getElementById('lpanel').classList.contains('on')){buildBrandBtns();renderList();}}}).catch(()=>{});
       return;
     }
@@ -1122,6 +1144,7 @@ async function main(){
   document.getElementById('lerrbtn').onclick = () => { setLoad(false); main(); };
 
   initMap(lat,lon);
+  updateUserMarker(lat,lon); // <-- Añadir marcador inicial
   if(allStations.length){renderMarkers();buildMapBrandBtns();}
 
   setLoad(true,'Cargando precios…','Descargando datos del Ministerio de Energía…');
@@ -1164,29 +1187,29 @@ document.getElementById('shcl').addEventListener('click',closeSheet);
 document.getElementById('sbd').addEventListener('click',closeSheet);
 document.getElementById('lbk').addEventListener('click',()=>{closeList();setTab('map');});
 
-// Botón explícito de GPS
+// Botón explícito de GPS (Sin alerta visual bloqueante)
 document.getElementById('locbtn').addEventListener('click',()=>{
   const btn = document.getElementById('locbtn');
   btn.style.transform = 'scale(0.8)';
-  btn.style.opacity = '0.5';
   setTimeout(() => btn.style.transform = 'scale(1)', 150);
   
   if(navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(pos => {
-      btn.style.opacity = '1';
       userPos = {lat: pos.coords.latitude, lon: pos.coords.longitude};
       if(map) map.flyTo([userPos.lat, userPos.lon], 14, {duration: 0.6});
       updateCircle();
+      updateUserMarker(userPos.lat, userPos.lon); // <-- Actualiza el punto azul
       
       if (evMode) { evDataReady=false; activateEVMode(); }
       else { renderAll(); }
       
-    }, err => {
-      btn.style.opacity = '1';
-      alert("El navegador del móvil tiene bloqueado el GPS para los archivos locales descargados. Mueve el mapa manualmente a tu zona.");
-    }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+    }, () => {
+      // Si falla silenciosamente, vuelve a la última posición conocida
+      if(userPos && map) map.flyTo([userPos.lat, userPos.lon], 14, {duration: 0.6});
+    }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
   } else {
-    alert("Tu navegador no soporta geolocalización.");
+    // Falla sileneciosamente a la última ubicación
+    if(userPos && map) map.flyTo([userPos.lat, userPos.lon], 14, {duration: 0.6});
   }
 });
 
