@@ -84,7 +84,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 #tabbar{position:fixed;bottom:0;left:0;right:0;z-index:1000;padding:0 12px;padding-bottom:max(env(safe-area-inset-bottom),10px);pointer-events:none;}
 .tbi{background:var(--surface2);border:1px solid var(--border);border-radius:22px;display:flex;box-shadow:0 -2px 20px rgba(0,0,0,0.5);backdrop-filter:blur(20px);pointer-events:auto;}
 .ti{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 8px 7px;cursor:pointer;position:relative;user-select:none}
-.ticon{font-size:20px;opacity:.35;transition:opacity .2s}
+.ticon{font-size:20px;opacity:.90;transition:opacity .2s}
 .tlbl{font-size:10px;font-weight:700;color:var(--text3);transition:color .2s}
 .tdot{position:absolute;bottom:1px;width:4px;height:4px;border-radius:2px;background:var(--green);opacity:0;transition:opacity .2s}
 .ti.on .ticon{opacity:1}.ti.on .tlbl{color:var(--green)}.ti.on .tdot{opacity:1}
@@ -295,17 +295,18 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 
 <div id="tabbar">
   <div class="tbi">
-    <div class="ti on" data-tab="map"><div class="ticon">🗺️</div><div class="tlbl">Mapa</div><div class="tdot"></div></div>
+    <div class="ti on" data-tab="map"><div class="ticon">🗺️</div><div class="tlbl">Gasolineras</div><div class="tdot"></div></div>
     <div class="ti" data-tab="list"><div class="ticon">📋</div><div class="tlbl">Lista</div><div class="tdot"></div></div>
+    <div class="ti" data-tab="ev"><div class="ticon">⚡</div><div class="tlbl">Punto De Recarga</div><div class="tdot"></div></div>
     <div class="ti" data-tab="favs"><div class="ticon">❤️</div><div class="tlbl">Favoritos</div><div class="tdot"></div></div>
-    <div class="ti" data-tab="ev"><div class="ticon">⚡</div><div class="tlbl">Recarga</div><div class="tdot"></div></div>
   </div>
 </div>
 
 <div id="loading">
   <div class="lcard">
     <div class="lico" style="position:relative">⛽<div class="lring"></div></div>
-    <div style="font-size:28px;font-weight:900;letter-spacing:-1px;color:#fff;margin:8px 0 2px;font-family:var(--font)">GASOBARATO</div>
+    <div style="font-size:28px;font-weight:900;letter-spacing:-1px;color:#fff;margin:8px 0 2px;font-family:var(--font)">Energy Go</div>
+    <div class="ltit" id="ltit" style="font-size:16px;font-weight:600;opacity:.7;margin:0 0 4px">Busca tu gasolinera y recarga ¡más barato!</div>
     <div class="ltit" id="ltit" style="font-size:13px;font-weight:600;opacity:.7;margin:0 0 4px">Cargando gasolineras</div>
     <div class="lsub" id="lsub">Conectando con el Ministerio de Energía…</div>
     <div class="ldots"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div>
