@@ -256,6 +256,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 .evclbl{font-size:9px;font-weight:700;letter-spacing:.3px;color:#5a7a8a;margin-bottom:3px}
 .evcval{font-size:15px;font-weight:900;color:#5AC8FA}
 .evcunit{font-size:8.5px;color:#3a6a7a;margin-top:1px}
+
+/* Toggle gasolineras/eléctricos en lista */
+.lmodetoggle{display:flex;background:rgba(255,255,255,0.06);border-radius:12px;padding:3px;gap:2px;flex-shrink:0}
+.lmodetbtn{padding:5px 14px;border-radius:9px;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--text3);transition:all .18s;white-space:nowrap}
+.lmodetbtn.on{background:rgba(255,255,255,0.12);color:var(--text)}
+.lmodetbtn.ev.on{background:rgba(90,200,250,0.15);color:#5AC8FA}
 </style>
 </head>
 <body>
@@ -317,7 +323,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 
 <div id="tabbar">
   <div class="tbi">
-    <div class="ti on" data-tab="map"><div class="ticon">🗺️</div><div class="tlbl">Gasolineras</div><div class="tdot"></div></div>
+    <div class="ti on" data-tab="map"><div class="ticon">⛽</div><div class="tlbl">Gasolineras</div><div class="tdot"></div></div>
     <div class="ti" data-tab="list"><div class="ticon">📋</div><div class="tlbl">Lista</div><div class="tdot"></div></div>
     <div class="ti" data-tab="ev"><div class="ticon">⚡</div><div class="tlbl">Eléctricos</div><div class="tdot"></div></div>
     <div class="ti" data-tab="favs"><div class="ticon">❤️</div><div class="tlbl">Favoritos</div><div class="tdot"></div></div>
@@ -355,7 +361,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 <div id="lpanel">
   <div class="lhdr">
     <div class="lbk" id="lbk">←</div>
-    <div><div class="lhtit">Gasolineras</div><div class="lhsub" id="lhsub">Cargando…</div></div>
+    <div style="flex:1;min-width:0">
+      <div class="lmodetoggle" id="lmodetoggle">
+        <button class="lmodetbtn on" id="lmode-gas" onclick="setListMode('gas')">⛽ Gasolineras</button>
+        <button class="lmodetbtn ev" id="lmode-ev" onclick="setListMode('ev')">⚡ Eléctricos</button>
+      </div>
+      <div class="lhsub" id="lhsub" style="margin-top:4px">Cargando…</div>
+    </div>
   </div>
   <div class="lfilters">
     <div class="lfstrip">
@@ -510,6 +522,7 @@ let map, userPos=null, userMarker=null, allStations=[];
 let mapMarkers=[], distCircle=null, selId=null, dataReady=false;
 let fuel='G95', distKm=0, brands=new Set(), sortPrice=true, sortDist=true;
 let showFavsOnly = false;
+let listMode = 'gas'; // 'gas' | 'ev'
 let lastUpdateDate = "Actualizado recientemente";
 const CACHE_KEY='gas_min_v1', CACHE_TTL=90*60*1000;
 
@@ -723,7 +736,93 @@ function syncBrandUI(){
   document.querySelectorAll('.bbtn').forEach(b=>b.classList.toggle('on',brands.has(b.dataset.brand)));
 }
 
-function openList(){document.getElementById('lpanel').classList.add('on');if(allStations.length)buildBrandBtns();renderList();}
+function openList(){
+  document.getElementById('lpanel').classList.add('on');
+  // Sincronizar toggle con el modo actual
+  document.getElementById('lmode-gas').classList.toggle('on', listMode==='gas');
+  document.getElementById('lmode-ev').classList.toggle('on', listMode==='ev');
+  // Mostrar/ocultar filtros según modo
+  const lfilters=document.getElementById('lpanel').querySelector('.lfilters');
+  const lsortbar=document.getElementById('lpanel').querySelector('.lsortbar');
+  const lmodetoggle=document.getElementById('lmodetoggle');
+  if(listMode==='ev'){
+    lfilters.style.display='none';
+    lsortbar.style.display='none';
+    renderEVInList();
+  } else {
+    lfilters.style.display='';
+    lsortbar.style.display='';
+    if(allStations.length)buildBrandBtns();
+    renderList();
+  }
+}
+
+function setListMode(mode){
+  listMode=mode;
+  document.getElementById('lmode-gas').classList.toggle('on',mode==='gas');
+  document.getElementById('lmode-ev').classList.toggle('on',mode==='ev');
+  const lfilters=document.getElementById('lpanel').querySelector('.lfilters');
+  const lsortbar=document.getElementById('lpanel').querySelector('.lsortbar');
+  if(mode==='ev'){
+    lfilters.style.display='none';
+    lsortbar.style.display='none';
+    // Activar modo EV en el mapa si no está activo
+    if(!evMode) activateEVMode();
+    renderEVInList();
+  } else {
+    lfilters.style.display='';
+    lsortbar.style.display='';
+    // Desactivar modo EV en el mapa
+    if(evMode) deactivateEVMode();
+    if(allStations.length)buildBrandBtns();
+    renderList();
+  }
+}
+
+// Renderiza la lista de eléctricos dentro del lpanel (reutiliza lbody)
+function renderEVInList(){
+  const c=document.getElementById('lbody');if(!c)return;
+  if(!evDataReady||!allEV.length){
+    c.innerHTML='<div class="lempty" style="color:#7ab8d4">⚡ Cargando puntos de recarga…</div>';
+    // Cargar datos si faltan
+    if(!evDataReady) fetchEV().then(d=>{if(d?.length){allEV=d;evDataReady=true;saveEVCache(d);renderEVInList();}}).catch(()=>{});
+    return;
+  }
+  let pool=[...allEV];
+  if(userPos) pool=pool.map(s=>({...s,dist:hav(userPos.lat,userPos.lon,s.lat,s.lon)}));
+  if(evDistKm>0&&userPos) pool=pool.filter(s=>s.dist<=evDistKm);
+  if(evMinPow>0) pool=pool.filter(s=>s.pw>=evMinPow);
+  if(evConnType!=='ALL') pool=pool.filter(s=>s.conn===evConnType);
+  pool.sort((a,b)=>userPos?(a.dist||999)-(b.dist||999):(b.pw||0)-(a.pw||0));
+  const shown=pool.slice(0,150);
+  const lhsub=document.getElementById('lhsub');
+  if(lhsub) lhsub.textContent=shown.length+' puntos'+(evDistKm>0?' · '+evDistKm+' km':'')+(evMinPow>0?' · '+evMinPow+'+ kW':'');
+  if(!shown.length){c.innerHTML='<div class="lempty" style="color:#7ab8d4">Sin puntos de recarga con estos filtros.</div>';return;}
+  c.innerHTML=shown.map(s=>{
+    const dt=s.dist?(s.dist<1?`${(s.dist*1000).toFixed(0)} m`:`${s.dist.toFixed(1)} km`):'';
+    const pwColor=s.pw>=150?'#ff9f0a':s.pw>=50?'#5AC8FA':s.pw>=22?'#4CD964':'#a0b89e';
+    return`<div class="evi" data-id="${s.id}">
+      <div class="eviico">⚡</div>
+      <div class="eviinf">
+        <div class="evibr">${s.name}</div>
+        <div class="eviad">${s.address||s.municipality||'Sin dirección'}</div>
+        ${s.operator?`<div class="evihr">🔌 ${s.operator}</div>`:''}
+        ${dt?`<div class="evidt">📍 ${dt}</div>`:''}
+      </div>
+      <div class="evipr">
+        <div class="evipw" style="color:${pwColor}">${s.pw>0?s.pw+'kW':'—'}</div>
+        <div class="evipu">${s.conn}·${s.connectors}🔌</div>
+      </div>
+    </div>`;
+  }).join('');
+  c.querySelectorAll('.evi').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const s=allEV.find(x=>x.id===el.dataset.id);if(!s)return;
+      closeList();
+      setTimeout(()=>{map.flyTo([s.lat,s.lon],16,{duration:.5});setTimeout(()=>openEVSheet(s),600);},380);
+    });
+  });
+}
 function closeList(){document.getElementById('lpanel').classList.remove('on');}
 
 function setSort(key){
@@ -842,9 +941,11 @@ function setTab(t){
     openList();
     closeEVPanel();
   } else if(t==='ev'){
-    closeList();
+    // Pestaña EV abre la lista en modo eléctricos
+    showFavsOnly=false;
+    listMode='ev';
+    openList();
     closeEVPanel();
-    if (!evMode) activateEVMode();
   } else { // 'map'
     if(evMode) deactivateEVMode();
     closeList();
@@ -1236,7 +1337,12 @@ document.getElementById('shfav').addEventListener('click', toggleFav);
 
 document.getElementById('shcl').addEventListener('click',closeSheet);
 document.getElementById('sbd').addEventListener('click',closeSheet);
-document.getElementById('lbk').addEventListener('click',()=>{closeList();setTab('map');});
+document.getElementById('lbk').addEventListener('click',()=>{
+  if(listMode==='ev'&&evMode) deactivateEVMode();
+  listMode='gas';
+  closeList();
+  setTab('map');
+});
 
 // Botón satélite
 document.getElementById('satbtn').addEventListener('click', toggleSatellite);
