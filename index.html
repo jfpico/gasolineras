@@ -317,9 +317,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 
 <div id="tabbar">
   <div class="tbi">
-    <div class="ti on" data-tab="map"><div class="ticon">🗺️</div><div class="tlbl">Gasolineras</div><div class="tdot"></div></div>
+    <div class="ti on" data-tab="map"><div class="ticon"><svg viewBox="0 0 24 24" style="width:24px;height:24px;fill:currentColor"><path d="M19,12L19,15H21V12H19M18,8H6C4.9,8 4,8.9 4,10V20H20V10C20,8.9 19.1,8 18,8M18,18H6V10H18V18M12,11A2,2 0 0,0 10,13A2,2 0 0,0 12,15A2,2 0 0,0 14,13A2,2 0 0,0 12,11M18,6L13.06,1.06L11.65,2.47L15.17,6H18V6Z"/></svg></div><div class="tlbl">Gasolineras</div><div class="tdot"></div></div>
     <div class="ti" data-tab="list"><div class="ticon">📋</div><div class="tlbl">Lista</div><div class="tdot"></div></div>
-    <div class="ti" data-tab="ev"><div class="ticon">⚡</div><div class="tlbl">Eléctricos</div><div class="tdot"></div></div>
+    <div class="ti" data-tab="ev"><div class="ticon">⚡</div><div class="tlbl">Recarga</div><div class="tdot"></div></div>
     <div class="ti" data-tab="favs"><div class="ticon">❤️</div><div class="tlbl">Favoritos</div><div class="tdot"></div></div>
   </div>
 </div>
@@ -382,6 +382,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
     <button class="lsortbtn on" id="lsort-price" onclick="setSort('price')">💰 Precio</button>
     <button class="lsortbtn on" id="lsort-dist" onclick="setSort('dist')">📍 Distancia</button>
   </div>
+  <div style="display: flex; gap: 8px; padding: 10px 15px; background: #0e170e; border-bottom: 1px solid rgba(255,255,255,0.06);">
+    <button id="lbtn-gas" onclick="toggleModoLista('gas')" style="flex: 1; padding: 8px; border-radius: 10px; border: 1.5px solid #4CD964; background: rgba(76,217,100,0.1); color: #4CD964; font-weight: 800; font-size: 11px;">GASOLINERAS</button>
+    <button id="lbtn-ev" onclick="toggleModoLista('ev')" style="flex: 1; padding: 8px; border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.1); background: transparent; color: #a0b89e; font-weight: 800; font-size: 11px;">ELÉCTRICOS</button>
+</div>
   <div id="lbody"><div class="lempty">⛽ Cargando datos…</div></div>
 </div>
 
@@ -1231,6 +1235,32 @@ document.getElementById('sinput').addEventListener('input',e=>{
 document.getElementById('sclear').addEventListener('click',()=>{document.getElementById('sinput').value='';document.getElementById('sclear').style.display='none';document.getElementById('autocomplete').style.display='none';});
 document.getElementById('map').addEventListener('click',()=>document.getElementById('autocomplete').style.display='none');
 
+// --- CARGA AL MOVER EL MAPA ---
+map.on('moveend', function() {
+    if (typeof evMode !== 'undefined' && evMode) {
+        evDataReady = false;
+        activateEVMode(); 
+    } else {
+        renderAll();
+    }
+});
+
+// --- FUNCIÓN PARA LOS BOTONES DE LA LISTA ---
+function toggleModoLista(m) {
+    const bg = document.getElementById('lbtn-gas');
+    const be = document.getElementById('lbtn-ev');
+    if(m === 'gas') {
+        evMode = false;
+        bg.style.borderColor = '#4CD964'; bg.style.color = '#4CD964'; bg.style.background = 'rgba(76,217,100,0.1)';
+        be.style.borderColor = 'rgba(255,255,255,0.1)'; be.style.color = '#a0b89e'; be.style.background = 'transparent';
+        renderList(); 
+    } else {
+        evMode = true;
+        be.style.borderColor = '#5AC8FA'; be.style.color = '#5AC8FA'; be.style.background = 'rgba(90,200,250,0.1)';
+        bg.style.borderColor = 'rgba(255,255,255,0.1)'; bg.style.color = '#a0b89e'; bg.style.background = 'transparent';
+        if(typeof renderEVList === 'function') renderEVList();
+    }
+}
 // Favorites
 document.getElementById('shfav').addEventListener('click', toggleFav);
 
