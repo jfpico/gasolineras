@@ -575,6 +575,19 @@ function initMap(lat,lon){
   
   baseLayer.addTo(map);
   
+  // --- CARGA AUTOMÁTICA AL MOVER EL MAPA ---
+  map.on('moveend', function() {
+      // Si estamos en modo Eléctrico
+      if (typeof evMode !== 'undefined' && evMode === true) {
+          evDataReady = false; 
+          activateEVMode(); // Llama a tu función de cargadores
+      } 
+      // Si estamos en modo Gasolineras
+      else {
+          renderAll(); // Llama a tu función de gasolineras
+      }
+  });
+  
   map.on('moveend',()=>{if(evMode)renderEVMarkers();else renderMarkers();});
 }
 
@@ -1235,32 +1248,29 @@ document.getElementById('sinput').addEventListener('input',e=>{
 document.getElementById('sclear').addEventListener('click',()=>{document.getElementById('sinput').value='';document.getElementById('sclear').style.display='none';document.getElementById('autocomplete').style.display='none';});
 document.getElementById('map').addEventListener('click',()=>document.getElementById('autocomplete').style.display='none');
 
-// --- CARGA AL MOVER EL MAPA ---
-map.on('moveend', function() {
-    if (typeof evMode !== 'undefined' && evMode) {
-        evDataReady = false;
-        activateEVMode(); 
-    } else {
-        renderAll();
-    }
-});
-
 // --- FUNCIÓN PARA LOS BOTONES DE LA LISTA ---
-function toggleModoLista(m) {
-    const bg = document.getElementById('lbtn-gas');
-    const be = document.getElementById('lbtn-ev');
-    if(m === 'gas') {
-        evMode = false;
-        bg.style.borderColor = '#4CD964'; bg.style.color = '#4CD964'; bg.style.background = 'rgba(76,217,100,0.1)';
-        be.style.borderColor = 'rgba(255,255,255,0.1)'; be.style.color = '#a0b89e'; be.style.background = 'transparent';
-        renderList(); 
-    } else {
-        evMode = true;
-        be.style.borderColor = '#5AC8FA'; be.style.color = '#5AC8FA'; be.style.background = 'rgba(90,200,250,0.1)';
-        bg.style.borderColor = 'rgba(255,255,255,0.1)'; bg.style.color = '#a0b89e'; bg.style.background = 'transparent';
-        if(typeof renderEVList === 'function') renderEVList();
-    }
+function toggleModoLista(modo) {
+  const btnGas = document.getElementById('lbtn-gas');
+  const btnEv = document.getElementById('lbtn-ev');
+  const titulo = document.querySelector('.lhtit');
+
+  if (modo === 'gas') {
+    deactivateEVMode(); // Función original de tu app
+    titulo.innerText = 'Gasolineras';
+    // Estilos Visuales
+    btnGas.style.borderColor = '#4CD964'; btnGas.style.color = '#4CD964'; btnGas.style.background = 'rgba(76,217,100,0.1)';
+    btnEv.style.borderColor = 'rgba(255,255,255,0.1)'; btnEv.style.color = '#a0b89e'; btnEv.style.background = 'transparent';
+    renderList(); 
+  } else {
+    activateEVMode(); // Función original de tu app
+    titulo.innerText = 'Cargadores';
+    // Estilos Visuales
+    btnEv.style.borderColor = '#5AC8FA'; btnEv.style.color = '#5AC8FA'; btnEv.style.background = 'rgba(90,200,250,0.1)';
+    btnGas.style.borderColor = 'rgba(255,255,255,0.1)'; btnGas.style.color = '#a0b89e'; btnGas.style.background = 'transparent';
+    if(typeof renderEVList === 'function') renderEVList();
+  }
 }
+
 // Favorites
 document.getElementById('shfav').addEventListener('click', toggleFav);
 
