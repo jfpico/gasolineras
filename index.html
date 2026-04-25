@@ -575,20 +575,8 @@ function initMap(lat,lon){
   
   baseLayer.addTo(map);
   
-  // --- CARGA AUTOMÁTICA AL MOVER EL MAPA ---
-  map.on('moveend', function() {
-      // Si estamos en modo Eléctrico
-      if (typeof evMode !== 'undefined' && evMode === true) {
-          evDataReady = false; 
-          activateEVMode(); // Llama a tu función de cargadores
-      } 
-      // Si estamos en modo Gasolineras
-      else {
-          renderAll(); // Llama a tu función de gasolineras
-      }
-  });
-  
-  map.on('moveend',()=>{if(evMode)renderEVMarkers();else renderMarkers();});
+  // Un solo listener de moveend — renderiza según el modo activo
+  map.on('moveend',()=>{ if(evMode) renderEVMarkers(); else renderMarkers(); });
 }
 
 function toggleSatellite() {
@@ -740,7 +728,7 @@ function syncBrandUI(){
   document.querySelectorAll('.bbtn').forEach(b=>b.classList.toggle('on',brands.has(b.dataset.brand)));
 }
 
-function openList(){document.getElementById('lpanel').classList.add('on');if(allStations.length)buildBrandBtns();renderList();_syncToggleBtns();}
+function openList(){document.getElementById('lpanel').classList.add('on');if(allStations.length)buildBrandBtns();renderList();}
 function closeList(){document.getElementById('lpanel').classList.remove('on');}
 
 function setSort(key){
@@ -1006,9 +994,13 @@ function renderEVMarkers(){
   if(!map)return;
   clearEVMarkers();
   if(!evMode||!allEV.length)return;
-  const bounds=map.getBounds().pad(0.3);
+  const zoom=map.getZoom();
+  // Igual que gasolineras: pad según zoom para cargar un poco más allá del viewport
+  const pad=zoom>=14?0.5:zoom>=12?1:2;
+  const bounds=map.getBounds().pad(pad);
   const pool=getEVPool();
-  const vis=pool.filter(s=>bounds.contains([s.lat,s.lon])).slice(0,80);
+  // Sin límite fijo — mostramos todos los del viewport (igual que gasolineras)
+  const vis=pool.filter(s=>bounds.contains([s.lat,s.lon]));
   vis.forEach(s=>{
     const isSel=evSelId===s.id;
     const pwTxt=s.pw>0?s.pw+'kW':'⚡';
@@ -1018,10 +1010,9 @@ function renderEVMarkers(){
     el.addEventListener('click',e=>{e.stopPropagation();openEVSheet(s);});
     mk.addTo(map);evMarkers.push(mk);
   });
-
-  // Actualiza el contador inferior también para EV
-  const cnt=pool.filter(s=>bounds.contains([s.lat,s.lon])).length;
-  document.getElementById('infocount').textContent = cnt > 0 ? `${cnt} puntos en pantalla` : '0 puntos';
+  // Contador inferior
+  const cnt=vis.length;
+  document.getElementById('infocount').textContent=cnt>0?`${cnt} puntos en pantalla`:'0 puntos';
 }
 
 function openEVSheet(s){
@@ -1082,7 +1073,7 @@ function renderEVList(){
   });
 }
 
-function openEVPanel(){document.getElementById('evpanel').classList.add('on');renderEVList();_syncToggleBtns();}
+function openEVPanel(){document.getElementById('evpanel').classList.add('on');renderEVList();}
 function closeEVPanel(){document.getElementById('evpanel').classList.remove('on');}
 
 async function activateEVMode(){
@@ -1250,28 +1241,23 @@ document.getElementById('map').addEventListener('click',()=>document.getElementB
 
 // --- FUNCIÓN PARA LOS BOTONES DE LA LISTA ---
 function toggleModoLista(modo){
-  // Simplemente delegar en setTab que ya gestiona evMode correctamente
-  if(modo==='gas'){
-    if(evMode) deactivateEVMode(); // vuelve a modo gasolineras
-    setTab('list');
-  } else {
-    if(!evMode) activateEVMode(); // activa modo eléctricos
-    setTab('list');
-  }
-  // Sincronizar estilos de botones
-  _syncToggleBtns();
-}
-
-function _syncToggleBtns(){
   const btnGas=document.getElementById('lbtn-gas');
   const btnEv=document.getElementById('lbtn-ev');
-  if(!btnGas||!btnEv) return;
-  if(evMode){
-    btnEv.style.borderColor='#5AC8FA'; btnEv.style.color='#5AC8FA'; btnEv.style.background='rgba(90,200,250,0.1)';
-    btnGas.style.borderColor='rgba(255,255,255,0.1)'; btnGas.style.color='#a0b89e'; btnGas.style.background='transparent';
-  } else {
+
+  if(modo==='gas'){
+    // Volver a gasolineras: desactivar EV, cerrar evpanel, abrir lpanel
+    if(evMode) deactivateEVMode();
+    closeEVPanel();
     btnGas.style.borderColor='#4CD964'; btnGas.style.color='#4CD964'; btnGas.style.background='rgba(76,217,100,0.1)';
     btnEv.style.borderColor='rgba(255,255,255,0.1)'; btnEv.style.color='#a0b89e'; btnEv.style.background='transparent';
+    openList(); // abre lpanel con lista de gasolineras y sus filtros
+  } else {
+    // Ir a eléctricos: cerrar lpanel, activar EV, abrir evpanel con sus filtros
+    closeList();
+    btnEv.style.borderColor='#5AC8FA'; btnEv.style.color='#5AC8FA'; btnEv.style.background='rgba(90,200,250,0.1)';
+    btnGas.style.borderColor='rgba(255,255,255,0.1)'; btnGas.style.color='#a0b89e'; btnGas.style.background='transparent';
+    if(!evMode) activateEVMode();
+    openEVPanel(); // abre evpanel con filtros de radio/potencia/tipo
   }
 }
 
