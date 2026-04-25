@@ -1251,24 +1251,90 @@ document.getElementById('map').addEventListener('click',()=>document.getElementB
 // --- FUNCIÓN PARA LOS BOTONES DE LA LISTA ---
 function toggleModoLista(modo) {
   const btnGas = document.getElementById('lbtn-gas');
-  const btnEv = document.getElementById('lbtn-ev');
+  const btnEv  = document.getElementById('lbtn-ev');
   const titulo = document.querySelector('.lhtit');
+  const lfilters = document.querySelector('#lpanel .lfilters');
+  const lsortbar = document.querySelector('#lpanel .lsortbar');
 
   if (modo === 'gas') {
-    deactivateEVMode(); // Función original de tu app
-    titulo.innerText = 'Gasolineras';
-    // Estilos Visuales
-    btnGas.style.borderColor = '#4CD964'; btnGas.style.color = '#4CD964'; btnGas.style.background = 'rgba(76,217,100,0.1)';
-    btnEv.style.borderColor = 'rgba(255,255,255,0.1)'; btnEv.style.color = '#a0b89e'; btnEv.style.background = 'transparent';
-    renderList(); 
+    // Estilos botones
+    btnGas.style.borderColor='#4CD964'; btnGas.style.color='#4CD964'; btnGas.style.background='rgba(76,217,100,0.1)';
+    btnEv.style.borderColor='rgba(255,255,255,0.1)'; btnEv.style.color='#a0b89e'; btnEv.style.background='transparent';
+    titulo.innerText='Gasolineras';
+    // Mostrar filtros de gasolinera
+    if(lfilters) lfilters.style.display='';
+    if(lsortbar) lsortbar.style.display='';
+    // Renderizar lista de gasolineras en lbody
+    if(allStations.length) buildBrandBtns();
+    renderList();
   } else {
-    activateEVMode(); // Función original de tu app
-    titulo.innerText = 'Cargadores';
-    // Estilos Visuales
-    btnEv.style.borderColor = '#5AC8FA'; btnEv.style.color = '#5AC8FA'; btnEv.style.background = 'rgba(90,200,250,0.1)';
-    btnGas.style.borderColor = 'rgba(255,255,255,0.1)'; btnGas.style.color = '#a0b89e'; btnGas.style.background = 'transparent';
-    if(typeof renderEVList === 'function') renderEVList();
+    // Estilos botones
+    btnEv.style.borderColor='#5AC8FA'; btnEv.style.color='#5AC8FA'; btnEv.style.background='rgba(90,200,250,0.1)';
+    btnGas.style.borderColor='rgba(255,255,255,0.1)'; btnGas.style.color='#a0b89e'; btnGas.style.background='transparent';
+    titulo.innerText='Cargadores';
+    // Ocultar filtros de gasolinera
+    if(lfilters) lfilters.style.display='none';
+    if(lsortbar) lsortbar.style.display='none';
+    // Renderizar lista de eléctricos en lbody
+    const c = document.getElementById('lbody');
+    if(!evDataReady || !allEV.length){
+      c.innerHTML='<div class="lempty" style="color:#7ab8d4">⚡ Cargando puntos de recarga…</div>';
+      if(!evDataReady){
+        fetchEV().then(d=>{
+          if(d?.length){ allEV=d; evDataReady=true; saveEVCache(d); }
+          // solo renderizar si seguimos en modo EV
+          if(btnEv.style.color==='rgb(90, 200, 250)') renderEVInLbody();
+        }).catch(e=>{
+          c.innerHTML='<div class="lempty" style="color:#e05a5a">Error cargando eléctricos.<br><small>'+e.message+'</small></div>';
+        });
+      }
+      return;
+    }
+    renderEVInLbody();
   }
+}
+
+/* Renderiza los puntos EV dentro de lbody (sin tocar el mapa ni otros paneles) */
+function renderEVInLbody(){
+  const c = document.getElementById('lbody'); if(!c) return;
+  let pool = [...allEV];
+  if(userPos) pool = pool.map(s=>({...s, dist: hav(userPos.lat,userPos.lon,s.lat,s.lon)}));
+  if(evDistKm>0 && userPos) pool = pool.filter(s=>s.dist<=evDistKm);
+  if(evMinPow>0) pool = pool.filter(s=>s.pw>=evMinPow);
+  if(evConnType!=='ALL') pool = pool.filter(s=>s.conn===evConnType);
+  pool.sort((a,b)=> userPos ? (a.dist||999)-(b.dist||999) : (b.pw||0)-(a.pw||0));
+  const shown = pool.slice(0,150);
+  const lhsub = document.getElementById('lhsub');
+  if(lhsub) lhsub.textContent = shown.length+' puntos'+(evDistKm>0?' · '+evDistKm+' km':'')+(evMinPow>0?' · '+evMinPow+'+ kW':'');
+  if(!shown.length){
+    c.innerHTML='<div class="lempty" style="color:#7ab8d4">Sin puntos con estos filtros.</div>';
+    return;
+  }
+  c.innerHTML = shown.map(s=>{
+    const dt = s.dist ? (s.dist<1?`${(s.dist*1000).toFixed(0)} m`:`${s.dist.toFixed(1)} km`) : '';
+    const pwColor = s.pw>=150?'#ff9f0a':s.pw>=50?'#5AC8FA':s.pw>=22?'#4CD964':'#a0b89e';
+    return `<div class="evi" data-id="${s.id}" style="display:flex;align-items:flex-start;gap:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(90,200,250,0.08);border-radius:14px;padding:11px 13px;margin-bottom:8px;cursor:pointer;">
+      <div style="width:36px;height:36px;border-radius:10px;background:#0f2035;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">⚡</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:800;color:var(--text)">${s.name}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.address||s.municipality||'Sin dirección'}</div>
+        ${s.operator?`<div style="font-size:10.5px;color:#7ab87a;margin-top:2px">🔌 ${s.operator}</div>`:''}
+        ${dt?`<div style="font-size:10px;color:var(--text3);margin-top:2px">📍 ${dt}</div>`:''}
+      </div>
+      <div style="text-align:right;flex-shrink:0;min-width:44px">
+        <div style="font-size:15px;font-weight:900;color:${pwColor};letter-spacing:-.3px">${s.pw>0?s.pw+'kW':'—'}</div>
+        <div style="font-size:9px;color:#5a7a8a;margin-top:1px">${s.conn}·${s.connectors}🔌</div>
+      </div>
+    </div>`;
+  }).join('');
+  // Al tocar un punto EV: cerrar lista, volar al mapa y abrir sheet EV
+  c.querySelectorAll('.evi').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const s = allEV.find(x=>x.id===el.dataset.id); if(!s) return;
+      closeList();
+      setTimeout(()=>{ map.flyTo([s.lat,s.lon],16,{duration:.5}); setTimeout(()=>openEVSheet(s),600); },380);
+    });
+  });
 }
 
 // Favorites
