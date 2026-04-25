@@ -256,11 +256,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 .evclbl{font-size:9px;font-weight:700;letter-spacing:.3px;color:#5a7a8a;margin-bottom:3px}
 .evcval{font-size:15px;font-weight:900;color:#5AC8FA}
 .evcunit{font-size:8.5px;color:#3a6a7a;margin-top:1px}
-
-.lmodetoggle{display:flex;background:rgba(255,255,255,0.07);border-radius:11px;padding:3px;gap:2px;flex-shrink:0;margin-left:auto}
-.lmodetbtn{padding:5px 13px;border-radius:8px;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--text3);transition:all .18s;white-space:nowrap}
-.lmodetbtn.gas.on{background:rgba(76,217,100,0.15);color:#4CD964}
-.lmodetbtn.ev.on{background:rgba(90,200,250,0.15);color:#5AC8FA}
 </style>
 </head>
 <body>
@@ -360,11 +355,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 <div id="lpanel">
   <div class="lhdr">
     <div class="lbk" id="lbk">←</div>
-    <div style="flex:1;min-width:0"><div class="lhsub" id="lhsub">Cargando…</div></div>
-    <div class="lmodetoggle">
-      <button class="lmodetbtn gas on" id="lmode-gas" onclick="setListMode('gas')">⛽ Gasolineras</button>
-      <button class="lmodetbtn ev" id="lmode-ev" onclick="setListMode('ev')">⚡ Eléctricos</button>
-    </div>
+    <div><div class="lhtit">Gasolineras</div><div class="lhsub" id="lhsub">Cargando…</div></div>
   </div>
   <div class="lfilters">
     <div class="lfstrip">
@@ -519,7 +510,6 @@ let map, userPos=null, userMarker=null, allStations=[];
 let mapMarkers=[], distCircle=null, selId=null, dataReady=false;
 let fuel='G95', distKm=0, brands=new Set(), sortPrice=true, sortDist=true;
 let showFavsOnly = false;
-let listMode = 'gas'; // 'gas' | 'ev'
 let lastUpdateDate = "Actualizado recientemente";
 const CACHE_KEY='gas_min_v1', CACHE_TTL=90*60*1000;
 
@@ -733,41 +723,7 @@ function syncBrandUI(){
   document.querySelectorAll('.bbtn').forEach(b=>b.classList.toggle('on',brands.has(b.dataset.brand)));
 }
 
-function setListMode(mode){
-  listMode = mode;
-  document.getElementById('lmode-gas').classList.toggle('on', mode==='gas');
-  document.getElementById('lmode-ev').classList.toggle('on', mode==='ev');
-  const lfilters = document.getElementById('lpanel').querySelector('.lfilters');
-  const lsortbar = document.getElementById('lpanel').querySelector('.lsortbar');
-  if(mode === 'ev'){
-    if(lfilters) lfilters.style.display = 'none';
-    if(lsortbar) lsortbar.style.display = 'none';
-    renderEVList(); // usa la función EV ya existente en el archivo
-  } else {
-    if(lfilters) lfilters.style.display = '';
-    if(lsortbar) lsortbar.style.display = '';
-    if(allStations.length) buildBrandBtns();
-    renderList();
-  }
-}
-
-function openList(){
-  document.getElementById('lpanel').classList.add('on');
-  document.getElementById('lmode-gas').classList.toggle('on', listMode==='gas');
-  document.getElementById('lmode-ev').classList.toggle('on', listMode==='ev');
-  const lfilters = document.getElementById('lpanel').querySelector('.lfilters');
-  const lsortbar = document.getElementById('lpanel').querySelector('.lsortbar');
-  if(listMode === 'ev'){
-    if(lfilters) lfilters.style.display = 'none';
-    if(lsortbar) lsortbar.style.display = 'none';
-    renderEVList();
-  } else {
-    if(lfilters) lfilters.style.display = '';
-    if(lsortbar) lsortbar.style.display = '';
-    if(allStations.length) buildBrandBtns();
-    renderList();
-  }
-}
+function openList(){document.getElementById('lpanel').classList.add('on');if(allStations.length)buildBrandBtns();renderList();}
 function closeList(){document.getElementById('lpanel').classList.remove('on');}
 
 function setSort(key){
@@ -939,7 +895,7 @@ async function fetchEV(){
   
   try {
     // 1. TÚNEL PROXY: Envolvemos OpenChargeMap en AllOrigins para evadir cualquier bloqueo del móvil por archivo local
-    const targetUrl = `https://api.openchargemap.io/v3/poi/?output=json&countrycode=ES&maxresults=5000&compact=true&verbose=false&latitude=${cLat}&longitude=${cLon}&distance=500&distanceunit=KM&key=8001e719-7ba5-4122-824b-32ebf25608b2`;
+    const targetUrl = `https://api.openchargemap.io/v3/poi/?output=json&countrycode=ES&maxresults=1000&compact=true&verbose=false&latitude=${cLat}&longitude=${cLon}&distance=1000&distanceunit=KM&key=8001e719-7ba5-4122-824b-32ebf25608b2`;
     const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
 
     const res = await fetchWithTimeout(proxyUrl, { cache: 'no-store' }, 12000);
