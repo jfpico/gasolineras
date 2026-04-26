@@ -105,7 +105,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 #tabbar{position:fixed;bottom:0;left:0;right:0;z-index:1000;padding:0 12px;padding-bottom:max(env(safe-area-inset-bottom),10px);pointer-events:none;}
 .tbi{background:var(--surface2);border:1px solid var(--border);border-radius:22px;display:flex;box-shadow:0 -2px 20px rgba(0,0,0,0.5);backdrop-filter:blur(20px);pointer-events:auto;}
 .ti{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 8px 7px;cursor:pointer;position:relative;user-select:none}
-.ticon{font-size:20px;opacity:.90;transition:opacity .2s}
+.ticon{font-size:20px;opacity:.90;transition:opacity .2s;display:flex;align-items:center;justify-content:center;height:26px}
 .tlbl{font-size:10px;font-weight:700;color:var(--text3);transition:color .2s}
 .tdot{position:absolute;bottom:1px;width:4px;height:4px;border-radius:2px;background:var(--green);opacity:0;transition:opacity .2s}
 .ti.on .ticon{opacity:1}.ti.on .tlbl{color:var(--green)}.ti.on .tdot{opacity:1}
@@ -317,10 +317,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 
 <div id="tabbar">
   <div class="tbi">
-    <div class="ti on" data-tab="map"><div class="ticon"><svg viewBox="0 0 24 24" style="width:24px;height:24px;fill:currentColor"><path d="M19,12L19,15H21V12H19M18,8H6C4.9,8 4,8.9 4,10V20H20V10C20,8.9 19.1,8 18,8M18,18H6V10H18V18M12,11A2,2 0 0,0 10,13A2,2 0 0,0 12,15A2,2 0 0,0 14,13A2,2 0 0,0 12,11M18,6L13.06,1.06L11.65,2.47L15.17,6H18V6Z"/></svg></div><div class="tlbl">Gasolineras</div><div class="tdot"></div></div>
-    <div class="ti" data-tab="list"><div class="ticon">📋</div><div class="tlbl">Lista</div><div class="tdot"></div></div>
-    <div class="ti" data-tab="ev"><div class="ticon">⚡</div><div class="tlbl">Recarga</div><div class="tdot"></div></div>
-    <div class="ti" data-tab="favs"><div class="ticon">❤️</div><div class="tlbl">Favoritos</div><div class="tdot"></div></div>
+    <div class="ti on" data-tab="map"><div class="ticon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="12" height="17" rx="1.5"/><path d="M7 8h4M7 12h4M15 4l4 3v3h-4"/><path d="M19 10v7a2 2 0 0 1-2 2h-1"/><path d="M6 21v-1a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1"/></svg></div><div class="tlbl">Gasolineras</div><div class="tdot"></div></div>
+    <div class="ti" data-tab="list"><div class="ticon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.2" fill="currentColor" stroke="none"/></svg></div><div class="tlbl">Lista</div><div class="tdot"></div></div>
+    <div class="ti" data-tab="ev"><div class="ticon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z" fill="currentColor" stroke="none" opacity="0.85"/></svg></div><div class="tlbl">Recarga</div><div class="tdot"></div></div>
+    <div class="ti" data-tab="favs"><div class="ticon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div><div class="tlbl">Favoritos</div><div class="tdot"></div></div>
   </div>
 </div>
 
@@ -393,7 +393,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 <div id="evpanel">
   <div class="evhdr">
     <div class="evbk" id="evbk">←</div>
-    <div><div class="evhtit">⚡ Puntos de recarga</div><div class="evhsub" id="evhsub">Cargando…</div></div>
+    <div style="flex:1;min-width:0"><div class="evhsub" id="evhsub">Cargando…</div></div>
+    <div style="display:flex;gap:5px;flex-shrink:0">
+      <button onclick="toggleModoLista('gas')" style="padding:5px 11px;border-radius:9px;border:1.5px solid rgba(255,255,255,0.1);background:transparent;color:#a0b89e;font-weight:800;font-size:11px;cursor:pointer;font-family:inherit">⛽ Gasolineras</button>
+      <button onclick="toggleModoLista('ev')" style="padding:5px 11px;border-radius:9px;border:1.5px solid #5AC8FA;background:rgba(90,200,250,0.1);color:#5AC8FA;font-weight:800;font-size:11px;cursor:pointer;font-family:inherit" id="evhdr-ev-btn">⚡ Eléctricos</button>
+    </div>
   </div>
   <div class="evfilters">
     <div class="evfrow">
@@ -627,12 +631,16 @@ function renderAll(){ renderMarkers(); renderList(); }
 function renderMarkers(){
   if(evMode)return; // En modo EV no pintar gasolineras
   if(!allStations.length||!map)return;
-  const bounds=map.getBounds().pad(0.3);
+  const zoom=map.getZoom();
+  const pad=zoom>=14?0.5:zoom>=12?1:2;
+  const bounds=map.getBounds().pad(pad);
   const pool=getPool();
   let vis=pool.filter(s=>bounds.contains([s.lat,s.lon]));
   const wP=vis.filter(s=>s.prices[fuel]>0);
   const shown=wP.length>0?wP:vis;
-  const lim=shown.length>MAX?shown.sort((a,b)=>(a.prices[fuel]||9)-(b.prices[fuel]||9)).slice(0,MAX):shown;
+  // Solo limitar en zooms muy bajos donde hay miles de puntos
+  const limit=zoom>=12?500:zoom>=10?200:MAX;
+  const lim=shown.length>limit?shown.sort((a,b)=>(a.prices[fuel]||9)-(b.prices[fuel]||9)).slice(0,limit):shown;
   const prices=lim.map(s=>s.prices[fuel]);
   clearM();
   lim.forEach(s=>{
@@ -894,37 +902,32 @@ function saveEVCache(data){try{localStorage.setItem(EV_CACHE_KEY,JSON.stringify(
 // FUNCIÓN PROTEGIDA: Túnel Proxy para evadir restricciones de Archivos Locales (file://)
 async function fetchEV(){
   // Toma el centro del mapa si no hay GPS
-  const c = map ? map.getCenter() : (userPos || {lat: 40.4168, lng: -3.7038});
-  const cLat = parseFloat(c.lat).toFixed(5);
-  const cLon = parseFloat(c.lng !== undefined ? c.lng : c.lon).toFixed(5);
-  
+  // Descarga TODOS los puntos de España de una vez (igual que gasolineras)
+  // Bounding box España: lat 35.9-43.8, lon -9.3-4.3
+  // Usamos paginación de 5 páginas de 2000 para cubrir los ~6000-8000 puntos de España
   try {
-    // 1. TÚNEL PROXY: Envolvemos OpenChargeMap en AllOrigins para evadir cualquier bloqueo del móvil por archivo local
-    const targetUrl = `https://api.openchargemap.io/v3/poi/?output=json&countrycode=ES&maxresults=1000&compact=true&verbose=false&latitude=${cLat}&longitude=${cLon}&distance=1000&distanceunit=KM&key=8001e719-7ba5-4122-824b-32ebf25608b2`;
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
-
-    const res = await fetchWithTimeout(proxyUrl, { cache: 'no-store' }, 12000);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
+    const KEY = '8001e719-7ba5-4122-824b-32ebf25608b2';
+    const BASE = `https://api.openchargemap.io/v3/poi/?output=json&countrycode=ES&compact=true&verbose=false&boundingbox=(35.9,-9.3,43.8,4.3)&key=${KEY}`;
     
-    if(!data || !Array.isArray(data)) throw new Error('Proxy falló');
-
-    return data.map(raw => {
+    // Descargamos en dos tandas de 5000 para cubrir España completa
+    const urls = [
+      `${BASE}&maxresults=5000&startindex=0`,
+      `${BASE}&maxresults=5000&startindex=5000`,
+    ];
+    
+    const parseOCM = (data) => (Array.isArray(data) ? data : []).map(raw => {
       const lat = raw.AddressInfo?.Latitude;
       const lon = raw.AddressInfo?.Longitude;
       if(!lat || !lon) return null;
-      
       let pw = 0, conn = 'AC', connectors = 1;
-
-      if (raw.Connections && raw.Connections.length > 0) {
-          connectors = raw.Connections.length;
-          raw.Connections.forEach(c => {
-              if (c.PowerKW && c.PowerKW > pw) pw = c.PowerKW;
-              const cName = (c.ConnectionType?.Title || '').toUpperCase();
-              if (cName.includes('DC') || cName.includes('CCS') || cName.includes('CHADEMO')) conn = 'DC';
-          });
+      if(raw.Connections?.length){
+        connectors = raw.Connections.length;
+        raw.Connections.forEach(c => {
+          if(c.PowerKW && c.PowerKW > pw) pw = c.PowerKW;
+          const cn = (c.ConnectionType?.Title || '').toUpperCase();
+          if(cn.includes('DC') || cn.includes('CCS') || cn.includes('CHADEMO')) conn = 'DC';
+        });
       }
-
       return {
         id: 'ev_ocm_' + (raw.ID || Math.random()),
         name: raw.AddressInfo?.Title || 'Punto de recarga',
@@ -933,20 +936,40 @@ async function fetchEV(){
         province: raw.AddressInfo?.StateOrProvince || '',
         schedule: raw.UsageCost || 'Consultar app',
         operator: raw.OperatorInfo?.Title || 'Operador',
-        connectors: connectors,
-        pw: pw || ((conn === 'DC') ? 50 : 22), 
-        conn: conn, 
-        lat: lat, 
-        lon: lon,
+        connectors, pw: pw || (conn==='DC'?50:22), conn, lat, lon,
       };
     }).filter(Boolean);
 
+    // Petición 1 directa, petición 2 en paralelo
+    const proxyBase = 'https://api.allorigins.win/raw?url=';
+    const fetch1 = fetchWithTimeout(proxyBase + encodeURIComponent(urls[0]), {cache:'no-store'}, 20000);
+    const fetch2 = fetchWithTimeout(proxyBase + encodeURIComponent(urls[1]), {cache:'no-store'}, 20000);
+    
+    const [r1, r2] = await Promise.allSettled([fetch1, fetch2]);
+    let results = [];
+    
+    if(r1.status==='fulfilled' && r1.value.ok){
+      const d1 = await r1.value.json();
+      if(Array.isArray(d1)) results = [...results, ...parseOCM(d1)];
+    }
+    if(r2.status==='fulfilled' && r2.value.ok){
+      const d2 = await r2.value.json();
+      if(Array.isArray(d2)) results = [...results, ...parseOCM(d2)];
+    }
+    
+    // Deduplicar por id
+    const seen = new Set();
+    results = results.filter(s => { if(seen.has(s.id)) return false; seen.add(s.id); return true; });
+    
+    if(results.length > 0) return results;
+    throw new Error('Sin datos de OCM');
+
   } catch(err1) {
-    // 2. RESPALDO: Si el túnel también falla, probamos con OpenStreetMap
-    const query = `[out:json][timeout:10];nwr["amenity"="charging_station"](around:20000,${cLat},${cLon});out center 1000;`;
+    // RESPALDO: OpenStreetMap Overpass — toda España de una vez
+    const query = `[out:json][timeout:60];nwr["amenity"="charging_station"](35.9,-9.3,43.8,4.3);out center 8000;`;
     const overpassUrl = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
 
-    const res2 = await fetchWithTimeout(overpassUrl, {}, 10000);
+    const res2 = await fetchWithTimeout(overpassUrl, {}, 30000);
     if (!res2.ok) throw new Error('Ambas redes fallaron');
     const data2 = await res2.json();
 
