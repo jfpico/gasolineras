@@ -968,19 +968,25 @@ async function fetchEV(){
   }).filter(Boolean);
 
   // Zonas de España: dividimos en 6 áreas para superar límite de 1000/petición
+  // España dividida en 8 zonas con solapamiento para no dejar huecos
+  // Cada zona: maxresults=1000, solapadas para garantizar cobertura total
   const ZONES = [
-    // Norte: Galicia, Asturias, Cantabria, País Vasco, Navarra
-    {lat1:41.5,lon1:-9.3,lat2:43.8,lon2:-1.5},
-    // Noreste: Aragón, Cataluña, Baleares
-    {lat1:39.5,lon1:-1.5,lat2:43.8,lon2:4.3},
-    // Centro-Norte: Castilla y León, La Rioja
-    {lat1:40.0,lon1:-6.5,lat2:43.0,lon2:-1.5},
-    // Centro: Madrid, Castilla-La Mancha, Extremadura
+    // Galicia y Asturias
+    {lat1:41.8,lon1:-9.3,lat2:43.8,lon2:-6.0},
+    // Cantabria, País Vasco, Navarra, La Rioja
+    {lat1:41.8,lon1:-6.0,lat2:43.8,lon2:-1.5},
+    // Castilla y León oeste (Salamanca, Zamora, León, Valladolid)
+    {lat1:40.0,lon1:-7.5,lat2:43.0,lon2:-4.0},
+    // Castilla y León este (Burgos, Soria, Segovia, Ávila) + Aragón norte
+    {lat1:40.0,lon1:-4.0,lat2:43.0,lon2:-1.5},
+    // Cataluña + Aragón + Baleares
+    {lat1:38.5,lon1:-1.5,lat2:43.8,lon2:4.3},
+    // Madrid + Castilla-La Mancha + Extremadura
     {lat1:37.5,lon1:-7.5,lat2:41.5,lon2:-1.5},
-    // Sur: Andalucía
+    // Andalucía completa
     {lat1:35.9,lon1:-7.5,lat2:38.5,lon2:-1.5},
-    // Levante: Valencia, Murcia, Canarias(aprox)
-    {lat1:36.0,lon1:-1.5,lat2:40.5,lon2:0.5},
+    // Levante: Valencia, Murcia + sur de Andalucía este
+    {lat1:36.0,lon1:-1.5,lat2:40.5,lon2:1.0},
   ];
 
   try {
@@ -1345,19 +1351,25 @@ function toggleModoLista(modo){
   const btnEv=document.getElementById('lbtn-ev');
 
   if(modo==='gas'){
-    // Volver a gasolineras: desactivar EV, cerrar evpanel, abrir lpanel
     if(evMode) deactivateEVMode();
     closeEVPanel();
-    btnGas.style.borderColor='#4CD964'; btnGas.style.color='#4CD964'; btnGas.style.background='rgba(76,217,100,0.1)';
-    btnEv.style.borderColor='rgba(255,255,255,0.1)'; btnEv.style.color='#a0b89e'; btnEv.style.background='transparent';
-    openList(); // abre lpanel con lista de gasolineras y sus filtros
+    if(btnGas){btnGas.style.borderColor='#4CD964';btnGas.style.color='#4CD964';btnGas.style.background='rgba(76,217,100,0.1)';}
+    if(btnEv){btnEv.style.borderColor='rgba(255,255,255,0.1)';btnEv.style.color='#a0b89e';btnEv.style.background='transparent';}
+    // Mantener modo favoritos si estábamos ahí
+    openList();
   } else {
-    // Ir a eléctricos: cerrar lpanel, activar EV, abrir evpanel con sus filtros
-    closeList();
-    btnEv.style.borderColor='#5AC8FA'; btnEv.style.color='#5AC8FA'; btnEv.style.background='rgba(90,200,250,0.1)';
-    btnGas.style.borderColor='rgba(255,255,255,0.1)'; btnGas.style.color='#a0b89e'; btnGas.style.background='transparent';
-    if(!evMode) activateEVMode();
-    openEVPanel(); // abre evpanel con filtros de radio/potencia/tipo
+    if(btnEv){btnEv.style.borderColor='#5AC8FA';btnEv.style.color='#5AC8FA';btnEv.style.background='rgba(90,200,250,0.1)';}
+    if(btnGas){btnGas.style.borderColor='rgba(255,255,255,0.1)';btnGas.style.color='#a0b89e';btnGas.style.background='transparent';}
+    if(showFavsOnly){
+      // Estamos en Favoritos → mostrar EV favs en lpanel, NO abrir evpanel
+      if(!evMode) activateEVMode();
+      openList(); // renderList incluye evFavItems cuando showFavsOnly=true
+    } else {
+      // Lista normal → abrir evpanel con todos los eléctricos y sus filtros
+      closeList();
+      if(!evMode) activateEVMode();
+      openEVPanel();
+    }
   }
 }
 
