@@ -105,7 +105,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 #tabbar{position:fixed;bottom:0;left:0;right:0;z-index:1000;padding:0 12px;padding-bottom:max(env(safe-area-inset-bottom),10px);pointer-events:none;}
 .tbi{background:var(--surface2);border:1px solid var(--border);border-radius:22px;display:flex;box-shadow:0 -2px 20px rgba(0,0,0,0.5);backdrop-filter:blur(20px);pointer-events:auto;}
 .ti{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 8px 7px;cursor:pointer;position:relative;user-select:none}
-.ticon{font-size:20px;opacity:.90;transition:opacity .2s}
+.ticon{font-size:20px;opacity:.90;transition:opacity .2s;display:flex;align-items:center;justify-content:center;height:26px}
 .tlbl{font-size:10px;font-weight:700;color:var(--text3);transition:color .2s}
 .tdot{position:absolute;bottom:1px;width:4px;height:4px;border-radius:2px;background:var(--green);opacity:0;transition:opacity .2s}
 .ti.on .ticon{opacity:1}.ti.on .tlbl{color:var(--green)}.ti.on .tdot{opacity:1}
@@ -317,10 +317,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 
 <div id="tabbar">
   <div class="tbi">
-    <div class="ti on" data-tab="map"><div class="ticon">🗺️</div><div class="tlbl">Gasolineras</div><div class="tdot"></div></div>
-    <div class="ti" data-tab="list"><div class="ticon">📋</div><div class="tlbl">Lista</div><div class="tdot"></div></div>
-    <div class="ti" data-tab="ev"><div class="ticon">⚡</div><div class="tlbl">Recarga</div><div class="tdot"></div></div>
-    <div class="ti" data-tab="favs"><div class="ticon">❤️</div><div class="tlbl">Favoritos</div><div class="tdot"></div></div>
+    <div class="ti on" data-tab="map"><div class="ticon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="12" height="17" rx="1.5"/><path d="M7 8h4M7 12h4M15 4l4 3v3h-4"/><path d="M19 10v7a2 2 0 0 1-2 2h-1"/><path d="M6 21v-1a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1"/></svg></div><div class="tlbl">Gasolineras</div><div class="tdot"></div></div>
+    <div class="ti" data-tab="list"><div class="ticon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.2" fill="currentColor" stroke="none"/></svg></div><div class="tlbl">Lista</div><div class="tdot"></div></div>
+    <div class="ti" data-tab="ev"><div class="ticon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z" fill="currentColor" stroke="none" opacity="0.85"/></svg></div><div class="tlbl">Recarga</div><div class="tdot"></div></div>
+    <div class="ti" data-tab="favs"><div class="ticon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div><div class="tlbl">Favoritos</div><div class="tdot"></div></div>
   </div>
 </div>
 
@@ -382,6 +382,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
     <button class="lsortbtn on" id="lsort-price" onclick="setSort('price')">💰 Precio</button>
     <button class="lsortbtn on" id="lsort-dist" onclick="setSort('dist')">📍 Distancia</button>
   </div>
+  <div style="display: flex; gap: 8px; padding: 10px 15px; background: #0e170e; border-bottom: 1px solid rgba(255,255,255,0.06);">
+    <button id="lbtn-gas" onclick="toggleModoLista('gas')" style="flex: 1; padding: 8px; border-radius: 10px; border: 1.5px solid #4CD964; background: rgba(76,217,100,0.1); color: #4CD964; font-weight: 800; font-size: 11px;">GASOLINERAS</button>
+    <button id="lbtn-ev" onclick="toggleModoLista('ev')" style="flex: 1; padding: 8px; border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.1); background: transparent; color: #a0b89e; font-weight: 800; font-size: 11px;">ELÉCTRICOS</button>
+</div>
   <div id="lbody"><div class="lempty">⛽ Cargando datos…</div></div>
 </div>
 
@@ -389,7 +393,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 <div id="evpanel">
   <div class="evhdr">
     <div class="evbk" id="evbk">←</div>
-    <div><div class="evhtit">⚡ Puntos de recarga</div><div class="evhsub" id="evhsub">Cargando…</div></div>
+    <div style="flex:1;min-width:0"><div class="evhsub" id="evhsub">Cargando…</div></div>
+    <div style="display:flex;gap:5px;flex-shrink:0">
+      <button onclick="toggleModoLista('gas')" style="padding:5px 11px;border-radius:9px;border:1.5px solid rgba(255,255,255,0.1);background:transparent;color:#a0b89e;font-weight:800;font-size:11px;cursor:pointer;font-family:inherit">⛽ Gasolineras</button>
+      <button onclick="toggleModoLista('ev')" style="padding:5px 11px;border-radius:9px;border:1.5px solid #5AC8FA;background:rgba(90,200,250,0.1);color:#5AC8FA;font-weight:800;font-size:11px;cursor:pointer;font-family:inherit" id="evhdr-ev-btn">⚡ Eléctricos</button>
+    </div>
   </div>
   <div class="evfilters">
     <div class="evfrow">
@@ -424,6 +432,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
   <div class="evshhdr">
     <div class="evshico">⚡</div>
     <div class="shinf"><div class="shbr" id="evshbr"></div><div class="shnm" id="evshnm"></div><div class="shad" id="evshad"></div></div>
+    <div class="shfav" id="evshfav" style="margin-right:4px"></div>
     <div class="evshcl" id="evshcl">✕</div>
   </div>
   <div class="evgrid" id="evgrid"></div>
@@ -571,7 +580,8 @@ function initMap(lat,lon){
   
   baseLayer.addTo(map);
   
-  map.on('moveend',()=>{if(evMode)renderEVMarkers();else renderMarkers();});
+  // Un solo listener de moveend — renderiza según el modo activo
+  map.on('moveend',()=>{ if(evMode) renderEVMarkers(); else renderMarkers(); });
 }
 
 function toggleSatellite() {
@@ -622,12 +632,16 @@ function renderAll(){ renderMarkers(); renderList(); }
 function renderMarkers(){
   if(evMode)return; // En modo EV no pintar gasolineras
   if(!allStations.length||!map)return;
-  const bounds=map.getBounds().pad(0.3);
+  const zoom=map.getZoom();
+  const pad=zoom>=14?0.5:zoom>=12?1:2;
+  const bounds=map.getBounds().pad(pad);
   const pool=getPool();
   let vis=pool.filter(s=>bounds.contains([s.lat,s.lon]));
   const wP=vis.filter(s=>s.prices[fuel]>0);
   const shown=wP.length>0?wP:vis;
-  const lim=shown.length>MAX?shown.sort((a,b)=>(a.prices[fuel]||9)-(b.prices[fuel]||9)).slice(0,MAX):shown;
+  // Solo limitar en zooms muy bajos donde hay miles de puntos
+  const limit=zoom>=12?500:zoom>=10?200:MAX;
+  const lim=shown.length>limit?shown.sort((a,b)=>(a.prices[fuel]||9)-(b.prices[fuel]||9)).slice(0,limit):shown;
   const prices=lim.map(s=>s.prices[fuel]);
   clearM();
   lim.forEach(s=>{
@@ -739,6 +753,12 @@ function renderList(){
   
   let pool=allStations;
   if(showFavsOnly) pool = pool.filter(s => myFavs.has(s.id));
+  // Si estamos en favoritos, añadir también los puntos EV favoritos
+  let evFavItems = [];
+  if(showFavsOnly){
+    const saved=JSON.parse(localStorage.getItem('ev_favdata')||'{}');
+    evFavItems=Object.values(saved).filter(s=>myFavs.has(s.id));
+  }
   
   if(distKm>0&&userPos)pool=pool.filter(s=>hav(userPos.lat,userPos.lon,s.lat,s.lon)<=distKm);
   if(brands.size>0)pool=pool.filter(s=>brands.has(s.brand));
@@ -755,9 +775,9 @@ function renderList(){
   if(distKm>0)sub+=` · ${distKm} km`; if(brands.size>0)sub+=` · ${brands.size} marca${brands.size>1?'s':''}`;
   const lhsub=document.getElementById('lhsub'); if(lhsub)lhsub.textContent=sub;
   
-  if(!sorted.length){
+  if(!sorted.length && !evFavItems.length){
     if(showFavsOnly && myFavs.size === 0) {
-      c.innerHTML=`<div class="lempty">Aún no tienes gasolineras favoritas.<br><span style="font-size:12px;color:var(--text3);display:inline-block;margin-top:10px">Pulsa el ❤️ en los detalles de una gasolinera en el mapa para añadirla.</span></div>`;
+      c.innerHTML=`<div class="lempty">Aún no tienes favoritos.<br><span style="font-size:12px;color:var(--text3);display:inline-block;margin-top:10px">Pulsa el ❤️ en los detalles de una gasolinera o punto de recarga.</span></div>`;
     } else {
       c.innerHTML=`<div class="lempty">Sin estaciones.<br><span style="color:var(--green);cursor:pointer" onclick="clearFilt()">Limpiar filtros</span></div>`;
     }
@@ -782,7 +802,35 @@ function renderList(){
       <div class="lipr"><div class="lipv" style="color:${col}">${p?p.toFixed(3).replace('.',','):'—'}</div><div class="lipu">€/L</div></div>
     </div>`;
   }).join('');
-  c.querySelectorAll('.li').forEach(el=>{
+
+  // Añadir EV favoritos al final si estamos en Favoritos
+  if(showFavsOnly && evFavItems.length){
+    const evRows=evFavItems.map(s=>{
+      const pwColor=s.pw>=150?'#ff9f0a':s.pw>=50?'#5AC8FA':s.pw>=22?'#4CD964':'#a0b89e';
+      return`<div class="li ev-fav-item" data-evid="${s.id}" style="cursor:pointer">
+        <div class="lrnk rx">⚡</div>
+        <div class="lilog" style="width:40px;height:40px;border-radius:10px;background:#0f2035;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">⚡</div>
+        <div class="liinf">
+          <div class="libr">${s.name} <span style="font-size:12px">❤️</span></div>
+          <div class="liad">${s.address||s.municipality||'Punto de recarga'}</div>
+          <div class="lihr" style="color:${pwColor}">${s.pw>0?s.pw+'kW':'—'} · ${s.conn}</div>
+        </div>
+        <div class="lipr"><div class="lipv" style="color:#5AC8FA;font-size:13px">${s.connectors}🔌</div></div>
+      </div>`;
+    }).join('');
+    c.innerHTML += evRows;
+    c.querySelectorAll('.ev-fav-item').forEach(el=>{
+      el.addEventListener('click',()=>{
+        const s=JSON.parse(localStorage.getItem('ev_favdata')||'{}')[el.dataset.evid];
+        if(!s)return;
+        closeList(); setTab('map');
+        if(!evMode) activateEVMode();
+        setTimeout(()=>{map.flyTo([s.lat,s.lon],16,{duration:.5});setTimeout(()=>openEVSheet(s),600);},380);
+      });
+    });
+  }
+
+  c.querySelectorAll('.li:not(.ev-fav-item)').forEach(el=>{
     el.addEventListener('click',()=>{
       const s=allStations.find(x=>x.id===el.dataset.id);if(!s)return;
       closeList();setTab('map');
@@ -888,91 +936,122 @@ function saveEVCache(data){try{localStorage.setItem(EV_CACHE_KEY,JSON.stringify(
 
 // FUNCIÓN PROTEGIDA: Túnel Proxy para evadir restricciones de Archivos Locales (file://)
 async function fetchEV(){
-  // Toma el centro del mapa si no hay GPS
-  const c = map ? map.getCenter() : (userPos || {lat: 40.4168, lng: -3.7038});
-  const cLat = parseFloat(c.lat).toFixed(5);
-  const cLon = parseFloat(c.lng !== undefined ? c.lng : c.lon).toFixed(5);
+  // Estrategia: OpenChargeMap directo (funciona en HTTPS desde iPhone)
+  // Dividimos España en zonas para obtener más puntos superando el límite de 1000/petición
+  const KEY = '8001e719-7ba5-4122-824b-32ebf25608b2';
   
+  const parseOCM = (data) => (Array.isArray(data) ? data : []).map(raw => {
+    const lat = raw.AddressInfo?.Latitude;
+    const lon = raw.AddressInfo?.Longitude;
+    if(!lat || !lon || lat===0 || lon===0) return null;
+    // Validar que estén dentro de España
+    if(lat<35||lat>44||lon<-10||lon>5) return null;
+    let pw=0, conn='AC', connectors=1;
+    if(raw.Connections?.length){
+      connectors=raw.Connections.length;
+      raw.Connections.forEach(c=>{
+        if(c.PowerKW&&c.PowerKW>pw) pw=c.PowerKW;
+        const cn=(c.ConnectionType?.Title||'').toUpperCase();
+        if(cn.includes('DC')||cn.includes('CCS')||cn.includes('CHADEMO')) conn='DC';
+      });
+    }
+    return{
+      id:'ev_'+raw.ID,
+      name:raw.AddressInfo?.Title||'Punto de recarga',
+      address:raw.AddressInfo?.AddressLine1||'',
+      municipality:raw.AddressInfo?.Town||'',
+      province:raw.AddressInfo?.StateOrProvince||'',
+      schedule:raw.UsageCost||'Consultar app',
+      operator:raw.OperatorInfo?.Title||'Operador',
+      connectors, pw:pw||(conn==='DC'?50:22), conn, lat, lon,
+    };
+  }).filter(Boolean);
+
+  // Zonas de España: dividimos en 6 áreas para superar límite de 1000/petición
+  const ZONES = [
+    // Norte: Galicia, Asturias, Cantabria, País Vasco, Navarra
+    {lat1:41.5,lon1:-9.3,lat2:43.8,lon2:-1.5},
+    // Noreste: Aragón, Cataluña, Baleares
+    {lat1:39.5,lon1:-1.5,lat2:43.8,lon2:4.3},
+    // Centro-Norte: Castilla y León, La Rioja
+    {lat1:40.0,lon1:-6.5,lat2:43.0,lon2:-1.5},
+    // Centro: Madrid, Castilla-La Mancha, Extremadura
+    {lat1:37.5,lon1:-7.5,lat2:41.5,lon2:-1.5},
+    // Sur: Andalucía
+    {lat1:35.9,lon1:-7.5,lat2:38.5,lon2:-1.5},
+    // Levante: Valencia, Murcia, Canarias(aprox)
+    {lat1:36.0,lon1:-1.5,lat2:40.5,lon2:0.5},
+  ];
+
   try {
-    // 1. TÚNEL PROXY: Envolvemos OpenChargeMap en AllOrigins para evadir cualquier bloqueo del móvil por archivo local
-    const targetUrl = `https://api.openchargemap.io/v3/poi/?output=json&countrycode=ES&maxresults=1000&compact=true&verbose=false&latitude=${cLat}&longitude=${cLon}&distance=1000&distanceunit=KM&key=8001e719-7ba5-4122-824b-32ebf25608b2`;
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
-
-    const res = await fetchWithTimeout(proxyUrl, { cache: 'no-store' }, 12000);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
+    // Peticiones directas a OCM — sin proxy, funciona en HTTPS
+    const requests = ZONES.map(z => {
+      const url = `https://api.openchargemap.io/v3/poi/?output=json&countrycode=ES&compact=true&verbose=false&maxresults=1000&boundingbox=(${z.lat1},${z.lon1},${z.lat2},${z.lon2})&key=${KEY}`;
+      return fetchWithTimeout(url, {}, 15000).catch(()=>null);
+    });
     
-    if(!data || !Array.isArray(data)) throw new Error('Proxy falló');
-
-    return data.map(raw => {
-      const lat = raw.AddressInfo?.Latitude;
-      const lon = raw.AddressInfo?.Longitude;
-      if(!lat || !lon) return null;
-      
-      let pw = 0, conn = 'AC', connectors = 1;
-
-      if (raw.Connections && raw.Connections.length > 0) {
-          connectors = raw.Connections.length;
-          raw.Connections.forEach(c => {
-              if (c.PowerKW && c.PowerKW > pw) pw = c.PowerKW;
-              const cName = (c.ConnectionType?.Title || '').toUpperCase();
-              if (cName.includes('DC') || cName.includes('CCS') || cName.includes('CHADEMO')) conn = 'DC';
-          });
-      }
-
-      return {
-        id: 'ev_ocm_' + (raw.ID || Math.random()),
-        name: raw.AddressInfo?.Title || 'Punto de recarga',
-        address: raw.AddressInfo?.AddressLine1 || '',
-        municipality: raw.AddressInfo?.Town || '',
-        province: raw.AddressInfo?.StateOrProvince || '',
-        schedule: raw.UsageCost || 'Consultar app',
-        operator: raw.OperatorInfo?.Title || 'Operador',
-        connectors: connectors,
-        pw: pw || ((conn === 'DC') ? 50 : 22), 
-        conn: conn, 
-        lat: lat, 
-        lon: lon,
-      };
-    }).filter(Boolean);
+    const responses = await Promise.all(requests);
+    let results = [];
+    
+    for(const res of responses){
+      if(!res||!res.ok) continue;
+      try{
+        const data = await res.json();
+        results = [...results, ...parseOCM(data)];
+      }catch{}
+    }
+    
+    // Deduplicar por ID real
+    const seen = new Set();
+    results = results.filter(s=>{ if(seen.has(s.id)) return false; seen.add(s.id); return true; });
+    
+    if(results.length > 0) return results;
+    throw new Error('OCM sin datos');
 
   } catch(err1) {
-    // 2. RESPALDO: Si el túnel también falla, probamos con OpenStreetMap
-    const query = `[out:json][timeout:10];nwr["amenity"="charging_station"](around:20000,${cLat},${cLon});out center 1000;`;
-    const overpassUrl = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
-
-    const res2 = await fetchWithTimeout(overpassUrl, {}, 10000);
-    if (!res2.ok) throw new Error('Ambas redes fallaron');
-    const data2 = await res2.json();
-
-    return data2.elements.map(raw => {
-      const lat = raw.lat || raw.center?.lat;
-      const lon = raw.lon || raw.center?.lon;
-      if (!lat || !lon || !raw.tags) return null;
-      
-      const t = raw.tags;
-      let conn = 'AC';
-      let connectors = parseInt(t.capacity) || 1;
-
-      if (t['socket:ccs'] || t['socket:chademo']) { conn = 'DC'; }
-
-      let pw = 0;
-      const pwStr = t['socket:ccs:output'] || t['capacity:kw'] || t['charge:kw'] || '';
-      const match = pwStr.match(/(\d+)/);
-      if (match) pw = parseInt(match[1]);
-      if (isNaN(pw) || pw === 0) pw = (conn === 'DC') ? 50 : 22;
-
-      return {
-        id: 'ev_osm_' + raw.id,
-        name: t.name || 'Punto de recarga',
-        address: t['addr:street'] ? `${t['addr:street']}` : '',
-        municipality: t['addr:city'] || '',
-        operator: t.operator || t.brand || 'Desconocido',
-        connectors: connectors,
-        pw: pw, conn: conn, lat: lat, lon: lon,
+    // RESPALDO: Overpass OSM — toda España dividida en 2 zonas
+    const parseOSM = (elements) => elements.map(raw=>{
+      const lat=raw.lat||raw.center?.lat;
+      const lon=raw.lon||raw.center?.lon;
+      if(!lat||!lon||!raw.tags) return null;
+      const t=raw.tags;
+      let conn='AC', pw=0;
+      const connectors=parseInt(t.capacity)||1;
+      if(t['socket:ccs']||t['socket:chademo']) conn='DC';
+      const pwStr=t['socket:ccs:output']||t['capacity:kw']||t['charge:kw']||'';
+      const m=pwStr.match(/(\d+)/);
+      if(m) pw=parseInt(m[1]);
+      if(!pw) pw=conn==='DC'?50:22;
+      return{
+        id:'osm_'+raw.id,
+        name:t.name||t.brand||t.operator||'Punto de recarga',
+        address:t['addr:street']||'',
+        municipality:t['addr:city']||'',
+        province:'', schedule:'',
+        operator:t.operator||t.brand||'',
+        connectors, pw, conn, lat, lon,
       };
     }).filter(Boolean);
+
+    // 2 peticiones Overpass: norte y sur de España
+    const q1=`[out:json][timeout:30];nwr["amenity"="charging_station"](39.0,-9.3,43.8,4.3);out center 3000;`;
+    const q2=`[out:json][timeout:30];nwr["amenity"="charging_station"](35.9,-9.3,39.0,4.3);out center 3000;`;
+    const base='https://overpass-api.de/api/interpreter?data=';
+    const [ro1,ro2]=await Promise.allSettled([
+      fetchWithTimeout(base+encodeURIComponent(q1),{},25000),
+      fetchWithTimeout(base+encodeURIComponent(q2),{},25000),
+    ]);
+    let osm=[];
+    for(const ro of [ro1,ro2]){
+      if(ro.status!=='fulfilled'||!ro.value.ok) continue;
+      try{ const d=await ro.value.json(); osm=[...osm,...parseOSM(d.elements||[])]; }catch{}
+    }
+    const seen2=new Set();
+    osm=osm.filter(s=>{ if(seen2.has(s.id)) return false; seen2.add(s.id); return true; });
+    if(osm.length>0) return osm;
+    throw new Error('Ambas fuentes fallaron');
   }
+
 }
 
 function getEVPool(){
@@ -989,9 +1068,14 @@ function renderEVMarkers(){
   if(!map)return;
   clearEVMarkers();
   if(!evMode||!allEV.length)return;
-  const bounds=map.getBounds().pad(0.3);
+  const zoom=map.getZoom();
+  const pad=zoom>=14?0.5:zoom>=12?1:2;
+  const bounds=map.getBounds().pad(pad);
   const pool=getEVPool();
-  const vis=pool.filter(s=>bounds.contains([s.lat,s.lon])).slice(0,80);
+  const all_vis=pool.filter(s=>bounds.contains([s.lat,s.lon]));
+  // Limitar según zoom — igual que gasolineras para no saturar
+  const evLimit=zoom>=14?500:zoom>=12?200:zoom>=10?80:30;
+  const vis=all_vis.slice(0,evLimit);
   vis.forEach(s=>{
     const isSel=evSelId===s.id;
     const pwTxt=s.pw>0?s.pw+'kW':'⚡';
@@ -1001,10 +1085,9 @@ function renderEVMarkers(){
     el.addEventListener('click',e=>{e.stopPropagation();openEVSheet(s);});
     mk.addTo(map);evMarkers.push(mk);
   });
-
-  // Actualiza el contador inferior también para EV
-  const cnt=pool.filter(s=>bounds.contains([s.lat,s.lon])).length;
-  document.getElementById('infocount').textContent = cnt > 0 ? `${cnt} puntos en pantalla` : '0 puntos';
+  // Contador inferior
+  const cnt=vis.length;
+  document.getElementById('infocount').textContent=cnt>0?`${cnt} puntos en pantalla`:'0 puntos';
 }
 
 function openEVSheet(s){
@@ -1019,9 +1102,34 @@ function openEVSheet(s){
     <div class="evcard"><div class="evclbl">TIPO</div><div class="evcval" style="font-size:13px">${s.conn}</div><div class="evcunit">corriente</div></div>
     <div class="evcard"><div class="evclbl">CONECTORES</div><div class="evcval">${s.connectors}</div><div class="evcunit">puntos</div></div>
   `;
+  // Botón favorito EV
+  const favBtn=document.getElementById('evshfav');
+  if(favBtn){
+    favBtn.classList.toggle('on', myFavs.has(s.id));
+    favBtn.onclick=()=>toggleEVFav(s);
+  }
   document.getElementById('evsheet').classList.add('on');
   document.getElementById('sbd').classList.add('on');
   renderEVMarkers();
+}
+
+function toggleEVFav(s){
+  if(myFavs.has(s.id)){
+    myFavs.delete(s.id);
+    // Eliminar datos guardados
+    const saved=JSON.parse(localStorage.getItem('ev_favdata')||'{}');
+    delete saved[s.id];
+    localStorage.setItem('ev_favdata',JSON.stringify(saved));
+  } else {
+    myFavs.add(s.id);
+    // Guardar datos completos del punto para mostrar en Favoritos sin necesitar allEV
+    const saved=JSON.parse(localStorage.getItem('ev_favdata')||'{}');
+    saved[s.id]=s;
+    localStorage.setItem('ev_favdata',JSON.stringify(saved));
+  }
+  saveFavs();
+  const favBtn=document.getElementById('evshfav');
+  if(favBtn) favBtn.classList.toggle('on', myFavs.has(s.id));
 }
 function closeEVSheet(){evSelId=null;document.getElementById('evsheet').classList.remove('on');document.getElementById('sbd').classList.remove('on');renderEVMarkers();}
 
@@ -1230,6 +1338,28 @@ document.getElementById('sinput').addEventListener('input',e=>{
 });
 document.getElementById('sclear').addEventListener('click',()=>{document.getElementById('sinput').value='';document.getElementById('sclear').style.display='none';document.getElementById('autocomplete').style.display='none';});
 document.getElementById('map').addEventListener('click',()=>document.getElementById('autocomplete').style.display='none');
+
+// --- FUNCIÓN PARA LOS BOTONES DE LA LISTA ---
+function toggleModoLista(modo){
+  const btnGas=document.getElementById('lbtn-gas');
+  const btnEv=document.getElementById('lbtn-ev');
+
+  if(modo==='gas'){
+    // Volver a gasolineras: desactivar EV, cerrar evpanel, abrir lpanel
+    if(evMode) deactivateEVMode();
+    closeEVPanel();
+    btnGas.style.borderColor='#4CD964'; btnGas.style.color='#4CD964'; btnGas.style.background='rgba(76,217,100,0.1)';
+    btnEv.style.borderColor='rgba(255,255,255,0.1)'; btnEv.style.color='#a0b89e'; btnEv.style.background='transparent';
+    openList(); // abre lpanel con lista de gasolineras y sus filtros
+  } else {
+    // Ir a eléctricos: cerrar lpanel, activar EV, abrir evpanel con sus filtros
+    closeList();
+    btnEv.style.borderColor='#5AC8FA'; btnEv.style.color='#5AC8FA'; btnEv.style.background='rgba(90,200,250,0.1)';
+    btnGas.style.borderColor='rgba(255,255,255,0.1)'; btnGas.style.color='#a0b89e'; btnGas.style.background='transparent';
+    if(!evMode) activateEVMode();
+    openEVPanel(); // abre evpanel con filtros de radio/potencia/tipo
+  }
+}
 
 // Favorites
 document.getElementById('shfav').addEventListener('click', toggleFav);
