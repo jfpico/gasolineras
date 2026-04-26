@@ -901,106 +901,122 @@ function saveEVCache(data){try{localStorage.setItem(EV_CACHE_KEY,JSON.stringify(
 
 // FUNCIÓN PROTEGIDA: Túnel Proxy para evadir restricciones de Archivos Locales (file://)
 async function fetchEV(){
-  // Toma el centro del mapa si no hay GPS
-  // Descarga TODOS los puntos de España de una vez (igual que gasolineras)
-  // Bounding box España: lat 35.9-43.8, lon -9.3-4.3
-  // Usamos paginación de 5 páginas de 2000 para cubrir los ~6000-8000 puntos de España
-  try {
-    const KEY = '8001e719-7ba5-4122-824b-32ebf25608b2';
-    const BASE = `https://api.openchargemap.io/v3/poi/?output=json&countrycode=ES&compact=true&verbose=false&boundingbox=(35.9,-9.3,43.8,4.3)&key=${KEY}`;
-    
-    // Descargamos en dos tandas de 5000 para cubrir España completa
-    const urls = [
-      `${BASE}&maxresults=5000&startindex=0`,
-      `${BASE}&maxresults=5000&startindex=5000`,
-    ];
-    
-    const parseOCM = (data) => (Array.isArray(data) ? data : []).map(raw => {
-      const lat = raw.AddressInfo?.Latitude;
-      const lon = raw.AddressInfo?.Longitude;
-      if(!lat || !lon) return null;
-      let pw = 0, conn = 'AC', connectors = 1;
-      if(raw.Connections?.length){
-        connectors = raw.Connections.length;
-        raw.Connections.forEach(c => {
-          if(c.PowerKW && c.PowerKW > pw) pw = c.PowerKW;
-          const cn = (c.ConnectionType?.Title || '').toUpperCase();
-          if(cn.includes('DC') || cn.includes('CCS') || cn.includes('CHADEMO')) conn = 'DC';
-        });
-      }
-      return {
-        id: 'ev_ocm_' + (raw.ID || Math.random()),
-        name: raw.AddressInfo?.Title || 'Punto de recarga',
-        address: raw.AddressInfo?.AddressLine1 || '',
-        municipality: raw.AddressInfo?.Town || '',
-        province: raw.AddressInfo?.StateOrProvince || '',
-        schedule: raw.UsageCost || 'Consultar app',
-        operator: raw.OperatorInfo?.Title || 'Operador',
-        connectors, pw: pw || (conn==='DC'?50:22), conn, lat, lon,
-      };
-    }).filter(Boolean);
+  // Estrategia: OpenChargeMap directo (funciona en HTTPS desde iPhone)
+  // Dividimos España en zonas para obtener más puntos superando el límite de 1000/petición
+  const KEY = '8001e719-7ba5-4122-824b-32ebf25608b2';
+  
+  const parseOCM = (data) => (Array.isArray(data) ? data : []).map(raw => {
+    const lat = raw.AddressInfo?.Latitude;
+    const lon = raw.AddressInfo?.Longitude;
+    if(!lat || !lon || lat===0 || lon===0) return null;
+    // Validar que estén dentro de España
+    if(lat<35||lat>44||lon<-10||lon>5) return null;
+    let pw=0, conn='AC', connectors=1;
+    if(raw.Connections?.length){
+      connectors=raw.Connections.length;
+      raw.Connections.forEach(c=>{
+        if(c.PowerKW&&c.PowerKW>pw) pw=c.PowerKW;
+        const cn=(c.ConnectionType?.Title||'').toUpperCase();
+        if(cn.includes('DC')||cn.includes('CCS')||cn.includes('CHADEMO')) conn='DC';
+      });
+    }
+    return{
+      id:'ev_'+raw.ID,
+      name:raw.AddressInfo?.Title||'Punto de recarga',
+      address:raw.AddressInfo?.AddressLine1||'',
+      municipality:raw.AddressInfo?.Town||'',
+      province:raw.AddressInfo?.StateOrProvince||'',
+      schedule:raw.UsageCost||'Consultar app',
+      operator:raw.OperatorInfo?.Title||'Operador',
+      connectors, pw:pw||(conn==='DC'?50:22), conn, lat, lon,
+    };
+  }).filter(Boolean);
 
-    // Petición 1 directa, petición 2 en paralelo
-    const proxyBase = 'https://api.allorigins.win/raw?url=';
-    const fetch1 = fetchWithTimeout(proxyBase + encodeURIComponent(urls[0]), {cache:'no-store'}, 20000);
-    const fetch2 = fetchWithTimeout(proxyBase + encodeURIComponent(urls[1]), {cache:'no-store'}, 20000);
+  // Zonas de España: dividimos en 6 áreas para superar límite de 1000/petición
+  const ZONES = [
+    // Norte: Galicia, Asturias, Cantabria, País Vasco, Navarra
+    {lat1:41.5,lon1:-9.3,lat2:43.8,lon2:-1.5},
+    // Noreste: Aragón, Cataluña, Baleares
+    {lat1:39.5,lon1:-1.5,lat2:43.8,lon2:4.3},
+    // Centro-Norte: Castilla y León, La Rioja
+    {lat1:40.0,lon1:-6.5,lat2:43.0,lon2:-1.5},
+    // Centro: Madrid, Castilla-La Mancha, Extremadura
+    {lat1:37.5,lon1:-7.5,lat2:41.5,lon2:-1.5},
+    // Sur: Andalucía
+    {lat1:35.9,lon1:-7.5,lat2:38.5,lon2:-1.5},
+    // Levante: Valencia, Murcia, Canarias(aprox)
+    {lat1:36.0,lon1:-1.5,lat2:40.5,lon2:0.5},
+  ];
+
+  try {
+    // Peticiones directas a OCM — sin proxy, funciona en HTTPS
+    const requests = ZONES.map(z => {
+      const url = `https://api.openchargemap.io/v3/poi/?output=json&countrycode=ES&compact=true&verbose=false&maxresults=1000&boundingbox=(${z.lat1},${z.lon1},${z.lat2},${z.lon2})&key=${KEY}`;
+      return fetchWithTimeout(url, {}, 15000).catch(()=>null);
+    });
     
-    const [r1, r2] = await Promise.allSettled([fetch1, fetch2]);
+    const responses = await Promise.all(requests);
     let results = [];
     
-    if(r1.status==='fulfilled' && r1.value.ok){
-      const d1 = await r1.value.json();
-      if(Array.isArray(d1)) results = [...results, ...parseOCM(d1)];
-    }
-    if(r2.status==='fulfilled' && r2.value.ok){
-      const d2 = await r2.value.json();
-      if(Array.isArray(d2)) results = [...results, ...parseOCM(d2)];
+    for(const res of responses){
+      if(!res||!res.ok) continue;
+      try{
+        const data = await res.json();
+        results = [...results, ...parseOCM(data)];
+      }catch{}
     }
     
-    // Deduplicar por id
+    // Deduplicar por ID real
     const seen = new Set();
-    results = results.filter(s => { if(seen.has(s.id)) return false; seen.add(s.id); return true; });
+    results = results.filter(s=>{ if(seen.has(s.id)) return false; seen.add(s.id); return true; });
     
     if(results.length > 0) return results;
-    throw new Error('Sin datos de OCM');
+    throw new Error('OCM sin datos');
 
   } catch(err1) {
-    // RESPALDO: OpenStreetMap Overpass — toda España de una vez
-    const query = `[out:json][timeout:60];nwr["amenity"="charging_station"](35.9,-9.3,43.8,4.3);out center 8000;`;
-    const overpassUrl = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
-
-    const res2 = await fetchWithTimeout(overpassUrl, {}, 30000);
-    if (!res2.ok) throw new Error('Ambas redes fallaron');
-    const data2 = await res2.json();
-
-    return data2.elements.map(raw => {
-      const lat = raw.lat || raw.center?.lat;
-      const lon = raw.lon || raw.center?.lon;
-      if (!lat || !lon || !raw.tags) return null;
-      
-      const t = raw.tags;
-      let conn = 'AC';
-      let connectors = parseInt(t.capacity) || 1;
-
-      if (t['socket:ccs'] || t['socket:chademo']) { conn = 'DC'; }
-
-      let pw = 0;
-      const pwStr = t['socket:ccs:output'] || t['capacity:kw'] || t['charge:kw'] || '';
-      const match = pwStr.match(/(\d+)/);
-      if (match) pw = parseInt(match[1]);
-      if (isNaN(pw) || pw === 0) pw = (conn === 'DC') ? 50 : 22;
-
-      return {
-        id: 'ev_osm_' + raw.id,
-        name: t.name || 'Punto de recarga',
-        address: t['addr:street'] ? `${t['addr:street']}` : '',
-        municipality: t['addr:city'] || '',
-        operator: t.operator || t.brand || 'Desconocido',
-        connectors: connectors,
-        pw: pw, conn: conn, lat: lat, lon: lon,
+    // RESPALDO: Overpass OSM — toda España dividida en 2 zonas
+    const parseOSM = (elements) => elements.map(raw=>{
+      const lat=raw.lat||raw.center?.lat;
+      const lon=raw.lon||raw.center?.lon;
+      if(!lat||!lon||!raw.tags) return null;
+      const t=raw.tags;
+      let conn='AC', pw=0;
+      const connectors=parseInt(t.capacity)||1;
+      if(t['socket:ccs']||t['socket:chademo']) conn='DC';
+      const pwStr=t['socket:ccs:output']||t['capacity:kw']||t['charge:kw']||'';
+      const m=pwStr.match(/(\d+)/);
+      if(m) pw=parseInt(m[1]);
+      if(!pw) pw=conn==='DC'?50:22;
+      return{
+        id:'osm_'+raw.id,
+        name:t.name||t.brand||t.operator||'Punto de recarga',
+        address:t['addr:street']||'',
+        municipality:t['addr:city']||'',
+        province:'', schedule:'',
+        operator:t.operator||t.brand||'',
+        connectors, pw, conn, lat, lon,
       };
     }).filter(Boolean);
+
+    // 2 peticiones Overpass: norte y sur de España
+    const q1=`[out:json][timeout:30];nwr["amenity"="charging_station"](39.0,-9.3,43.8,4.3);out center 3000;`;
+    const q2=`[out:json][timeout:30];nwr["amenity"="charging_station"](35.9,-9.3,39.0,4.3);out center 3000;`;
+    const base='https://overpass-api.de/api/interpreter?data=';
+    const [ro1,ro2]=await Promise.allSettled([
+      fetchWithTimeout(base+encodeURIComponent(q1),{},25000),
+      fetchWithTimeout(base+encodeURIComponent(q2),{},25000),
+    ]);
+    let osm=[];
+    for(const ro of [ro1,ro2]){
+      if(ro.status!=='fulfilled'||!ro.value.ok) continue;
+      try{ const d=await ro.value.json(); osm=[...osm,...parseOSM(d.elements||[])]; }catch{}
+    }
+    const seen2=new Set();
+    osm=osm.filter(s=>{ if(seen2.has(s.id)) return false; seen2.add(s.id); return true; });
+    if(osm.length>0) return osm;
+    throw new Error('Ambas fuentes fallaron');
   }
+
 }
 
 function getEVPool(){
