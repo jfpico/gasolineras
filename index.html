@@ -1185,7 +1185,17 @@ function renderEVList(){
   });
 }
 
-function openEVPanel(){document.getElementById('evpanel').classList.add('on');renderEVList();}
+function openEVPanel(){
+  document.getElementById('evpanel').classList.add('on');
+  // Marcar botón eléctricos como activo en todos los paneles
+  document.querySelectorAll('[id="lbtn-ev"]').forEach(b=>{
+    b.style.borderColor='#5AC8FA';b.style.color='#5AC8FA';b.style.background='rgba(90,200,250,0.1)';
+  });
+  document.querySelectorAll('[id="lbtn-gas"]').forEach(b=>{
+    b.style.borderColor='rgba(255,255,255,0.1)';b.style.color='#a0b89e';b.style.background='transparent';
+  });
+  renderEVList();
+}
 function closeEVPanel(){document.getElementById('evpanel').classList.remove('on');}
 
 async function activateEVMode(){
@@ -1356,8 +1366,20 @@ document.getElementById('map').addEventListener('click',()=>document.getElementB
 
 // --- FUNCIÓN PARA LOS BOTONES DE LA LISTA ---
 function toggleModoLista(modo){
+  // Actualizar TODOS los botones gas/ev (hay varios en distintos paneles)
   const btnGas=document.getElementById('lbtn-gas');
   const btnEv=document.getElementById('lbtn-ev');
+  // Sincronizar estilos en todos los paneles
+  document.querySelectorAll('[id="lbtn-gas"]').forEach(b=>{
+    b.style.borderColor=modo==='gas'?'#4CD964':'rgba(255,255,255,0.1)';
+    b.style.color=modo==='gas'?'#4CD964':'#a0b89e';
+    b.style.background=modo==='gas'?'rgba(76,217,100,0.1)':'transparent';
+  });
+  document.querySelectorAll('[id="lbtn-ev"]').forEach(b=>{
+    b.style.borderColor=modo==='ev'?'#5AC8FA':'rgba(255,255,255,0.1)';
+    b.style.color=modo==='ev'?'#5AC8FA':'#a0b89e';
+    b.style.background=modo==='ev'?'rgba(90,200,250,0.1)':'transparent';
+  });
 
   if(modo==='gas'){
     if(evMode) deactivateEVMode();
@@ -1386,7 +1408,10 @@ function toggleModoLista(modo){
 document.getElementById('shfav').addEventListener('click', toggleFav);
 
 document.getElementById('shcl').addEventListener('click',closeSheet);
-document.getElementById('sbd').addEventListener('click',closeSheet);
+document.getElementById('sbd').addEventListener('click',()=>{
+  closeSheet();
+  closeEVSheet();
+});
 document.getElementById('lbk').addEventListener('click',()=>{closeList();setTab('map');});
 
 // Botón satélite
