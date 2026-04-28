@@ -517,7 +517,7 @@ const FUELS={ G95:{label:'G-95',color:'#4CD964'}, G98:{label:'G-98',color:'#4CD9
 // ══════════════════════════════════════
 let map, userPos=null, userMarker=null, allStations=[];
 let mapMarkers=[], distCircle=null, selId=null, dataReady=false;
-let fuel='G95', distKm=0, brands=new Set(), sortPrice=true, sortDist=true;
+let fuel=localStorage.getItem('gas_fuel')||'G95', distKm=0, brands=new Set(), sortPrice=true, sortDist=true;
 let showFavsOnly = false;
 let lastUpdateDate = "Actualizado recientemente";
 const CACHE_KEY='gas_min_v1', CACHE_TTL=90*60*1000;
@@ -970,23 +970,26 @@ async function fetchEV(){
   // Zonas de España: dividimos en 6 áreas para superar límite de 1000/petición
   // España dividida en 8 zonas con solapamiento para no dejar huecos
   // Cada zona: maxresults=1000, solapadas para garantizar cobertura total
+  // Cuadrícula regular con solapamiento — garantiza cobertura total sin gaps
+  // España peninsular: lat 35.9-43.8, lon -9.3-4.3
+  // Canarias: lat 27.6-29.5, lon -18.2-(-13.3)
   const ZONES = [
-    // Galicia y Asturias
-    {lat1:41.8,lon1:-9.3,lat2:43.8,lon2:-6.0},
-    // Cantabria, País Vasco, Navarra, La Rioja
-    {lat1:41.8,lon1:-6.0,lat2:43.8,lon2:-1.5},
-    // Castilla y León oeste (Salamanca, Zamora, León, Valladolid)
-    {lat1:40.0,lon1:-7.5,lat2:43.0,lon2:-4.0},
-    // Castilla y León este (Burgos, Soria, Segovia, Ávila) + Aragón norte
-    {lat1:40.0,lon1:-4.0,lat2:43.0,lon2:-1.5},
-    // Cataluña + Aragón + Baleares
-    {lat1:38.5,lon1:-1.5,lat2:43.8,lon2:4.3},
-    // Madrid + Castilla-La Mancha + Extremadura
-    {lat1:37.5,lon1:-7.5,lat2:41.5,lon2:-1.5},
-    // Andalucía completa
-    {lat1:35.9,lon1:-7.5,lat2:38.5,lon2:-1.5},
-    // Levante: Valencia, Murcia + sur de Andalucía este
-    {lat1:36.0,lon1:-1.5,lat2:40.5,lon2:1.0},
+    // Franja norte (lat 41-43.8): Galicia, Asturias, Cantabria, PV, Navarra, La Rioja
+    {lat1:41.0,lon1:-9.3,lat2:43.8,lon2:-4.5},
+    {lat1:41.0,lon1:-4.5,lat2:43.8,lon2:1.0},
+    // Franja centro-norte (lat 39-42): CyL, Aragón, parte norte
+    {lat1:39.0,lon1:-9.3,lat2:42.0,lon2:-5.5},
+    {lat1:39.0,lon1:-5.5,lat2:42.0,lon2:-1.5},
+    {lat1:39.0,lon1:-1.5,lat2:43.0,lon2:4.3},
+    // Franja centro (lat 37-40.5): Madrid, Extremadura, CLM, Levante
+    {lat1:37.0,lon1:-9.3,lat2:40.5,lon2:-5.0},
+    {lat1:37.0,lon1:-5.0,lat2:40.5,lon2:-1.5},
+    {lat1:37.0,lon1:-1.5,lat2:40.5,lon2:4.3},
+    // Franja sur (lat 35.9-38.5): Andalucía completa
+    {lat1:35.9,lon1:-9.3,lat2:38.5,lon2:-3.5},
+    {lat1:35.9,lon1:-3.5,lat2:38.5,lon2:4.3},
+    // Canarias
+    {lat1:27.6,lon1:-18.2,lat2:29.5,lon2:-13.3},
   ];
 
   try {
@@ -1326,10 +1329,13 @@ async function main(){
 // ══════════════════════════════════════
 // EVENTS
 // ══════════════════════════════════════
-function setFuel(f){ fuel=f; document.querySelectorAll('.ftab').forEach(b=>b.classList.toggle('on',b.dataset.fuel===f)); document.querySelectorAll('.lfbtn').forEach(b=>b.classList.toggle('on',b.dataset.fuel===f)); closeSheet(); renderAll(); }
+function setFuel(f){ fuel=f; localStorage.setItem('gas_fuel',f); document.querySelectorAll('.ftab').forEach(b=>b.classList.toggle('on',b.dataset.fuel===f)); document.querySelectorAll('.lfbtn').forEach(b=>b.classList.toggle('on',b.dataset.fuel===f)); closeSheet(); renderAll(); }
 function setDistKm(km){ distKm=km; document.querySelectorAll('.dtag').forEach(t=>t.classList.toggle('on',parseInt(t.dataset.km)===km)); document.querySelectorAll('.ldbtn').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.km)===km)); updateCircle(); if(km>0&&userPos&&map)map.flyTo([userPos.lat,userPos.lon],km<=5?14:km<=10?13:km<=25?12:11,{duration:.5}); renderAll(); }
 document.querySelectorAll('.ftab').forEach(b=>b.addEventListener('click',()=>setFuel(b.dataset.fuel)));
 document.querySelectorAll('.lfbtn').forEach(b=>b.addEventListener('click',()=>setFuel(b.dataset.fuel)));
+// Sincronizar botones con el fuel guardado
+document.querySelectorAll('.ftab').forEach(b=>b.classList.toggle('on',b.dataset.fuel===fuel));
+document.querySelectorAll('.lfbtn').forEach(b=>b.classList.toggle('on',b.dataset.fuel===fuel));
 document.querySelectorAll('.dtag').forEach(t=>t.addEventListener('click',()=>setDistKm(parseInt(t.dataset.km)||0)));
 document.querySelectorAll('.ldbtn').forEach(b=>b.addEventListener('click',()=>setDistKm(parseInt(b.dataset.km)||0)));
 document.getElementById('bbtn-all').addEventListener('click',clearBrands);
