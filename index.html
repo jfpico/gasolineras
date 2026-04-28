@@ -847,12 +847,13 @@ function clearFilt(){
 }
 
 let acTm;
+function norm(s){return s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'')}
 function buildAC(q){
   const ac=document.getElementById('autocomplete');
   if(!q||q.length<2||!allStations.length){ac.style.display='none';return;}
-  const ql=q.toLowerCase().trim(); const m2=new Map();
+  const ql=norm(q.trim()); const m2=new Map();
   allStations.forEach(s=>{
-    if(s.municipality&&s.municipality.toLowerCase().includes(ql)){
+    if(s.municipality&&norm(s.municipality).includes(ql)){
       const k=s.municipality.toLowerCase(); if(!m2.has(k))m2.set(k,{name:s.municipality,prov:s.province,type:'loc',lat:s.lat,lon:s.lon,n:0}); m2.get(k).n++;
     }
     if(s.cp&&s.cp.startsWith(ql)){
