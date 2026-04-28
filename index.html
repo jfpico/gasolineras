@@ -318,8 +318,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 <div id="tabbar">
   <div class="tbi">
     <div class="ti on" data-tab="map"><div class="ticon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="12" height="17" rx="1.5"/><path d="M7 8h4M7 12h4M15 4l4 3v3h-4"/><path d="M19 10v7a2 2 0 0 1-2 2h-1"/><path d="M6 21v-1a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1"/></svg></div><div class="tlbl">Gasolineras</div><div class="tdot"></div></div>
+    <div class="ti" data-tab="ev"><div class="ticon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z" fill="currentColor" stroke="none" opacity="0.85"/></svg></div><div class="tlbl">Eléctricos</div><div class="tdot"></div></div>
     <div class="ti" data-tab="list"><div class="ticon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.2" fill="currentColor" stroke="none"/></svg></div><div class="tlbl">Lista</div><div class="tdot"></div></div>
-    <div class="ti" data-tab="ev"><div class="ticon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z" fill="currentColor" stroke="none" opacity="0.85"/></svg></div><div class="tlbl">Recarga</div><div class="tdot"></div></div>
     <div class="ti" data-tab="favs"><div class="ticon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div><div class="tlbl">Favoritos</div><div class="tdot"></div></div>
   </div>
 </div>
@@ -422,6 +422,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
       <button class="evfbtn" data-conn="AC">AC</button>
       <button class="evfbtn" data-conn="DC">DC Rápido</button>
     </div>
+     </div>
+  <div style="display: flex; gap: 8px; padding: 10px 15px; background: #0e170e; border-bottom: 1px solid rgba(255,255,255,0.06);">
+    <button id="lbtn-gas" onclick="toggleModoLista('gas')" style="flex: 1; padding: 8px; border-radius: 10px; border: 1.5px solid #4CD964; background: rgba(76,217,100,0.1); color: #4CD964; font-weight: 800; font-size: 11px;">GASOLINERAS</button>
+    <button id="lbtn-ev" onclick="toggleModoLista('ev')" style="flex: 1; padding: 8px; border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.1); background: transparent; color: #a0b89e; font-weight: 800; font-size: 11px;">ELÉCTRICOS</button>
   </div>
   <div id="evbody"><div class="lempty" style="color:#7ab8d4">⚡ Cargando puntos de recarga…</div></div>
 </div>
