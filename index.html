@@ -395,8 +395,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
     <div class="evbk" id="evbk">←</div>
     <div style="flex:1;min-width:0"><div class="evhsub" id="evhsub">Cargando…</div></div>
     <div style="display:flex;gap:5px;flex-shrink:0">
-      <button onclick="toggleModoLista('gas')" style="padding:5px 11px;border-radius:9px;border:1.5px solid rgba(255,255,255,0.1);background:transparent;color:#a0b89e;font-weight:800;font-size:11px;cursor:pointer;font-family:inherit">⛽ Gasolineras</button>
-      <button onclick="toggleModoLista('ev')" style="padding:5px 11px;border-radius:9px;border:1.5px solid #5AC8FA;background:rgba(90,200,250,0.1);color:#5AC8FA;font-weight:800;font-size:11px;cursor:pointer;font-family:inherit" id="evhdr-ev-btn">⚡ Eléctricos</button>
     </div>
   </div>
   <div class="evfilters">
@@ -422,6 +420,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
       <button class="evfbtn" data-conn="AC">AC</button>
       <button class="evfbtn" data-conn="DC">DC Rápido</button>
     </div>
+     </div>
+  <div style="display: flex; gap: 8px; padding: 10px 15px; background: #0e170e; border-bottom: 1px solid rgba(255,255,255,0.06);">
+    <button id="lbtn-gas" onclick="toggleModoLista('gas')" style="flex: 1; padding: 8px; border-radius: 10px; border: 1.5px solid #4CD964; background: rgba(76,217,100,0.1); color: #4CD964; font-weight: 800; font-size: 11px;">GASOLINERAS</button>
+    <button id="lbtn-ev" onclick="toggleModoLista('ev')" style="flex: 1; padding: 8px; border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.1); background: transparent; color: #a0b89e; font-weight: 800; font-size: 11px;">ELÉCTRICOS</button>
   </div>
   <div id="evbody"><div class="lempty" style="color:#7ab8d4">⚡ Cargando puntos de recarga…</div></div>
 </div>
