@@ -395,6 +395,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
   </div>
   <div style="display: flex; gap: 8px; padding: 10px 15px; background: #0e170e; border-bottom: 1px solid rgba(255,255,255,0.06);">
     <button id="lbtn-gas" onclick="toggleModoLista('gas')" style="flex: 1; padding: 8px; border-radius: 10px; border: 1.5px solid #4CD964; background: rgba(76,217,100,0.1); color: #4CD964; font-weight: 800; font-size: 11px;">GASOLINERAS</button>
+    <button id="lbtn-both" onclick="toggleModoLista('both')" style="flex: 1; padding: 8px; border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.1); background: transparent; color: #a0b89e; font-weight: 800; font-size: 11px;">AMBOS</button>
     <button id="lbtn-ev" onclick="toggleModoLista('ev')" style="flex: 1; padding: 8px; border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.1); background: transparent; color: #a0b89e; font-weight: 800; font-size: 11px;">ELÉCTRICOS</button>
 </div>
   <div id="lbody"><div class="lempty">⛽ Cargando datos…</div></div>
@@ -434,6 +435,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
      </div>
   <div style="display: flex; gap: 8px; padding: 10px 15px; background: #0e170e; border-bottom: 1px solid rgba(255,255,255,0.06);">
     <button id="lbtn-gas" onclick="toggleModoLista('gas')" style="flex: 1; padding: 8px; border-radius: 10px; border: 1.5px solid #4CD964; background: rgba(76,217,100,0.1); color: #4CD964; font-weight: 800; font-size: 11px;">GASOLINERAS</button>
+    <button id="lbtn-both" onclick="toggleModoLista('both')" style="flex: 1; padding: 8px; border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.1); background: transparent; color: #a0b89e; font-weight: 800; font-size: 11px;">AMBOS</button>
     <button id="lbtn-ev" onclick="toggleModoLista('ev')" style="flex: 1; padding: 8px; border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.1); background: transparent; color: #a0b89e; font-weight: 800; font-size: 11px;">ELÉCTRICOS</button>
   </div>
   <div id="evbody"><div class="lempty" style="color:#7ab8d4">⚡ Cargando puntos de recarga…</div></div>
@@ -528,10 +530,24 @@ const FUELS={ G95:{label:'G-95',color:'#4CD964'}, G98:{label:'G-98',color:'#4CD9
 // ══════════════════════════════════════
 // STATE & FAVORITES
 // ══════════════════════════════════════
+const APP_STATE_KEY='gas_app_state_v1';
+function loadAppState(){try{return JSON.parse(localStorage.getItem(APP_STATE_KEY)||'{}')||{};}catch{return{};}}
+const savedState=loadAppState();
+
 let map, userPos=null, userMarker=null, allStations=[];
 let mapMarkers=[], distCircle=null, selId=null, dataReady=false;
-let fuel=localStorage.getItem('gas_fuel')||'G95', distKm=0, brands=new Set(), sortPrice=true, sortDist=true;
+let fuel=savedState.fuel||localStorage.getItem('gas_fuel')||'G95', distKm=Number(savedState.distKm)||0, brands=new Set(Array.isArray(savedState.brands)?savedState.brands:[]), sortPrice=true, sortDist=true;
 let showFavsOnly = false;
+let favListMode = 'both';
+function saveAppState(){
+  try{
+    localStorage.setItem(APP_STATE_KEY,JSON.stringify({
+      fuel, distKm, brands:[...brands], mapType:isSatellite?'satellite':'normal',
+      evDistKm, evMinPow, evConnType
+    }));
+    localStorage.setItem('gas_fuel',fuel);
+  }catch{}
+}
 let lastUpdateDate = "Actualizado recientemente";
 const CACHE_KEY='gas_min_v1', CACHE_TTL=90*60*1000;
 const MINETUR_BASE='https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/';
@@ -652,7 +668,7 @@ async function fetchNacional(){ return fetchAndTransform(MINETUR_BASE, 20000); }
 async function fetchMinisterio(){ return fetchNacional(); }
 
 // Capas del mapa
-let baseLayer, satLayer, labelsLayer, roadsLayer, isSatellite = false;
+let baseLayer, satLayer, labelsLayer, roadsLayer, isSatellite = savedState.mapType==='satellite';
 
 function initMap(lat,lon){
   map=L.map('map',{center:[lat,lon],zoom:13,zoomControl:false,attributionControl:false});
@@ -668,32 +684,34 @@ function initMap(lat,lon){
   roadsLayer  = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,pane:'overlayPane',opacity:0.95});
 
   baseLayer.addTo(map);
+  if(savedState.mapType==='satellite') applyMapType(true,false);
 
   // Un solo listener de moveend — renderiza según el modo activo
   map.on('moveend',()=>{ if(evMode) renderEVMarkers(); else renderMarkers(); });
 }
 
-function toggleSatellite() {
+function applyMapType(satellite,persist=true) {
+  isSatellite = !!satellite;
   if(!map) return;
-  isSatellite = !isSatellite;
   const btn = document.getElementById('satbtn');
-
   if(isSatellite) {
-    map.removeLayer(baseLayer);
-    satLayer.addTo(map);
-    roadsLayer.addTo(map);
-    labelsLayer.addTo(map);
-    btn.classList.add('on');
-    btn.innerHTML = '🗺️';
+    if(map.hasLayer(baseLayer)) map.removeLayer(baseLayer);
+    if(!map.hasLayer(satLayer)) satLayer.addTo(map);
+    if(!map.hasLayer(roadsLayer)) roadsLayer.addTo(map);
+    if(!map.hasLayer(labelsLayer)) labelsLayer.addTo(map);
+    btn?.classList.add('on');
+    if(btn) btn.innerHTML = '🗺️';
   } else {
-    map.removeLayer(labelsLayer);
-    map.removeLayer(roadsLayer);
-    map.removeLayer(satLayer);
-    baseLayer.addTo(map);
-    btn.classList.remove('on');
-    btn.innerHTML = '🛰️';
+    if(map.hasLayer(labelsLayer)) map.removeLayer(labelsLayer);
+    if(map.hasLayer(roadsLayer)) map.removeLayer(roadsLayer);
+    if(map.hasLayer(satLayer)) map.removeLayer(satLayer);
+    if(!map.hasLayer(baseLayer)) baseLayer.addTo(map);
+    btn?.classList.remove('on');
+    if(btn) btn.innerHTML = '🛰️';
   }
+  if(persist) saveAppState();
 }
+function toggleSatellite() { applyMapType(!isSatellite); }
 
 function updateUserMarker(lat, lon) {
   if (!map) return;
@@ -822,8 +840,8 @@ function buildMapBrandBtns(){
   newAllBtn.classList.toggle('on',brands.size===0); newAllBtn.addEventListener('click',clearBrands);
 }
 
-function toggleBrand(bid){ if(brands.has(bid))brands.delete(bid); else brands.add(bid); syncBrandUI(); renderAll(); }
-function clearBrands(){ brands.clear(); syncBrandUI(); renderAll(); }
+function toggleBrand(bid){ if(brands.has(bid))brands.delete(bid); else brands.add(bid); saveAppState(); syncBrandUI(); renderAll(); }
+function clearBrands(){ brands.clear(); saveAppState(); syncBrandUI(); renderAll(); }
 function syncBrandUI(){
   document.querySelectorAll('#mbstrip .mbtag').forEach(t=>{ if(t.dataset.brand==='ALL')t.classList.toggle('on',brands.size===0); else t.classList.toggle('on',brands.has(t.dataset.brand)); });
   const ball=document.getElementById('bbtn-all'); if(ball)ball.classList.toggle('on',brands.size===0);
@@ -845,10 +863,10 @@ function renderList(){
   if(!dataReady){c.innerHTML='<div class="lempty">⛽ Cargando datos…</div>';return;}
   
   let pool=allStations;
-  if(showFavsOnly) pool = pool.filter(s => myFavs.has(s.id));
+  if(showFavsOnly) pool = favListMode==='ev' ? [] : pool.filter(s => myFavs.has(s.id));
   // Si estamos en favoritos, añadir también los puntos EV favoritos
   let evFavItems = [];
-  if(showFavsOnly){
+  if(showFavsOnly && favListMode!=='gas'){
     const saved=JSON.parse(localStorage.getItem('ev_favdata')||'{}');
     evFavItems=Object.values(saved).filter(s=>myFavs.has(s.id));
   }
@@ -864,13 +882,17 @@ function renderList(){
   else if(effSortDist){ wP.sort((a,b)=>(a.dist||999)-(b.dist||999)); noP.sort((a,b)=>(a.dist||999)-(b.dist||999)); }
   
   const sorted=[...wP,...noP].slice(0,150);
-  let sub=`${sorted.length} estaciones`;
+  let sub=showFavsOnly
+    ? `${sorted.length} gas · ${evFavItems.length} eléctricos`
+    : `${sorted.length} estaciones`;
   if(distKm>0)sub+=` · ${distKm} km`; if(brands.size>0)sub+=` · ${brands.size} marca${brands.size>1?'s':''}`;
   const lhsub=document.getElementById('lhsub'); if(lhsub)lhsub.textContent=sub;
   
   if(!sorted.length && !evFavItems.length){
     if(showFavsOnly && myFavs.size === 0) {
       c.innerHTML=`<div class="lempty">Aún no tienes favoritos.<br><span style="font-size:12px;color:var(--text3);display:inline-block;margin-top:10px">Pulsa el ❤️ en los detalles de una gasolinera o punto de recarga.</span></div>`;
+    } else if(showFavsOnly) {
+      c.innerHTML=`<div class="lempty">Sin favoritos en esta categoría.</div>`;
     } else {
       c.innerHTML=`<div class="lempty">Sin estaciones.<br><span style="color:var(--green);cursor:pointer" onclick="clearFilt()">Limpiar filtros</span></div>`;
     }
@@ -979,8 +1001,10 @@ function setTab(t){
     }
   } else if(t==='favs'){
     showFavsOnly=true;
+    favListMode='both';
     if(evMode) deactivateEVMode();
     document.querySelector('.lhtit').textContent='Tus Favoritos';
+    syncModoListaButtons('both');
     openList();
     closeEVPanel();
   } else if(t==='ev'){
@@ -1042,24 +1066,45 @@ document.addEventListener('click', (e) => {
 // EV CHARGING — Puntos de recarga eléctrica
 // ══════════════════════════════════════
 let evMode=false, allEV=[], evMarkers=[], evDataReady=false;
-let evDistKm=0, evMinPow=0, evConnType='ALL', evSelId=null;
+let evDistKm=Number(savedState.evDistKm)||0, evMinPow=Number(savedState.evMinPow)||0, evConnType=savedState.evConnType||'ALL', evSelId=null;
+let evFetchPromise=null, evPreloadStarted=false;
 const EV_CACHE_KEY='gas_ev_v1', EV_CACHE_TTL=120*60*1000;
 
 function loadEVCache(){try{const r=JSON.parse(localStorage.getItem(EV_CACHE_KEY)||'null');if(!r?.data?.length)return null;return{data:r.data,stale:Date.now()-r.ts>EV_CACHE_TTL};}catch{return null;}}
 function saveEVCache(data){try{localStorage.setItem(EV_CACHE_KEY,JSON.stringify({ts:Date.now(),data}));}catch{}}
 
-// FUNCIÓN PROTEGIDA: Túnel Proxy para evadir restricciones de Archivos Locales (file://)
-async function fetchEV(){
-  // Estrategia: OpenChargeMap directo (funciona en HTTPS desde iPhone)
-  // Dividimos España en zonas para obtener más puntos superando el límite de 1000/petición
-  const KEY = '8001e719-7ba5-4122-824b-32ebf25608b2';
-  
-  const parseOCM = (data) => (Array.isArray(data) ? data : []).map(raw => {
+function parseOSMEV(elements){
+  return (elements||[]).map(raw=>{
+    const lat=raw.lat||raw.center?.lat;
+    const lon=raw.lon||raw.center?.lon;
+    if(!lat||!lon||!raw.tags) return null;
+    const t=raw.tags;
+    let conn='AC', pw=0;
+    const connectors=parseInt(t.capacity)||Object.keys(t).filter(k=>k.startsWith('socket:')&&!k.endsWith(':output')).length||1;
+    const tagText=Object.entries(t).map(([k,v])=>k+':'+v).join(' ').toUpperCase();
+    if(tagText.includes('CCS')||tagText.includes('CHADEMO')||tagText.includes('DC')) conn='DC';
+    const pwStr=t['socket:ccs:output']||t['socket:chademo:output']||t['socket:type2:output']||t['capacity:kw']||t['charge:kw']||t['output:electricity']||'';
+    const m=String(pwStr).replace(',','.').match(/(\d+(?:\.\d+)?)/);
+    if(m) pw=parseFloat(m[1]);
+    if(!pw) pw=conn==='DC'?50:22;
+    return{
+      id:'osm_'+raw.id,
+      name:t.name||t.brand||t.operator||'Punto de recarga',
+      address:t['addr:street']||'',
+      municipality:t['addr:city']||t['addr:municipality']||'',
+      province:t['addr:province']||'', schedule:t.opening_hours||'',
+      operator:t.operator||t.brand||'',
+      connectors, pw, conn, lat, lon,
+    };
+  }).filter(Boolean);
+}
+
+function parseOCMEV(data){
+  return (Array.isArray(data) ? data : []).map(raw => {
     const lat = raw.AddressInfo?.Latitude;
     const lon = raw.AddressInfo?.Longitude;
     if(!lat || !lon || lat===0 || lon===0) return null;
-    // Validar que estén dentro de España
-    if(lat<35||lat>44||lon<-10||lon>5) return null;
+    if(lat<27.5||lat>44||lon<-18.5||lon>5) return null;
     let pw=0, conn='AC', connectors=1;
     if(raw.Connections?.length){
       connectors=raw.Connections.length;
@@ -1070,7 +1115,7 @@ async function fetchEV(){
       });
     }
     return{
-      id:'ev_'+raw.ID,
+      id:'ocm_'+raw.ID,
       name:raw.AddressInfo?.Title||'Punto de recarga',
       address:raw.AddressInfo?.AddressLine1||'',
       municipality:raw.AddressInfo?.Town||'',
@@ -1080,101 +1125,98 @@ async function fetchEV(){
       connectors, pw:pw||(conn==='DC'?50:22), conn, lat, lon,
     };
   }).filter(Boolean);
+}
 
-  // Zonas de España: dividimos en 6 áreas para superar límite de 1000/petición
-  // España dividida en 8 zonas con solapamiento para no dejar huecos
-  // Cada zona: maxresults=1000, solapadas para garantizar cobertura total
-  // Cuadrícula regular con solapamiento — garantiza cobertura total sin gaps
-  // España peninsular: lat 35.9-43.8, lon -9.3-4.3
-  // Canarias: lat 27.6-29.5, lon -18.2-(-13.3)
-  const ZONES = [
-    // Franja norte (lat 41-43.8): Galicia, Asturias, Cantabria, PV, Navarra, La Rioja
-    {lat1:41.0,lon1:-9.3,lat2:43.8,lon2:-4.5},
-    {lat1:41.0,lon1:-4.5,lat2:43.8,lon2:1.0},
-    // Franja centro-norte (lat 39-42): CyL, Aragón, parte norte
-    {lat1:39.0,lon1:-9.3,lat2:42.0,lon2:-5.5},
-    {lat1:39.0,lon1:-5.5,lat2:42.0,lon2:-1.5},
-    {lat1:39.0,lon1:-1.5,lat2:43.0,lon2:4.3},
-    // Franja centro (lat 37-40.5): Madrid, Extremadura, CLM, Levante
-    {lat1:37.0,lon1:-9.3,lat2:40.5,lon2:-5.0},
-    {lat1:37.0,lon1:-5.0,lat2:40.5,lon2:-1.5},
-    {lat1:37.0,lon1:-1.5,lat2:40.5,lon2:4.3},
-    // Franja sur (lat 35.9-38.5): Andalucía completa
-    {lat1:35.9,lon1:-9.3,lat2:38.5,lon2:-3.5},
-    {lat1:35.9,lon1:-3.5,lat2:38.5,lon2:4.3},
-    // Canarias
-    {lat1:27.6,lon1:-18.2,lat2:29.5,lon2:-13.3},
-  ];
-
-  try {
-    // Peticiones directas a OCM — sin proxy, funciona en HTTPS
-    const requests = ZONES.map(z => {
-      const url = `https://api.openchargemap.io/v3/poi/?output=json&countrycode=ES&compact=true&verbose=false&maxresults=1000&boundingbox=(${z.lat1},${z.lon1},${z.lat2},${z.lon2})&key=${KEY}`;
-      return fetchWithTimeout(url, {}, 15000).catch(()=>null);
-    });
-    
-    const responses = await Promise.all(requests);
-    let results = [];
-    
-    for(const res of responses){
-      if(!res||!res.ok) continue;
-      try{
-        const data = await res.json();
-        results = [...results, ...parseOCM(data)];
-      }catch{}
-    }
-    
-    // Deduplicar por ID real
-    const seen = new Set();
-    results = results.filter(s=>{ if(seen.has(s.id)) return false; seen.add(s.id); return true; });
-    
-    if(results.length > 0) return results;
-    throw new Error('OCM sin datos');
-
-  } catch(err1) {
-    // RESPALDO: Overpass OSM — toda España dividida en 2 zonas
-    const parseOSM = (elements) => elements.map(raw=>{
-      const lat=raw.lat||raw.center?.lat;
-      const lon=raw.lon||raw.center?.lon;
-      if(!lat||!lon||!raw.tags) return null;
-      const t=raw.tags;
-      let conn='AC', pw=0;
-      const connectors=parseInt(t.capacity)||1;
-      if(t['socket:ccs']||t['socket:chademo']) conn='DC';
-      const pwStr=t['socket:ccs:output']||t['capacity:kw']||t['charge:kw']||'';
-      const m=pwStr.match(/(\d+)/);
-      if(m) pw=parseInt(m[1]);
-      if(!pw) pw=conn==='DC'?50:22;
-      return{
-        id:'osm_'+raw.id,
-        name:t.name||t.brand||t.operator||'Punto de recarga',
-        address:t['addr:street']||'',
-        municipality:t['addr:city']||'',
-        province:'', schedule:'',
-        operator:t.operator||t.brand||'',
-        connectors, pw, conn, lat, lon,
+function mergeEVData(base, extra){
+  const merged=[...(base||[])];
+  for(const e of extra||[]){
+    let i=merged.findIndex(s=>s.id===e.id);
+    if(i<0) i=merged.findIndex(s=>hav(s.lat,s.lon,e.lat,e.lon)<0.08);
+    if(i>=0){
+      const s=merged[i];
+      merged[i]={...s,...Object.fromEntries(Object.entries(e).filter(([_,v])=>v!==''&&v!=null)),
+        id:s.id.startsWith('osm_')?s.id:e.id,
+        name:s.name&&s.name!=='Punto de recarga'?s.name:e.name,
+        pw:Math.max(s.pw||0,e.pw||0),
+        conn:(s.conn==='DC'||e.conn==='DC')?'DC':'AC',
+        connectors:Math.max(s.connectors||1,e.connectors||1)
       };
-    }).filter(Boolean);
-
-    // 2 peticiones Overpass: norte y sur de España
-    const q1=`[out:json][timeout:30];nwr["amenity"="charging_station"](39.0,-9.3,43.8,4.3);out center 3000;`;
-    const q2=`[out:json][timeout:30];nwr["amenity"="charging_station"](35.9,-9.3,39.0,4.3);out center 3000;`;
-    const base='https://overpass-api.de/api/interpreter?data=';
-    const [ro1,ro2]=await Promise.allSettled([
-      fetchWithTimeout(base+encodeURIComponent(q1),{},25000),
-      fetchWithTimeout(base+encodeURIComponent(q2),{},25000),
-    ]);
-    let osm=[];
-    for(const ro of [ro1,ro2]){
-      if(ro.status!=='fulfilled'||!ro.value.ok) continue;
-      try{ const d=await ro.value.json(); osm=[...osm,...parseOSM(d.elements||[])]; }catch{}
-    }
-    const seen2=new Set();
-    osm=osm.filter(s=>{ if(seen2.has(s.id)) return false; seen2.add(s.id); return true; });
-    if(osm.length>0) return osm;
-    throw new Error('Ambas fuentes fallaron');
+    }else merged.push(e);
   }
+  return merged;
+}
 
+async function fetchOSMEV(){
+  const qNorth='[out:json][timeout:30];nwr["amenity"="charging_station"](39.0,-9.3,43.8,4.3);out center;';
+  const qSouth='[out:json][timeout:30];(nwr["amenity"="charging_station"](35.9,-9.3,39.0,4.3);nwr["amenity"="charging_station"](27.6,-18.2,29.5,-13.3););out center;';
+  const base='https://overpass-api.de/api/interpreter?data=';
+  const res=await Promise.allSettled([
+    fetchWithTimeout(base+encodeURIComponent(qNorth),{},30000),
+    fetchWithTimeout(base+encodeURIComponent(qSouth),{},30000),
+  ]);
+  let osm=[];
+  for(const r of res){
+    if(r.status!=='fulfilled'||!r.value.ok) continue;
+    try{ const d=await r.value.json(); osm=[...osm,...parseOSMEV(d.elements||[])]; }catch{}
+  }
+  const seen=new Set();
+  osm=osm.filter(s=>{ if(seen.has(s.id)) return false; seen.add(s.id); return true; });
+  if(!osm.length) throw new Error('OSM sin datos');
+  return osm;
+}
+
+async function fetchOCMEV(){
+  const ZONES = [
+    {lat1:41.0,lon1:-9.3,lat2:43.8,lon2:-4.5},{lat1:41.0,lon1:-4.5,lat2:43.8,lon2:1.0},
+    {lat1:39.0,lon1:-9.3,lat2:42.0,lon2:-5.5},{lat1:39.0,lon1:-5.5,lat2:42.0,lon2:-1.5},{lat1:39.0,lon1:-1.5,lat2:43.0,lon2:4.3},
+    {lat1:37.0,lon1:-9.3,lat2:40.5,lon2:-5.0},{lat1:37.0,lon1:-5.0,lat2:40.5,lon2:-1.5},{lat1:37.0,lon1:-1.5,lat2:40.5,lon2:4.3},
+    {lat1:35.9,lon1:-9.3,lat2:38.5,lon2:-3.5},{lat1:35.9,lon1:-3.5,lat2:38.5,lon2:4.3},{lat1:27.6,lon1:-18.2,lat2:29.5,lon2:-13.3},
+  ];
+  const requests=ZONES.map(z=>{
+    const url='https://api.openchargemap.io/v3/poi/?output=json&countrycode=ES&compact=true&verbose=false&maxresults=1000&boundingbox=('+z.lat1+','+z.lon1+','+z.lat2+','+z.lon2+')';
+    return fetchWithTimeout(url,{},18000).catch(()=>null);
+  });
+  const responses=await Promise.all(requests);
+  let ocm=[];
+  for(const res of responses){
+    if(!res||!res.ok) continue;
+    try{ ocm=[...ocm,...parseOCMEV(await res.json())]; }catch{}
+  }
+  const seen=new Set();
+  return ocm.filter(s=>{ if(seen.has(s.id)) return false; seen.add(s.id); return true; });
+}
+
+async function fetchEV(){
+  const osm=await fetchOSMEV();
+  fetchOCMEV().then(ocm=>{
+    if(!ocm?.length) return;
+    allEV=mergeEVData(allEV.length?allEV:osm,ocm);
+    evDataReady=true; saveEVCache(allEV);
+    if(evMode){renderEVMarkers();renderEVList();}
+  }).catch(()=>{});
+  return osm;
+}
+
+function preloadEVBackground(){
+  if(evDataReady) return Promise.resolve(allEV);
+  const cache=loadEVCache();
+  if(cache?.data?.length){
+    allEV=cache.data; evDataReady=true;
+    if(!cache.stale) return Promise.resolve(allEV);
+  }
+  if(evFetchPromise) return evFetchPromise;
+  evFetchPromise=fetchEV().then(d=>{
+    if(d?.length){ allEV=mergeEVData(allEV,d); evDataReady=true; saveEVCache(allEV); }
+    if(evMode){renderEVMarkers();renderEVList();}
+    return allEV;
+  }).catch(()=>allEV).finally(()=>{evFetchPromise=null;});
+  return evFetchPromise;
+}
+
+function startEVPreload(){
+  if(evPreloadStarted) return;
+  evPreloadStarted=true;
+  preloadEVBackground();
 }
 
 function getEVPool(){
@@ -1197,8 +1239,8 @@ function renderEVMarkers(){
   const pool=getEVPool();
   const all_vis=pool.filter(s=>bounds.contains([s.lat,s.lon]));
   // Limitar según zoom — igual que gasolineras para no saturar
-  const evLimit=zoom>=14?500:zoom>=12?200:zoom>=10?80:30;
-  const vis=all_vis.slice(0,evLimit);
+  const evLimit=zoom>=12?500:zoom>=10?200:MAX;
+  const vis=all_vis.length>evLimit?all_vis.sort((a,b)=>(b.pw||0)-(a.pw||0)).slice(0,evLimit):all_vis;
   vis.forEach(s=>{
     const isSel=evSelId===s.id;
     const pwTxt=s.pw>0?s.pw+'kW':'⚡';
@@ -1317,37 +1359,13 @@ async function activateEVMode(){
   document.getElementById('mbstrip').style.display='none';
   document.getElementById('evstrip').style.display='flex';
   document.getElementById('evtypestrip').style.display='flex';
-  
-  // Cargar datos si no están
-  if(!evDataReady){
-    const cache=loadEVCache();
-    if(cache?.data?.length){
-      allEV=cache.data;evDataReady=true;
-      renderEVMarkers();
-      if(!cache.stale)fetchEV().then(d=>{if(d?.length){allEV=d;saveEVCache(d);renderEVMarkers();renderEVList();}}).catch(()=>{});
-    } else {
-      setLoad(true, 'Buscando cargadores', 'Localizando puntos de recarga en el mapa...');
-      document.getElementById('lerrbtn').onclick = () => { setLoad(false); activateEVMode(); };
-      
-      try{
-        const d=await fetchEV();
-        if(d && d.length > 0) {
-            allEV=d;evDataReady=true;saveEVCache(d);renderEVMarkers();renderEVList();
-            setLoad(false);
-        } else {
-            throw new Error("No se encontraron puntos en la zona.");
-        }
-      }catch(e){
-        evDataReady=false; 
-        allEV=[];
-        renderEVList();
-        
-        let msj = 'El navegador ha bloqueado la conexión, típico al abrir archivos locales en móviles.';
-        setLoad(true, 'Conexión bloqueada', msj, true);
-      }
-    }
-  } else {
+
+  preloadEVBackground();
+  if(evDataReady){
     renderEVMarkers();
+    renderEVList();
+  } else {
+    renderEVList();
   }
 }
 
@@ -1370,6 +1388,7 @@ document.querySelectorAll('#evstrip .evtag').forEach(t=>{
   t.addEventListener('click',()=>{
     const pw=parseInt(t.dataset.pw)||0;
     evMinPow=pw;
+    saveAppState();
     document.querySelectorAll('#evstrip .evtag').forEach(x=>x.classList.toggle('on',parseInt(x.dataset.pw)===pw));
     renderEVMarkers();
   });
@@ -1377,6 +1396,7 @@ document.querySelectorAll('#evstrip .evtag').forEach(t=>{
 document.querySelectorAll('#evtypestrip .evtag').forEach(t=>{
   t.addEventListener('click',()=>{
     evConnType=t.dataset.conn;
+    saveAppState();
     document.querySelectorAll('#evtypestrip .evtag').forEach(x=>x.classList.toggle('on',x.dataset.conn===evConnType));
     renderEVMarkers();
   });
@@ -1384,6 +1404,7 @@ document.querySelectorAll('#evtypestrip .evtag').forEach(t=>{
 document.querySelectorAll('#evpanel .evfbtn[data-km]').forEach(b=>{
   b.addEventListener('click',()=>{
     evDistKm=parseInt(b.dataset.km)||0;
+    saveAppState();
     document.querySelectorAll('#evpanel .evfbtn[data-km]').forEach(x=>x.classList.toggle('on',parseInt(x.dataset.km)===evDistKm));
     renderEVList();renderEVMarkers();
   });
@@ -1391,6 +1412,7 @@ document.querySelectorAll('#evpanel .evfbtn[data-km]').forEach(b=>{
 document.querySelectorAll('#evpanel .evfbtn[data-pw]').forEach(b=>{
   b.addEventListener('click',()=>{
     evMinPow=parseInt(b.dataset.pw)||0;
+    saveAppState();
     document.querySelectorAll('#evpanel .evfbtn[data-pw]').forEach(x=>x.classList.toggle('on',parseInt(x.dataset.pw)===evMinPow));
     renderEVList();renderEVMarkers();
   });
@@ -1398,6 +1420,7 @@ document.querySelectorAll('#evpanel .evfbtn[data-pw]').forEach(b=>{
 document.querySelectorAll('#evpanel .evfbtn[data-conn]').forEach(b=>{
   b.addEventListener('click',()=>{
     evConnType=b.dataset.conn;
+    saveAppState();
     document.querySelectorAll('#evpanel .evfbtn[data-conn]').forEach(x=>x.classList.toggle('on',x.dataset.conn===evConnType));
     renderEVList();renderEVMarkers();
   });
@@ -1450,7 +1473,7 @@ async function main(){
     userPos = {lat,lon};
     initMap(lat,lon);
     if(geo) updateUserMarker(lat,lon);
-    setLoad(false); buildMapBrandBtns(); renderMarkers();
+    setLoad(false); buildMapBrandBtns(); renderMarkers(); startEVPreload();
     return;
   }
 
@@ -1462,7 +1485,7 @@ async function main(){
     userPos = {lat,lon};
     initMap(lat,lon);
     if(geo) updateUserMarker(lat,lon);
-    setLoad(false); buildMapBrandBtns(); renderMarkers();
+    setLoad(false); buildMapBrandBtns(); renderMarkers(); startEVPreload();
     refreshNacionalBackground(cacheNat.ts);
     return;
   }
@@ -1484,7 +1507,7 @@ async function main(){
       const cacheProv = loadCacheNivel('prov',det.prov);
       if(cacheProv?.data?.length){
         allStations=cacheProv.data; dataReady=true;
-        buildMapBrandBtns(); renderMarkers();
+        buildMapBrandBtns(); renderMarkers(); startEVPreload();
       }
     }
 
@@ -1497,7 +1520,7 @@ async function main(){
         if(sts?.length){
           allStations = sts; dataReady=true;
           saveCacheNivel('prov',det.prov,sts);
-          buildMapBrandBtns(); renderMarkers();
+          buildMapBrandBtns(); renderMarkers(); startEVPreload();
         }
       }catch(e){}
       setPill('loading','Ampliando cobertura…');
@@ -1508,7 +1531,7 @@ async function main(){
         if(sts?.length){
           allStations = mergeStations(allStations, sts); dataReady=true;
           saveCacheNivel('ccaa',det.ccaa,sts);
-          buildMapBrandBtns(); renderMarkers();
+          buildMapBrandBtns(); renderMarkers(); startEVPreload();
         }
       }catch(e){}
       setPill('loading','Cargando todo el país…');
@@ -1520,7 +1543,7 @@ async function main(){
       if(sts?.length){
         allStations = sts; dataReady=true;
         saveCacheNivel('nat',null,sts);
-        buildMapBrandBtns(); renderMarkers();
+        buildMapBrandBtns(); renderMarkers(); startEVPreload();
         if(document.getElementById('lpanel').classList.contains('on')){ buildBrandBtns(); renderList(); }
         setPill('success','Precios actualizados');
       }
@@ -1543,7 +1566,7 @@ async function main(){
       if(sts?.length){
         allStations = sts; dataReady=true;
         saveCacheNivel('nat',null,sts);
-        buildMapBrandBtns(); renderMarkers();
+        buildMapBrandBtns(); renderMarkers(); startEVPreload();
         if(document.getElementById('lpanel').classList.contains('on')){ buildBrandBtns(); renderList(); }
         setPill('success','Precios actualizados');
       }
@@ -1556,13 +1579,20 @@ async function main(){
 // ══════════════════════════════════════
 // EVENTS
 // ══════════════════════════════════════
-function setFuel(f){ fuel=f; localStorage.setItem('gas_fuel',f); document.querySelectorAll('.ftab').forEach(b=>b.classList.toggle('on',b.dataset.fuel===f)); document.querySelectorAll('.lfbtn').forEach(b=>b.classList.toggle('on',b.dataset.fuel===f)); closeSheet(); renderAll(); }
-function setDistKm(km){ distKm=km; document.querySelectorAll('.dtag').forEach(t=>t.classList.toggle('on',parseInt(t.dataset.km)===km)); document.querySelectorAll('.ldbtn').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.km)===km)); updateCircle(); if(km>0&&userPos&&map)map.flyTo([userPos.lat,userPos.lon],km<=5?14:km<=10?13:km<=25?12:11,{duration:.5}); renderAll(); }
+function setFuel(f){ fuel=f; saveAppState(); document.querySelectorAll('.ftab').forEach(b=>b.classList.toggle('on',b.dataset.fuel===f)); document.querySelectorAll('.lfbtn').forEach(b=>b.classList.toggle('on',b.dataset.fuel===f)); closeSheet(); renderAll(); }
+function setDistKm(km){ distKm=km; saveAppState(); document.querySelectorAll('.dtag').forEach(t=>t.classList.toggle('on',parseInt(t.dataset.km)===km)); document.querySelectorAll('.ldbtn').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.km)===km)); updateCircle(); if(km>0&&userPos&&map)map.flyTo([userPos.lat,userPos.lon],km<=5?14:km<=10?13:km<=25?12:11,{duration:.5}); renderAll(); }
 document.querySelectorAll('.ftab').forEach(b=>b.addEventListener('click',()=>setFuel(b.dataset.fuel)));
 document.querySelectorAll('.lfbtn').forEach(b=>b.addEventListener('click',()=>setFuel(b.dataset.fuel)));
-// Sincronizar botones con el fuel guardado
+// Sincronizar botones con el estado guardado
 document.querySelectorAll('.ftab').forEach(b=>b.classList.toggle('on',b.dataset.fuel===fuel));
 document.querySelectorAll('.lfbtn').forEach(b=>b.classList.toggle('on',b.dataset.fuel===fuel));
+document.querySelectorAll('.dtag').forEach(t=>t.classList.toggle('on',parseInt(t.dataset.km)===distKm));
+document.querySelectorAll('.ldbtn').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.km)===distKm));
+document.querySelectorAll('#evstrip .evtag').forEach(t=>t.classList.toggle('on',parseInt(t.dataset.pw||'0')===evMinPow));
+document.querySelectorAll('#evtypestrip .evtag').forEach(t=>t.classList.toggle('on',t.dataset.conn===evConnType));
+document.querySelectorAll('#evpanel .evfbtn[data-km]').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.km)===evDistKm));
+document.querySelectorAll('#evpanel .evfbtn[data-pw]').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.pw)===evMinPow));
+document.querySelectorAll('#evpanel .evfbtn[data-conn]').forEach(b=>b.classList.toggle('on',b.dataset.conn===evConnType));
 document.querySelectorAll('.dtag').forEach(t=>t.addEventListener('click',()=>setDistKm(parseInt(t.dataset.km)||0)));
 document.querySelectorAll('.ldbtn').forEach(b=>b.addEventListener('click',()=>setDistKm(parseInt(b.dataset.km)||0)));
 document.getElementById('bbtn-all').addEventListener('click',clearBrands);
@@ -1578,43 +1608,41 @@ document.getElementById('sinput').addEventListener('input',e=>{
 document.getElementById('sclear').addEventListener('click',()=>{document.getElementById('sinput').value='';document.getElementById('sclear').style.display='none';document.getElementById('autocomplete').style.display='none';});
 document.getElementById('map').addEventListener('click',()=>document.getElementById('autocomplete').style.display='none');
 
+function syncModoListaButtons(modo){
+  const cfg={
+    gas:{color:'#4CD964',bg:'rgba(76,217,100,0.1)'},
+    both:{color:'#ffffff',bg:'rgba(255,255,255,0.1)'},
+    ev:{color:'#5AC8FA',bg:'rgba(90,200,250,0.1)'}
+  };
+  ['gas','both','ev'].forEach(id=>{
+    document.querySelectorAll(`[id="lbtn-${id}"]`).forEach(b=>{
+      const on=modo===id, c=cfg[id];
+      b.style.borderColor=on?c.color:'rgba(255,255,255,0.1)';
+      b.style.color=on?c.color:'#a0b89e';
+      b.style.background=on?c.bg:'transparent';
+    });
+  });
+}
+
 // --- FUNCIÓN PARA LOS BOTONES DE LA LISTA ---
 function toggleModoLista(modo){
-  // Actualizar TODOS los botones gas/ev (hay varios en distintos paneles)
-  const btnGas=document.getElementById('lbtn-gas');
-  const btnEv=document.getElementById('lbtn-ev');
-  // Sincronizar estilos en todos los paneles
-  document.querySelectorAll('[id="lbtn-gas"]').forEach(b=>{
-    b.style.borderColor=modo==='gas'?'#4CD964':'rgba(255,255,255,0.1)';
-    b.style.color=modo==='gas'?'#4CD964':'#a0b89e';
-    b.style.background=modo==='gas'?'rgba(76,217,100,0.1)':'transparent';
-  });
-  document.querySelectorAll('[id="lbtn-ev"]').forEach(b=>{
-    b.style.borderColor=modo==='ev'?'#5AC8FA':'rgba(255,255,255,0.1)';
-    b.style.color=modo==='ev'?'#5AC8FA':'#a0b89e';
-    b.style.background=modo==='ev'?'rgba(90,200,250,0.1)':'transparent';
-  });
+  if(showFavsOnly){
+    favListMode=modo;
+    syncModoListaButtons(modo);
+    closeEVPanel();
+    openList();
+    return;
+  }
 
-  if(modo==='gas'){
+  syncModoListaButtons(modo==='ev'?'ev':'gas');
+  if(modo==='ev'){
+    closeList();
+    if(!evMode) activateEVMode();
+    openEVPanel();
+  } else {
     if(evMode) deactivateEVMode();
     closeEVPanel();
-    if(btnGas){btnGas.style.borderColor='#4CD964';btnGas.style.color='#4CD964';btnGas.style.background='rgba(76,217,100,0.1)';}
-    if(btnEv){btnEv.style.borderColor='rgba(255,255,255,0.1)';btnEv.style.color='#a0b89e';btnEv.style.background='transparent';}
-    // Mantener modo favoritos si estábamos ahí
     openList();
-  } else {
-    if(btnEv){btnEv.style.borderColor='#5AC8FA';btnEv.style.color='#5AC8FA';btnEv.style.background='rgba(90,200,250,0.1)';}
-    if(btnGas){btnGas.style.borderColor='rgba(255,255,255,0.1)';btnGas.style.color='#a0b89e';btnGas.style.background='transparent';}
-    if(showFavsOnly){
-      // Estamos en Favoritos → mostrar EV favs en lpanel, NO abrir evpanel
-      if(!evMode) activateEVMode();
-      openList(); // renderList incluye evFavItems cuando showFavsOnly=true
-    } else {
-      // Lista normal → abrir evpanel con todos los eléctricos y sus filtros
-      closeList();
-      if(!evMode) activateEVMode();
-      openEVPanel();
-    }
   }
 }
 
