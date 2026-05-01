@@ -71,6 +71,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 .dtag{background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.11);border-radius:11px;padding:5px 12px;font-size:11.5px;font-weight:700;color:#c0d4be;cursor:pointer;white-space:nowrap;backdrop-filter:blur(14px);flex-shrink:0;transition:all .18s;user-select:none}
 .dtag.on{color:var(--green);border-color:rgba(76,217,100,0.5);background:rgba(76,217,100,0.12)}
 #mbstrip::-webkit-scrollbar{display:none}
+#msortbar{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none}
+#msortbar::-webkit-scrollbar{display:none}
+.msortlbl{font-size:11px;font-weight:700;color:#8fa38d;align-self:center;white-space:nowrap;flex-shrink:0;padding-left:2px}
+.msortbtn{background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.11);border-radius:11px;padding:5px 12px;font-family:var(--font);font-size:11.5px;font-weight:700;color:#c0d4be;cursor:pointer;white-space:nowrap;backdrop-filter:blur(14px);flex-shrink:0;transition:all .18s;user-select:none}
+.msortbtn.on{color:var(--green);border-color:rgba(76,217,100,0.5);background:rgba(76,217,100,0.12)}
 .mbtag{background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.11);border-radius:11px;padding:4px 10px;font-size:11px;font-weight:700;color:#c0d4be;cursor:pointer;white-space:nowrap;backdrop-filter:blur(14px);flex-shrink:0;transition:all .18s;display:flex;align-items:center;gap:5px;user-select:none}
 .mbtag img{width:16px;height:16px;border-radius:50%;object-fit:contain;background:#fff}
 .mbtag.on{color:#fff;border-color:var(--mbc,#4CD964);background:rgba(255,255,255,0.1)}
@@ -288,6 +293,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
   </div>
   <div id="mbstrip" style="display:flex;gap:5px;overflow-x:auto;scrollbar-width:none">
     <span class="mbtag on" data-brand="ALL">Todas</span>
+  </div>
+  <div id="msortbar">
+    <span class="msortlbl">Ordenar:</span>
+    <button class="msortbtn on" data-sort="price">💰 Precio</button>
+    <button class="msortbtn on" data-sort="dist">📍 Distancia</button>
   </div>
   <!-- EV filters — solo visibles en modo recarga -->
   <div id="evstrip" style="display:none">
@@ -748,11 +758,17 @@ function renderMarkers(){
   const bounds=map.getBounds().pad(pad);
   const pool=getPool();
   let vis=pool.filter(s=>bounds.contains([s.lat,s.lon]));
+  if(userPos)vis=vis.map(s=>({...s,dist:hav(userPos.lat,userPos.lon,s.lat,s.lon)}));
   const wP=vis.filter(s=>s.prices[fuel]>0);
-  const shown=wP.length>0?wP:vis;
+  const noP=vis.filter(s=>!s.prices[fuel]);
+  const effSortDist=sortDist&&!!userPos;
+  if(sortPrice&&effSortDist){ wP.sort((a,b)=>{const d=a.prices[fuel]-b.prices[fuel];return d!==0?d:((a.dist||999)-(b.dist||999));}); noP.sort((a,b)=>(a.dist||999)-(b.dist||999)); }
+  else if(sortPrice){ wP.sort((a,b)=>a.prices[fuel]-b.prices[fuel]); }
+  else if(effSortDist){ wP.sort((a,b)=>(a.dist||999)-(b.dist||999)); noP.sort((a,b)=>(a.dist||999)-(b.dist||999)); }
+  const shown=wP.length>0?[...wP,...noP]:vis;
   // Solo limitar en zooms muy bajos donde hay miles de puntos
   const limit=zoom>=12?500:zoom>=10?200:MAX;
-  const lim=shown.length>limit?shown.sort((a,b)=>(a.prices[fuel]||9)-(b.prices[fuel]||9)).slice(0,limit):shown;
+  const lim=shown.slice(0,limit);
   const prices=lim.map(s=>s.prices[fuel]);
   clearM();
   lim.forEach(s=>{
@@ -851,11 +867,14 @@ function syncBrandUI(){
 function openList(){document.getElementById('lpanel').classList.add('on');if(allStations.length)buildBrandBtns();renderList();}
 function closeList(){document.getElementById('lpanel').classList.remove('on');}
 
+function syncSortUI(){
+  document.querySelectorAll('#lsort-price,.msortbtn[data-sort="price"]').forEach(b=>b.classList.toggle('on',sortPrice));
+  document.querySelectorAll('#lsort-dist,.msortbtn[data-sort="dist"]').forEach(b=>b.classList.toggle('on',sortDist));
+}
 function setSort(key){
   if(key==='price')sortPrice=!sortPrice; else if(key==='dist')sortDist=!sortDist;
-  document.getElementById('lsort-price').classList.toggle('on',sortPrice);
-  document.getElementById('lsort-dist').classList.toggle('on',sortDist);
-  renderList();
+  syncSortUI();
+  renderAll();
 }
 
 function renderList(){
@@ -1359,6 +1378,7 @@ async function activateEVMode(){
   document.getElementById('mbstrip').style.display='none';
   document.getElementById('evstrip').style.display='flex';
   document.getElementById('evtypestrip').style.display='flex';
+  document.getElementById('msortbar').style.display='none';
 
   preloadEVBackground();
   if(evDataReady){
@@ -1380,6 +1400,7 @@ function deactivateEVMode(){
   document.getElementById('mbstrip').style.display='flex';
   document.getElementById('evstrip').style.display='none';
   document.getElementById('evtypestrip').style.display='none';
+  document.getElementById('msortbar').style.display='flex';
   renderMarkers();
 }
 
@@ -1588,6 +1609,7 @@ document.querySelectorAll('.ftab').forEach(b=>b.classList.toggle('on',b.dataset.
 document.querySelectorAll('.lfbtn').forEach(b=>b.classList.toggle('on',b.dataset.fuel===fuel));
 document.querySelectorAll('.dtag').forEach(t=>t.classList.toggle('on',parseInt(t.dataset.km)===distKm));
 document.querySelectorAll('.ldbtn').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.km)===distKm));
+syncSortUI();
 document.querySelectorAll('#evstrip .evtag').forEach(t=>t.classList.toggle('on',parseInt(t.dataset.pw||'0')===evMinPow));
 document.querySelectorAll('#evtypestrip .evtag').forEach(t=>t.classList.toggle('on',t.dataset.conn===evConnType));
 document.querySelectorAll('#evpanel .evfbtn[data-km]').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.km)===evDistKm));
@@ -1595,6 +1617,7 @@ document.querySelectorAll('#evpanel .evfbtn[data-pw]').forEach(b=>b.classList.to
 document.querySelectorAll('#evpanel .evfbtn[data-conn]').forEach(b=>b.classList.toggle('on',b.dataset.conn===evConnType));
 document.querySelectorAll('.dtag').forEach(t=>t.addEventListener('click',()=>setDistKm(parseInt(t.dataset.km)||0)));
 document.querySelectorAll('.ldbtn').forEach(b=>b.addEventListener('click',()=>setDistKm(parseInt(b.dataset.km)||0)));
+document.querySelectorAll('.msortbtn').forEach(b=>b.addEventListener('click',()=>setSort(b.dataset.sort)));
 document.getElementById('bbtn-all').addEventListener('click',clearBrands);
 
 document.querySelectorAll('.ti').forEach(i=>{
