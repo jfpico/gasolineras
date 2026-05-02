@@ -864,7 +864,7 @@ function syncBrandUI(){
   document.querySelectorAll('.bbtn').forEach(b=>b.classList.toggle('on',brands.has(b.dataset.brand)));
 }
 
-function openList(){document.getElementById('lpanel').classList.add('on');if(allStations.length)buildBrandBtns();renderList();}
+function openList(){syncListModeButtonsVisibility();document.getElementById('lpanel').classList.add('on');if(allStations.length)buildBrandBtns();renderList();}
 function closeList(){document.getElementById('lpanel').classList.remove('on');}
 
 function syncSortUI(){
@@ -1011,6 +1011,7 @@ function setTab(t){
   
   if(t==='list'){
     showFavsOnly=false;
+    syncListModeButtonsVisibility();
     if(evMode){
       openEVPanel();
     } else {
@@ -1031,6 +1032,8 @@ function setTab(t){
     closeEVPanel();
     if (!evMode) activateEVMode();
   } else { // 'map'
+    showFavsOnly=false;
+    syncListModeButtonsVisibility();
     if(evMode) deactivateEVMode();
     closeList();
     closeEVPanel();
@@ -1438,6 +1441,8 @@ document.querySelectorAll('#evpanel .evfbtn[data-pw]').forEach(b=>{
     renderEVList();renderEVMarkers();
   });
 });
+syncListModeButtonsVisibility();
+
 document.querySelectorAll('#evpanel .evfbtn[data-conn]').forEach(b=>{
   b.addEventListener('click',()=>{
     evConnType=b.dataset.conn;
@@ -1631,7 +1636,13 @@ document.getElementById('sinput').addEventListener('input',e=>{
 document.getElementById('sclear').addEventListener('click',()=>{document.getElementById('sinput').value='';document.getElementById('sclear').style.display='none';document.getElementById('autocomplete').style.display='none';});
 document.getElementById('map').addEventListener('click',()=>document.getElementById('autocomplete').style.display='none');
 
+function syncListModeButtonsVisibility(){
+  document.querySelectorAll('[id="lbtn-both"]').forEach(b=>{
+    b.style.display=showFavsOnly?'':'none';
+  });
+}
 function syncModoListaButtons(modo){
+  syncListModeButtonsVisibility();
   const cfg={
     gas:{color:'#4CD964',bg:'rgba(76,217,100,0.1)'},
     both:{color:'#ffffff',bg:'rgba(255,255,255,0.1)'},
