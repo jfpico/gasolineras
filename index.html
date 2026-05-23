@@ -90,8 +90,21 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 #infobtn:active{transform:scale(0.88)}
 
 /* BOTÓN GPS - Abajo del todo */
-#locbtn{position:fixed;right:14px;bottom:148px;z-index:100;width:44px;height:44px;background:var(--surface2);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 14px rgba(0,0,0,0.5);font-size:20px;backdrop-filter:blur(14px);transition:transform .15s;color:var(--green)}
+#locbtn{position:fixed;right:14px;bottom:92px;z-index:100;width:44px;height:44px;background:var(--surface2);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 14px rgba(0,0,0,0.5);font-size:20px;backdrop-filter:blur(14px);transition:transform .15s;color:var(--green)}
 #locbtn:active{transform:scale(0.88)}
+
+/* BOTÓN DONACIÓN */
+#donatebtn{position:fixed;right:14px;bottom:148px;z-index:100;width:44px;height:44px;background:var(--surface2);border:1px solid rgba(255,214,10,0.34);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 14px rgba(0,0,0,0.5);font-size:18px;backdrop-filter:blur(14px);transition:transform .15s,color .2s,background .2s;color:#FFD60A;font-weight:900}
+#donatebtn:active{transform:scale(0.88)}
+#donatesheet{position:fixed;bottom:0;left:0;right:0;z-index:1200;background:var(--surface);border-radius:24px 24px 0 0;border-top:1px solid rgba(255,214,10,0.24);padding:18px 18px max(env(safe-area-inset-bottom),18px);box-shadow:0 -8px 40px rgba(0,0,0,0.55);transform:translateY(100%);transition:transform .32s cubic-bezier(.32,0,.67,0)}
+#donatesheet.on{transform:translateY(0);transition:transform .38s cubic-bezier(.34,1.08,.64,1)}
+.dnhdr{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.dnico{width:46px;height:46px;border-radius:14px;background:rgba(255,214,10,0.1);display:flex;align-items:center;justify-content:center;font-size:22px;color:#FFD60A;flex-shrink:0}
+.dntit{font-size:18px;font-weight:900;color:var(--text)}
+.dnsub{font-size:12px;color:var(--text2);line-height:1.45;margin-top:2px}
+.dncl{margin-left:auto;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text2);cursor:pointer;flex-shrink:0}
+.dntext{font-size:13px;line-height:1.5;color:var(--text2);margin:12px 2px 14px}
+.dncta{height:46px;border-radius:14px;background:#FFD60A;color:#111;font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 20px rgba(255,214,10,0.18)}
 
 
 /* BOTÓN SATÉLITE - Arriba del todo */
@@ -326,6 +339,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 <!-- Botones inferiores derechos -->
 <div id="satbtn">🛰️</div>
 <div id="infobtn"><i>i</i></div>
+<div id="donatebtn">€</div>
 <div id="locbtn">◎</div>
 
 <!-- Panel de Información Desplegable -->
@@ -358,6 +372,15 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 <div id="pill"><span id="pill-icon">🔄</span><span id="pill-text">Cargando precios…</span></div>
 
 <div id="sbd"></div>
+<div id="donatesheet">
+  <div class="dnhdr">
+    <div class="dnico">€</div>
+    <div style="flex:1;min-width:0"><div class="dntit">Apoya Energy Go</div><div class="dnsub">Ayuda a mantener la app activa y actualizada.</div></div>
+    <div class="dncl" id="donatecl">✕</div>
+  </div>
+  <div class="dntext">Si te resulta útil para ahorrar en gasolina o encontrar recarga, puedes hacer una donación voluntaria por PayPal.</div>
+  <div class="dncta" id="donatepaypal">Donar con PayPal</div>
+</div>
 <div id="sheet">
   <div class="shdl"></div>
   <div class="shhdr">
@@ -1681,12 +1704,19 @@ function toggleModoLista(modo){
 }
 
 // Favorites
+function openDonateSheet(){document.getElementById('donatesheet').classList.add('on');document.getElementById('sbd').classList.add('on');}
+function closeDonateSheet(){document.getElementById('donatesheet').classList.remove('on');document.getElementById('sbd').classList.remove('on');}
+document.getElementById('donatebtn').addEventListener('click',openDonateSheet);
+document.getElementById('donatecl').addEventListener('click',closeDonateSheet);
+document.getElementById('donatepaypal').addEventListener('click',()=>window.open('https://www.paypal.com/donate/?business=jfpico%40msn.com&currency_code=EUR','_blank'));
+
 document.getElementById('shfav').addEventListener('click', toggleFav);
 
 document.getElementById('shcl').addEventListener('click',closeSheet);
 document.getElementById('sbd').addEventListener('click',()=>{
   closeSheet();
   closeEVSheet();
+  closeDonateSheet();
 });
 document.getElementById('lbk').addEventListener('click',()=>{closeList();setTab('map');});
 
